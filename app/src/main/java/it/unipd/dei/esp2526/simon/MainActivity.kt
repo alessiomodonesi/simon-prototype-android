@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -100,3 +101,14 @@ fun MainScreen(
 fun MainScreenPreview() {
     MainScreen()
 }
+
+data class SimonColor(val name: String, val color: Color, val label: String)
+// lista di oggetti che mappano il colore UI alla lettera identificativa richiesta
+val simonColors = listOf(
+    SimonColor("Red", Color.Red, "R"),
+    SimonColor("Green", Color.Green, "G"),
+    SimonColor("Blue", Color.Blue, "B"),
+    SimonColor("Magenta", Color.Magenta, "M"),
+    SimonColor("Yellow", Color.Yellow, "Y"),
+    SimonColor("Cyan", Color.Cyan, "C")
+)
