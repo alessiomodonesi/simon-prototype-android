@@ -35,6 +35,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 
 // Compose UI - Grafica, Testo e Anteprima
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -81,7 +82,7 @@ fun MainScreen(
         ColorGrid(
             modifier = Modifier
                 .constrainAs(matrix) {
-                    top.linkTo(parent.top, margin = 8.dp)
+                    top.linkTo(parent.top, margin = 10.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
@@ -103,12 +104,12 @@ fun MainScreen(
                 }
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(10.dp)
                 )
                 .border(
-                    width = 1.dp,
+                    width = 2.dp,
                     color = MaterialTheme.colorScheme.outline,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(10.dp)
                 )
                 .padding(16.dp)
                 .heightIn(min = 100.dp),
@@ -122,7 +123,8 @@ fun MainScreen(
             modifier = Modifier.constrainAs(btnCancel) {
                 top.linkTo(textScrollArea.bottom, margin = 16.dp)
                 start.linkTo(parent.start, margin = 16.dp)
-            },onClick = {
+            },
+            onClick = {
                 currentSequence = emptyList() // azzera la sequenza
             }
         ) {
@@ -156,16 +158,22 @@ fun ColorGrid(
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // numero di colonne
         modifier = modifier.fillMaxWidth(), // larghezza della griglia
-        contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        contentPadding = PaddingValues(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         // gli elementi della matrice sono contenuti nella lista simonColors
         items(simonColors) { simonColor ->
             Box(
                 modifier = Modifier
                     .aspectRatio(1.5f) // rettangoli
-                    .background(simonColor.color) // sfondo
+                    .clip(RoundedCornerShape(10.dp)) // ritaglia la forma
+                    .background(simonColor.color) // sfondo a scelta tra i 6 colori
+                    .border(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.outline,
+                        shape = RoundedCornerShape(10.dp)
+                    )
                     // rende i box cliccabili e passa la lettera alla callback
                     .clickable { onColorClick(simonColor.label) }
             )
