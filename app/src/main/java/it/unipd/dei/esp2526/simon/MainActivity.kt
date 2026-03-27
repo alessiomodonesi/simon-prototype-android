@@ -73,6 +73,21 @@ fun MainScreen(
                 }
         )
 
+        // area di testo multiriga
+        Text(
+            // text = displayText,
+            text = "R, R, G, Y, M", // testo di esempio
+            modifier = Modifier
+                .constrainAs(textScrollArea) {
+                    top.linkTo(parent.top, margin = 16.dp)
+                    start.linkTo(parent.start, margin = 16.dp)
+                    end.linkTo(parent.end, margin = 16.dp)
+                    width = Dimension.fillToConstraints
+                }
+                .heightIn(min = 100.dp),
+            style = MaterialTheme.typography.bodyLarge
+        )
+
         // bottone "Cancella"
         Button(
             modifier = Modifier.constrainAs(btnCancel) {
@@ -100,20 +115,6 @@ fun MainScreen(
         ) {
             Text(text = stringResource(R.string.endgame_str))
         }
-
-        // area di testo multiriga
-        Text(
-            text = displayText,
-            modifier = Modifier
-                .constrainAs(textScrollArea) {
-                    top.linkTo(parent.top, margin = 16.dp)
-                    start.linkTo(parent.start, margin = 16.dp)
-                    end.linkTo(parent.end, margin = 16.dp)
-                    width = Dimension.fillToConstraints
-                }
-                .heightIn(min = 100.dp),
-            style = MaterialTheme.typography.bodyLarge
-        )
     }
 }
 
