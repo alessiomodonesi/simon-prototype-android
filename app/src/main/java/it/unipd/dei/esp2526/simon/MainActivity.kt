@@ -84,13 +84,16 @@ fun MainScreen(
                     top.linkTo(parent.top, margin = 8.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                }
+                },
+            onColorClick = { colorLabel ->
+                // aggiunge la lettera alla sequenza
+                currentSequence += colorLabel
+            }
         )
 
         // area di testo multiriga
         Text(
-            // text = displayText,
-            text = "R, R, G, Y, M", // testo di esempio
+            text = displayText,
             modifier = Modifier
                 .constrainAs(textScrollArea) {
                     top.linkTo(matrix.bottom, margin = 16.dp)
@@ -145,7 +148,10 @@ fun MainScreen(
 }
 
 @Composable
-fun ColorGrid(modifier: Modifier = Modifier) {
+fun ColorGrid(
+    modifier: Modifier = Modifier,
+    onColorClick: (String) -> Unit // callback invocata al clic su un rettangolo
+) {
     // matrice 3 x 2
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // numero di colonne
@@ -160,6 +166,8 @@ fun ColorGrid(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .aspectRatio(1.5f) // rettangoli
                     .background(simonColor.color) // sfondo
+                    // rende i box cliccabili e passa la lettera alla callback
+                    .clickable { onColorClick(simonColor.label) }
             )
         }
     }
