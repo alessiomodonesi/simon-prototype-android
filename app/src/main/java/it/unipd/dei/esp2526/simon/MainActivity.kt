@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -20,6 +21,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 
 class MainActivity : ComponentActivity() {
@@ -50,7 +62,16 @@ fun MainScreen(
     val displayText = currentSequence.joinToString(", ")
 
     ConstraintLayout(modifier = modifier.fillMaxSize()) { // interfaccia utente
-        val (textScrollArea, btnCancel, btnEndGame) = createRefs()
+        val (matrix, textScrollArea, btnCancel, btnEndGame) = createRefs()
+
+        ColorGrid(
+            modifier = Modifier
+                .constrainAs(matrix) {
+                    top.linkTo(parent.top, margin = 8.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+        )
 
         // bottone "Cancella"
         Button(
@@ -93,6 +114,27 @@ fun MainScreen(
                 .heightIn(min = 100.dp),
             style = MaterialTheme.typography.bodyLarge
         )
+    }
+}
+
+@Composable
+fun ColorGrid(modifier: Modifier = Modifier) {
+    // matrice 3 x 2
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2), // numero di colonne
+        modifier = modifier.fillMaxWidth(), // larghezza della griglia
+        contentPadding = PaddingValues(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // gli elementi della matrice sono contenuti nella lista simonColors
+        items(simonColors) { simonColor ->
+            Box(
+                modifier = Modifier
+                    .aspectRatio(1.5f) // rettangoli
+                    .background(simonColor.color) // sfondo
+            )
+        }
     }
 }
 
