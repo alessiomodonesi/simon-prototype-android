@@ -40,6 +40,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
+    // onEndGame: (List<String>) -> Unit // callback per passare alla Schermata 2
 ) {
     // stato della sequenza (salvato)
     var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
@@ -55,7 +56,9 @@ fun MainScreen(
             modifier = Modifier.constrainAs(btnCancel) {
                 top.linkTo(textScrollArea.bottom, margin = 16.dp)
                 start.linkTo(parent.start, margin = 16.dp)
-            },onClick = {}
+            },onClick = {
+                currentSequence = emptyList() // azzera la sequenza
+            }
         ) {
             Text(text = stringResource(R.string.cancel_str))
         }
@@ -66,7 +69,12 @@ fun MainScreen(
                 top.linkTo(textScrollArea.bottom, margin = 16.dp)
                 end.linkTo(parent.end, margin = 16.dp)
             },
-            onClick = {}
+            onClick = {
+                // salvo la sequenza finale per poterla inviare alla seconda schermata
+                val finalSequence = currentSequence.toList()
+                currentSequence = emptyList() // svuota l'area di testo
+                // onEndGame(finalSequence) // invia i dati e cambia schermata
+            }
         ) {
             Text(text = stringResource(R.string.endgame_str))
         }
