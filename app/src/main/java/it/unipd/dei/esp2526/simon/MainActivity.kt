@@ -82,7 +82,7 @@ fun MainScreen(
         ColorGrid(
             modifier = Modifier
                 .constrainAs(matrix) {
-                    top.linkTo(parent.top, margin = 10.dp)
+                    top.linkTo(parent.top, margin = 30.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
