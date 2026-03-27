@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.simon"
+    namespace = "it.unipd.dei.esp2526.simon"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.simon"
+        applicationId = "it.unipd.dei.esp2526.simon"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

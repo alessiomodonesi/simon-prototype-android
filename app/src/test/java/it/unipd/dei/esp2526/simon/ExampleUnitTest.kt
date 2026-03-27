@@ -1,4 +1,4 @@
-package com.example.simon
+package it.unipd.dei.esp2526.simon
 
 import org.junit.Test
 

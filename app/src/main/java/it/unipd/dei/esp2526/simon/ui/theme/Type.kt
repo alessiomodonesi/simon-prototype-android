@@ -1,4 +1,4 @@
-package com.example.simon.ui.theme
+package it.unipd.dei.esp2526.simon.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
