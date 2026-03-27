@@ -30,8 +30,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.style.TextAlign
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 
 class MainActivity : ComponentActivity() {
@@ -79,12 +82,24 @@ fun MainScreen(
             text = "R, R, G, Y, M", // testo di esempio
             modifier = Modifier
                 .constrainAs(textScrollArea) {
-                    top.linkTo(parent.top, margin = 16.dp)
+                    top.linkTo(matrix.bottom, margin = 16.dp)
                     start.linkTo(parent.start, margin = 16.dp)
                     end.linkTo(parent.end, margin = 16.dp)
                     width = Dimension.fillToConstraints
                 }
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(16.dp)
                 .heightIn(min = 100.dp),
+
+            textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge
         )
 
