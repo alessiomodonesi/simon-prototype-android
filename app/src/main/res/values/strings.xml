@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Simon</string>
-    <string name="cancel_str">Cancella</string>
-    <string name="endgame_str">Fine partita</string>
+    <string name="cancel_str">Cancel</string>
+    <string name="endgame_str">End Game</string>
 </resources>
