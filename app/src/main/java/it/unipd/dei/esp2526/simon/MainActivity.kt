@@ -3,6 +3,7 @@ package it.unipd.dei.esp2526.simon
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -62,6 +63,9 @@ class MainActivity : ComponentActivity() {
 
                                 // inserisco l'ArrayList nell'intent
                                 putStringArrayListExtra("GAMES_HISTORY", stringHistory)
+
+                                // stampo i dati a scopo di test
+                                Log.d("GAMES_HISTORY", "$stringHistory")
                             }
                             startActivity(myIntent) // avvio la 2a activity
                         }
