@@ -83,6 +83,7 @@ fun MainScreen(
     }
 
     ConstraintLayout(modifier = modifier.fillMaxSize()) { // interfaccia utente
+        // creare le reference <=> creare gli ID nella classe View
         val (matrix, textScrollArea, btnCancel, btnEndGame) = createRefs()
 
         // linea guida per dividere lo schermo a metà in orizzontale
@@ -98,8 +99,7 @@ fun MainScreen(
                         start.linkTo(parent.start, margin = 16.dp)
                         end.linkTo(centerGuideline, margin = 8.dp)
                         width = Dimension.fillToConstraints
-                    }
-                    else {
+                    } else {
                         top.linkTo(parent.top, margin = 30.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
@@ -121,8 +121,7 @@ fun MainScreen(
                         start.linkTo(centerGuideline, margin = 8.dp)
                         end.linkTo(parent.end, margin = 16.dp)
                         width = Dimension.fillToConstraints
-                    }
-                    else {
+                    } else {
                         top.linkTo(matrix.bottom, margin = 16.dp)
                         start.linkTo(parent.start, margin = 16.dp)
                         end.linkTo(parent.end, margin = 16.dp)
@@ -153,8 +152,7 @@ fun MainScreen(
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     top.linkTo(textScrollArea.bottom, margin = 16.dp)
                     start.linkTo(centerGuideline, margin = 8.dp)
-                }
-                else {
+                } else {
                     top.linkTo(textScrollArea.bottom, margin = 16.dp)
                     start.linkTo(parent.start, margin = 16.dp)
                 }
@@ -172,8 +170,7 @@ fun MainScreen(
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     top.linkTo(textScrollArea.bottom, margin = 16.dp)
                     end.linkTo(parent.end, margin = 16.dp)
-                }
-                else {
+                } else {
                     top.linkTo(textScrollArea.bottom, margin = 16.dp)
                     end.linkTo(parent.end, margin = 16.dp)
                 }
@@ -229,6 +226,7 @@ fun MainScreenPreview() {
 }
 
 data class SimonColor(val name: String, val color: Color, val label: String)
+
 // lista di oggetti che mappano il colore UI alla lettera identificativa richiesta
 val simonColors = listOf(
     SimonColor("Red", Color.Red, "R"),
