@@ -11,17 +11,19 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -71,8 +73,18 @@ fun MainScreen(
     // configurazione schermo
     val orientation = LocalConfiguration.current.orientation
 
+    // stato dello scroll per l'area di testo
+    val scrollState = rememberScrollState()
+
+    // ogni volta che 'displayText' cambia, compose esegue questo blocco
+    LaunchedEffect(displayText) {
+        // anima lo scroll fino al valore massimo (la fine del testo)
+        scrollState.animateScrollTo(scrollState.maxValue)
+    }
+
     ConstraintLayout(modifier = modifier.fillMaxSize()) { // interfaccia utente
         val (matrix, textScrollArea, btnCancel, btnEndGame) = createRefs()
+
         // linea guida per dividere lo schermo a metà in orizzontale
         val centerGuideline = createGuidelineFromStart(0.5f)
 
@@ -105,7 +117,7 @@ fun MainScreen(
             modifier = Modifier
                 .constrainAs(textScrollArea) {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        top.linkTo(parent.top, margin = 16.dp)
+                        top.linkTo(parent.top, margin = 100.dp)
                         start.linkTo(centerGuideline, margin = 8.dp)
                         end.linkTo(parent.end, margin = 16.dp)
                         width = Dimension.fillToConstraints
@@ -126,6 +138,8 @@ fun MainScreen(
                     color = MaterialTheme.colorScheme.outline,
                     shape = RoundedCornerShape(10.dp)
                 )
+                .height(120.dp)
+                .verticalScroll(scrollState)
                 .padding(16.dp)
                 .heightIn(min = 100.dp),
 
