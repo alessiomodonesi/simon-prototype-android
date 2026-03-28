@@ -77,6 +77,8 @@ fun SecondScreen(modifier: Modifier = Modifier) {
         // titolo
         Text(
             text = stringResource(R.string.history_title),
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.constrainAs(titleText) {
                 top.linkTo(parent.top)
                 start.linkTo(parent.start)
@@ -90,7 +92,9 @@ fun SecondScreen(modifier: Modifier = Modifier) {
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 bottom.linkTo(parent.bottom)
+                height = Dimension.fillToConstraints
             },
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(tmp) { sequence ->
                 GameHistoryRow(sequence = sequence)
@@ -102,13 +106,24 @@ fun SecondScreen(modifier: Modifier = Modifier) {
 @Composable
 fun GameHistoryRow(sequence: List<String>) {
     // riga che contiene le informazioni di una singola partita
-    ConstraintLayout(modifier = Modifier) {
+    ConstraintLayout(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(16.dp)
+    ) {
         // creare le reference <=> creare gli ID nella classe View
         val (sizeText, sequenceText) = createRefs()
 
         // numero di rettangoli premuti
         Text(
             text = "${sequence.size}",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.constrainAs(sizeText) {
                 start.linkTo(parent.start)
                 top.linkTo(parent.top)
@@ -119,11 +134,16 @@ fun GameHistoryRow(sequence: List<String>) {
         // sequenza di rettangoli premuti
         Text(
             text = sequence.joinToString(", "),
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.End,
             modifier = Modifier.constrainAs(sequenceText) {
                 end.linkTo(parent.end)
                 start.linkTo(sizeText.end, margin = 16.dp)
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
+                width = Dimension.fillToConstraints
             }
         )
     }
