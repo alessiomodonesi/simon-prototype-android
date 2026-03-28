@@ -82,6 +82,7 @@ fun SecondScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.constrainAs(titleText) {
                 top.linkTo(parent.top)
                 start.linkTo(parent.start)
+                end.linkTo(parent.end)
             }
         )
 
@@ -133,7 +134,8 @@ fun GameHistoryRow(sequence: List<String>) {
 
         // sequenza di rettangoli premuti
         Text(
-            text = sequence.joinToString(", "),
+            text = sequence.takeIf { it.isNotEmpty() }?.joinToString(", ")
+                ?: stringResource(R.string.none),
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
