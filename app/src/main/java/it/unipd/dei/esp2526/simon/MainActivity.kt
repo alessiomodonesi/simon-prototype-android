@@ -1,12 +1,11 @@
 package it.unipd.dei.esp2526.simon
 
+import android.content.res.Configuration
 import android.os.Bundle
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import android.content.res.Configuration
-
-// Compose Foundation - Layout e Griglie
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,32 +22,23 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-
-// Compose Material3
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-
-// Compose Runtime e State Management
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-
-// Compose UI - Grafica, Testo e Anteprima
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-
-// ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 
-// Tema locale
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 
 class MainActivity : ComponentActivity() {
@@ -83,11 +73,19 @@ fun MainScreen(
 
     ConstraintLayout(modifier = modifier.fillMaxSize()) { // interfaccia utente
         val (matrix, textScrollArea, btnCancel, btnEndGame) = createRefs()
+        // linea guida per dividere lo schermo a metà in orizzontale
+        val centerGuideline = createGuidelineFromStart(0.5f)
 
+        // matrice 3 x 2
         ColorGrid(
             modifier = Modifier
                 .constrainAs(matrix) {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        top.linkTo(parent.top, margin = 16.dp)
+                        bottom.linkTo(parent.bottom, margin = 16.dp)
+                        start.linkTo(parent.start, margin = 16.dp)
+                        end.linkTo(centerGuideline, margin = 8.dp)
+                        width = Dimension.fillToConstraints
                     }
                     else {
                         top.linkTo(parent.top, margin = 30.dp)
@@ -107,6 +105,10 @@ fun MainScreen(
             modifier = Modifier
                 .constrainAs(textScrollArea) {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        top.linkTo(parent.top, margin = 16.dp)
+                        start.linkTo(centerGuideline, margin = 8.dp)
+                        end.linkTo(parent.end, margin = 16.dp)
+                        width = Dimension.fillToConstraints
                     }
                     else {
                         top.linkTo(matrix.bottom, margin = 16.dp)
@@ -135,6 +137,8 @@ fun MainScreen(
         Button(
             modifier = Modifier.constrainAs(btnCancel) {
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    top.linkTo(textScrollArea.bottom, margin = 16.dp)
+                    start.linkTo(centerGuideline, margin = 8.dp)
                 }
                 else {
                     top.linkTo(textScrollArea.bottom, margin = 16.dp)
@@ -152,6 +156,8 @@ fun MainScreen(
         Button(
             modifier = Modifier.constrainAs(btnEndGame) {
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    top.linkTo(textScrollArea.bottom, margin = 16.dp)
+                    end.linkTo(parent.end, margin = 16.dp)
                 }
                 else {
                     top.linkTo(textScrollArea.bottom, margin = 16.dp)
