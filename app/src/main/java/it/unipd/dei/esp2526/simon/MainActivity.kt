@@ -1,5 +1,6 @@
 package it.unipd.dei.esp2526.simon
 
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 
@@ -51,7 +52,19 @@ class MainActivity : ComponentActivity() {
             SimonTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        onEndGame = { history -> // implementazione della callback
+                            // creo l'intent esplicito per avviare HistoryActivity
+                            val myIntent = Intent(this, HistoryActivity::class.java).apply {
+
+                                // List<List<String>> -> List<String> -> ArrayList<String>
+                                val stringHistory = ArrayList(history.map { it.joinToString(", ") })
+
+                                // inserisco l'ArrayList nell'intent
+                                putStringArrayListExtra("GAMES_HISTORY", stringHistory)
+                            }
+                            startActivity(myIntent) // avvio la 2a activity
+                        }
                     )
                 }
             }
@@ -62,10 +75,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    // onEndGame: (List<String>) -> Unit // callback per passare alla HistoryActivity
+    onEndGame: (List<List<String>>) -> Unit // callback per passare lo storico alla HistoryActivity
 ) {
     // stato della sequenza (salvato)
     var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
+
+    // stato dello storico delle partite (salvato)
+    var gamesHistory by rememberSaveable { mutableStateOf(listOf<List<String>>()) }
 
     // trasformiamo la lista in una stringa separata da virgole
     val displayText = currentSequence.joinToString(", ")
@@ -105,7 +121,7 @@ fun MainScreen(
                         end.linkTo(parent.end)
                     }
                 },
-            onColorClick = { colorLabel ->
+            onColorClick = { colorLabel -> // implementazione della callback
                 // aggiunge la lettera alla sequenza
                 currentSequence += colorLabel
             }
@@ -179,7 +195,12 @@ fun MainScreen(
                 // salvo la sequenza finale per poterla inviare alla HistoryActivity
                 val finalSequence = currentSequence.toList()
                 currentSequence = emptyList() // svuota l'area di testo
-                // onEndGame(finalSequence) // invia i dati e cambia schermata
+
+                // aggiungo la partita conclusa allo storico
+                gamesHistory += listOf(finalSequence)
+
+                // invoco la callback passando i dati verso l'alto
+                onEndGame(gamesHistory)
             }
         ) {
             Text(text = stringResource(R.string.endgame_str))
@@ -222,7 +243,7 @@ fun ColorGrid(
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    MainScreen()
+    MainScreen(onEndGame = {})
 }
 
 data class SimonColor(val name: String, val color: Color, val label: String)
