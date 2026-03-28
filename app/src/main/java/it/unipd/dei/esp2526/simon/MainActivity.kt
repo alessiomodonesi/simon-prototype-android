@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import android.content.res.Configuration
 
 // Compose Foundation - Layout e Griglie
 import androidx.compose.foundation.background
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 
 // ConstraintLayout
@@ -76,15 +78,22 @@ fun MainScreen(
     // trasformiamo la lista in una stringa separata da virgole
     val displayText = currentSequence.joinToString(", ")
 
+    // configurazione schermo
+    val orientation = LocalConfiguration.current.orientation
+
     ConstraintLayout(modifier = modifier.fillMaxSize()) { // interfaccia utente
         val (matrix, textScrollArea, btnCancel, btnEndGame) = createRefs()
 
         ColorGrid(
             modifier = Modifier
                 .constrainAs(matrix) {
-                    top.linkTo(parent.top, margin = 30.dp)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    }
+                    else {
+                        top.linkTo(parent.top, margin = 30.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
                 },
             onColorClick = { colorLabel ->
                 // aggiunge la lettera alla sequenza
@@ -97,10 +106,14 @@ fun MainScreen(
             text = displayText,
             modifier = Modifier
                 .constrainAs(textScrollArea) {
-                    top.linkTo(matrix.bottom, margin = 16.dp)
-                    start.linkTo(parent.start, margin = 16.dp)
-                    end.linkTo(parent.end, margin = 16.dp)
-                    width = Dimension.fillToConstraints
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    }
+                    else {
+                        top.linkTo(matrix.bottom, margin = 16.dp)
+                        start.linkTo(parent.start, margin = 16.dp)
+                        end.linkTo(parent.end, margin = 16.dp)
+                        width = Dimension.fillToConstraints
+                    }
                 }
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
@@ -121,8 +134,12 @@ fun MainScreen(
         // bottone "Cancella"
         Button(
             modifier = Modifier.constrainAs(btnCancel) {
-                top.linkTo(textScrollArea.bottom, margin = 16.dp)
-                start.linkTo(parent.start, margin = 16.dp)
+                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                }
+                else {
+                    top.linkTo(textScrollArea.bottom, margin = 16.dp)
+                    start.linkTo(parent.start, margin = 16.dp)
+                }
             },
             onClick = {
                 currentSequence = emptyList() // azzera la sequenza
@@ -134,8 +151,12 @@ fun MainScreen(
         // bottone "Fine partita"
         Button(
             modifier = Modifier.constrainAs(btnEndGame) {
-                top.linkTo(textScrollArea.bottom, margin = 16.dp)
-                end.linkTo(parent.end, margin = 16.dp)
+                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                }
+                else {
+                    top.linkTo(textScrollArea.bottom, margin = 16.dp)
+                    end.linkTo(parent.end, margin = 16.dp)
+                }
             },
             onClick = {
                 // salvo la sequenza finale per poterla inviare alla seconda schermata
