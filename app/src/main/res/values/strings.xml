@@ -3,4 +3,5 @@
     <string name="cancel_str">Cancel</string>
     <string name="endgame_str">End Game</string>
     <string name="history_title">Match History</string>
+    <string name="none">None</string>
 </resources>

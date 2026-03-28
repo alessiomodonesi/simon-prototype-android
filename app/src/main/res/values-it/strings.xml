@@ -3,4 +3,5 @@
     <string name="cancel_str">Cancella</string>
     <string name="endgame_str">Fine Partita</string>
     <string name="history_title">Storico Partite</string>
+    <string name="none">Nessuna</string>
 </resources>
