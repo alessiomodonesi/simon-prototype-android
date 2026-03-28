@@ -43,6 +43,29 @@ class HistoryActivity : ComponentActivity() {
 
 @Composable
 fun SecondScreen(modifier: Modifier = Modifier) {
+    // dati fittizi usati solo per visualizzare l'anteprima grafica
+    val tmp = listOf(
+        listOf("R", "G", "B"),
+        listOf(
+            "M",
+            "Y",
+            "C",
+            "R",
+            "G",
+            "B",
+            "M",
+            "Y",
+            "C",
+            "R",
+            "G",
+            "B",
+            "M",
+            "Y",
+            "C"
+        ),
+        emptyList()
+    )
+
     ConstraintLayout(
         modifier = modifier
             .fillMaxSize()
@@ -69,15 +92,15 @@ fun SecondScreen(modifier: Modifier = Modifier) {
                 bottom.linkTo(parent.bottom)
             },
         ) {
-            items(1) { sequence ->
-                GameHistoryRow(sequence = "R, G, B")
+            items(tmp) { sequence ->
+                GameHistoryRow(sequence = sequence)
             }
         }
     }
 }
 
 @Composable
-fun GameHistoryRow(sequence: String) {
+fun GameHistoryRow(sequence: List<String>) {
     // riga che contiene le informazioni di una singola partita
     ConstraintLayout(modifier = Modifier) {
         // creare le reference <=> creare gli ID nella classe View
@@ -85,7 +108,7 @@ fun GameHistoryRow(sequence: String) {
 
         // numero di rettangoli premuti
         Text(
-            text = "3",
+            text = "${sequence.size}",
             modifier = Modifier.constrainAs(sizeText) {
                 start.linkTo(parent.start)
                 top.linkTo(parent.top)
@@ -95,7 +118,7 @@ fun GameHistoryRow(sequence: String) {
 
         // sequenza di rettangoli premuti
         Text(
-            text = stringResource(R.string.none),
+            text = sequence.joinToString(", "),
             modifier = Modifier.constrainAs(sequenceText) {
                 end.linkTo(parent.end)
                 start.linkTo(sizeText.end, margin = 16.dp)
