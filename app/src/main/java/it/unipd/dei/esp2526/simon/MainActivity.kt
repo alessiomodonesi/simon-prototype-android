@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    // onEndGame: (List<String>) -> Unit // callback per passare alla Schermata 2
+    // onEndGame: (List<String>) -> Unit // callback per passare alla HistoryActivity
 ) {
     // stato della sequenza (salvato)
     var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
@@ -165,7 +165,7 @@ fun MainScreen(
                 }
             },
             onClick = {
-                // salvo la sequenza finale per poterla inviare alla seconda schermata
+                // salvo la sequenza finale per poterla inviare alla HistoryActivity
                 val finalSequence = currentSequence.toList()
                 currentSequence = emptyList() // svuota l'area di testo
                 // onEndGame(finalSequence) // invia i dati e cambia schermata
@@ -179,7 +179,7 @@ fun MainScreen(
 @Composable
 fun ColorGrid(
     modifier: Modifier = Modifier,
-    onColorClick: (String) -> Unit // callback invocata al clic su un rettangolo
+    onColorClick: (String) -> Unit // callback invocata al click su un rettangolo
 ) {
     // matrice 3 x 2
     LazyVerticalGrid(
