@@ -11,20 +11,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Simon">
+
         <!-- MainActivity (1a schermata) -->
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Simon">
-            <!-- <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter> -->
-        </activity>
-
-        <!-- HistoryActivity (2a schermata) -->
-        <activity
-            android:name=".HistoryActivity"
             android:exported="true"
             android:theme="@style/Theme.Simon">
             <intent-filter>
@@ -32,6 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <!-- HistoryActivity (2a schermata) -->
+        <activity
+            android:name=".HistoryActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Simon" />
+
+    </application>
 </manifest>
