@@ -51,29 +51,6 @@ fun SecondScreen(
     historyList: List<String>, // parametro per ricevere la lista
     modifier: Modifier = Modifier
 ) {
-    // dati fittizi usati solo per visualizzare l'anteprima grafica
-    val tmp = listOf(
-        listOf("R", "G", "B"),
-        listOf(
-            "M",
-            "Y",
-            "C",
-            "R",
-            "G",
-            "B",
-            "M",
-            "Y",
-            "C",
-            "R",
-            "G",
-            "B",
-            "M",
-            "Y",
-            "C"
-        ),
-        emptyList()
-    )
-
     ConstraintLayout(
         modifier = modifier
             .fillMaxSize()
@@ -163,6 +140,12 @@ fun GameHistoryRow(sequence: List<String>) {
 @Composable
 fun SecondScreenPreview() {
     SimonTheme {
-        SecondScreen()
+        // dati fittizi, servono solo alla preview di android studio
+        val dummyData = listOf(
+            "R, G, B",
+            "M, Y, C, R, G, B, M, Y, C, R, G, B, M, Y, C",
+            ""
+        )
+        SecondScreen(historyList = dummyData)
     }
 }
