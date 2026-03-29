@@ -30,11 +30,16 @@ import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 class HistoryActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // recupero l'ArrayList<String> dall'intent usando la stessa chiave
+        val historyData = intent.getStringArrayListExtra("GAMES_HISTORY") ?: arrayListOf()
         enableEdgeToEdge()
         setContent {
             SimonTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    SecondScreen(modifier = Modifier.padding(innerPadding))
+                    SecondScreen(
+                        historyList = historyData, // passo i dati ricevuti alla schermata
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
@@ -42,7 +47,10 @@ class HistoryActivity : ComponentActivity() {
 }
 
 @Composable
-fun SecondScreen(modifier: Modifier = Modifier) {
+fun SecondScreen(
+    historyList: List<String>, // parametro per ricevere la lista
+    modifier: Modifier = Modifier
+) {
     // dati fittizi usati solo per visualizzare l'anteprima grafica
     val tmp = listOf(
         listOf("R", "G", "B"),
