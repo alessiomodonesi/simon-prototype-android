@@ -1,6 +1,4 @@
-# =========================
 # Android / Gradle
-# =========================
 .gradle/
 build/
 */build/
@@ -16,9 +14,7 @@ captures/
 # Gradle wrapper (mantieni il jar!)
 !gradle/wrapper/gradle-wrapper.jar
 
-# =========================
 # Android Studio / IntelliJ
-# =========================
 .idea/
 *.iml
 *.iws
@@ -28,67 +24,46 @@ captures/
 *.jks
 *.keystore
 
-# =========================
 # Log / temp
-# =========================
 *.log
 *.tmp
 *.bak
 *.swp
 *.lock
 
-# =========================
 # OS files
-# =========================
 .DS_Store
 Thumbs.db
 Icon?
 
-# =========================
 # Build outputs
-# =========================
 *.apk
 *.ap_
 *.aab
 
-# =========================
 # Proguard / R8
-# =========================
 proguard/
 
-# =========================
 # NDK
-# =========================
 obj/
 libs/
 
-# =========================
-# Firebase / Google Services (opzionale)
-# =========================
-# Se vuoi evitare di pubblicare config sensibili:
+# Firebase / Google Services
 google-services.json
 
-# =========================
 # Kotlin / Java
-# =========================
 *.class
 out/
 
-# =========================
 # Misc
-# =========================
 /.navigation/
 .navigation/
 
-# =========================
 # Fastlane
-# =========================
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/
 fastlane/test_output/
 
-# =========================
 # Room DB (schema export)
-# =========================
 schemas/
