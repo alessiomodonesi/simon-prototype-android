@@ -59,7 +59,8 @@ class MainActivity : ComponentActivity() {
                             val myIntent = Intent(this, HistoryActivity::class.java).apply {
 
                                 // List<List<String>> -> List<String> -> ArrayList<String>
-                                val stringHistory = ArrayList(history.map { it.joinToString(", ") })
+                                val stringHistory =
+                                    history.map { it.joinToString(", ") }.toCollection(ArrayList())
 
                                 // inserisco l'ArrayList nell'intent
                                 putStringArrayListExtra("GAMES_HISTORY", stringHistory)
@@ -213,7 +214,7 @@ fun MainScreen(
 }
 
 @Composable
-fun ColorGrid(
+private fun ColorGrid(
     modifier: Modifier = Modifier,
     onColorClick: (String) -> Unit // callback invocata al click su un rettangolo
 ) {
@@ -253,7 +254,7 @@ fun MainScreenPreview() {
 data class SimonColor(val name: String, val color: Color, val label: String)
 
 // lista di oggetti che mappano il colore UI alla lettera identificativa richiesta
-val simonColors = listOf(
+private val simonColors = listOf(
     SimonColor("Red", Color.Red, "R"),
     SimonColor("Green", Color.Green, "G"),
     SimonColor("Blue", Color.Blue, "B"),
