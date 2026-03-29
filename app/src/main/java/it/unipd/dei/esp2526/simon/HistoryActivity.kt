@@ -57,7 +57,7 @@ fun SecondScreen(
             .padding(16.dp)
     ) {
         // creare le reference <=> creare gli ID nella classe View
-        val (titleText, historyList) = createRefs()
+        val (titleText, historyRef) = createRefs()
 
         // titolo
         Text(
@@ -73,7 +73,7 @@ fun SecondScreen(
 
         // lista dinamica
         LazyColumn(
-            modifier = Modifier.constrainAs(historyList) {
+            modifier = Modifier.constrainAs(historyRef) {
                 top.linkTo(titleText.bottom, margin = 16.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
@@ -82,7 +82,7 @@ fun SecondScreen(
             },
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(tmp) { sequence ->
+            items(historyList) { sequence ->
                 GameHistoryRow(sequence = sequence)
             }
         }
@@ -90,7 +90,10 @@ fun SecondScreen(
 }
 
 @Composable
-fun GameHistoryRow(sequence: List<String>) {
+fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G, B")
+    // calcolo della dimensione: se la stringa è vuota metto 0, altrimenti conto gli elementi divisi da virgola
+    val count = if (sequence.isBlank()) 0 else sequence.split(",").size
+
     // riga che contiene le informazioni di una singola partita
     ConstraintLayout(
         modifier = Modifier
@@ -106,7 +109,7 @@ fun GameHistoryRow(sequence: List<String>) {
 
         // numero di rettangoli premuti
         Text(
-            text = "${sequence.size}",
+            text = "$count",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -119,8 +122,7 @@ fun GameHistoryRow(sequence: List<String>) {
 
         // sequenza di rettangoli premuti
         Text(
-            text = sequence.takeIf { it.isNotEmpty() }?.joinToString(", ")
-                ?: stringResource(R.string.none),
+            text = sequence.ifEmpty { stringResource(R.string.none) },
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
