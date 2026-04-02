@@ -37,8 +37,8 @@ class HistoryActivity : ComponentActivity() {
             SimonTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     SecondScreen(
-                        historyList = historyData, // passo i dati ricevuti alla schermata
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        historyList = historyData // passo i dati ricevuti alla schermata
                     )
                 }
             }
@@ -48,8 +48,8 @@ class HistoryActivity : ComponentActivity() {
 
 @Composable
 fun SecondScreen(
-    historyList: List<String>, // parametro per ricevere la lista
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    historyList: List<String> // parametro per ricevere la lista
 ) {
     ConstraintLayout(
         modifier = modifier

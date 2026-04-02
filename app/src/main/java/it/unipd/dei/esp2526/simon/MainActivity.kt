@@ -54,21 +54,25 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(
                         modifier = Modifier.padding(innerPadding),
-                        onEndGame = { history -> // implementazione della callback
-                            // creo l'intent esplicito per avviare HistoryActivity
+                        // implementazione della callback per inviare lo storico delle partite concluse
+                        onEndGame = { history ->
+                            // 1. creo l'intent esplicito per avviare HistoryActivity
                             val myIntent = Intent(this, HistoryActivity::class.java).apply {
 
                                 // List<List<String>> -> List<String> -> ArrayList<String>
-                                val stringHistory =
-                                    history.map { it.joinToString(", ") }.toCollection(ArrayList())
+                                val stringHistory = history.map {
+                                    it.joinToString(", ")
+                                }.toCollection(ArrayList())
 
                                 // inserisco l'ArrayList nell'intent
                                 putStringArrayListExtra("GAMES_HISTORY", stringHistory)
 
-                                // stampo i dati a scopo di test
+                                // stampo i dati a scopo di test (v = verbose)
                                 Log.v("GAMES_HISTORY", "$stringHistory")
                             }
-                            startActivity(myIntent) // avvio la 2a activity
+
+                            // 2. lancio l'activity passandogli l'intent
+                            startActivity(myIntent)
                         }
                     )
                 }
@@ -82,13 +86,13 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     onEndGame: (List<List<String>>) -> Unit // callback per passare lo storico alla HistoryActivity
 ) {
-    // stato della sequenza (salvato)
+    // stato della sequenza (salvato anche per passaggio portrait <-> landscape)
     var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
 
-    // stato dello storico delle partite (salvato)
+    // stato dello storico delle partite (salvato anche per passaggio portrait <-> landscape)
     var gamesHistory by rememberSaveable { mutableStateOf(listOf<List<String>>()) }
 
-    // trasformiamo la lista in una stringa separata da virgole
+    // trasformiamo la lista in una stringa separata da virgole, come da specifiche
     val displayText = currentSequence.joinToString(", ")
 
     // configurazione schermo
@@ -218,7 +222,8 @@ private fun ColorGrid(
 ) {
     // matrice 3 x 2
     LazyVerticalGrid( // rendering "on-demand", disegna solo gli elementi visibili sullo schermo
-        columns = GridCells.Fixed(2), // numero di colonne
+        // nella variante "Vertical" di LazyGrid bisogna specificare il numero di colonne
+        columns = GridCells.Fixed(2),
         modifier = modifier.fillMaxWidth(), // larghezza della griglia
         contentPadding = PaddingValues(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
