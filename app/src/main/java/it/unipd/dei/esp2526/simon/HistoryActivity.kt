@@ -137,17 +137,3 @@ fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G, B")
         )
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun SecondScreenPreview() {
-    SimonTheme {
-        // dati fittizi, servono solo alla preview di android studio
-        val dummyData = listOf(
-            "R, G, B",
-            "M, Y, C, R, G, B, M, Y, C, R, G, B, M, Y, C",
-            ""
-        )
-        SecondScreen(historyList = dummyData)
-    }
-}
