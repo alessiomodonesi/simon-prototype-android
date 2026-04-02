@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                                 putStringArrayListExtra("GAMES_HISTORY", stringHistory)
 
                                 // stampo i dati a scopo di test
-                                Log.d("GAMES_HISTORY", "$stringHistory")
+                                Log.v("GAMES_HISTORY", "$stringHistory")
                             }
                             startActivity(myIntent) // avvio la 2a activity
                         }
@@ -127,8 +127,7 @@ fun MainScreen(
                     }
                 },
             onColorClick = { colorLabel -> // implementazione della callback
-                // aggiunge la lettera alla sequenza
-                currentSequence += colorLabel
+                currentSequence += colorLabel // aggiunge la lettera alla sequenza
             }
         )
 
@@ -162,7 +161,6 @@ fun MainScreen(
                 .verticalScroll(scrollState)
                 .padding(16.dp)
                 .heightIn(min = 100.dp),
-
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge
         )
@@ -219,7 +217,7 @@ private fun ColorGrid(
     onColorClick: (String) -> Unit // callback invocata al click su un rettangolo
 ) {
     // matrice 3 x 2
-    LazyVerticalGrid(
+    LazyVerticalGrid( // rendering "on-demand", disegna solo gli elementi visibili sullo schermo
         columns = GridCells.Fixed(2), // numero di colonne
         modifier = modifier.fillMaxWidth(), // larghezza della griglia
         contentPadding = PaddingValues(10.dp),
