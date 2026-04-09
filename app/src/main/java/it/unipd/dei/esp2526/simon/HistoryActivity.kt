@@ -35,13 +35,11 @@ class HistoryActivity : ComponentActivity() {
         val historyData = intent.getStringArrayListExtra("GAMES_HISTORY") ?: arrayListOf()
         setContent {
             SimonTheme {
-                Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .displayCutoutPadding()
-                ) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     SecondScreen(
-                        modifier = Modifier.padding(innerPadding),
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .displayCutoutPadding(),
                         historyList = historyData // passo i dati ricevuti alla schermata
                     )
                 }

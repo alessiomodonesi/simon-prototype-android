@@ -48,13 +48,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SimonTheme {
-                Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .displayCutoutPadding()
-                ) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(
-                        modifier = Modifier.padding(innerPadding),
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .displayCutoutPadding(),
                         // implementazione della callback per inviare lo storico delle partite concluse
                         onEndGame = { history ->
                             // 1. creo l'intent esplicito per avviare HistoryActivity
@@ -235,7 +233,7 @@ private fun ColorGrid(
     val rows = remember {
         simonColors.shuffled().chunked(2)
     }
-    
+
     // matrice 3 x 2
     Column(
         modifier = modifier.padding(horizontal = 15.dp),
