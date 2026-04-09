@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -137,8 +137,7 @@ fun MainScreen(
         )
 
         // area di testo multiriga
-        Text(
-            text = displayText,
+        Box(
             modifier = Modifier
                 .constrainAs(textScrollArea) {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -163,12 +162,17 @@ fun MainScreen(
                     shape = RoundedCornerShape(10.dp)
                 )
                 .height(120.dp)
-                .verticalScroll(scrollState)
-                .padding(16.dp)
-                .heightIn(min = 100.dp),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge
-        )
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = displayText,
+                modifier = Modifier.verticalScroll(scrollState),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         // bottone "Cancella"
         Button(
