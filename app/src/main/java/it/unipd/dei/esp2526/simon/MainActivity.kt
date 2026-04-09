@@ -112,6 +112,9 @@ fun MainScreen(
         // linea guida per dividere lo schermo a metà in orizzontale
         val centerGuideline = createGuidelineFromStart(0.5f)
 
+        // lLinea guida orizzontale al 60% dell'altezza per il portrait
+        val horizontalGuideline = createGuidelineFromTop(0.60f)
+
         // matrice 3 x 2
         ColorGrid(
             modifier = Modifier
@@ -119,16 +122,17 @@ fun MainScreen(
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         top.linkTo(parent.top, margin = 16.dp)
                         bottom.linkTo(parent.bottom, margin = 16.dp)
-                        start.linkTo(parent.start, margin = 16.dp)
+                        start.linkTo(parent.start, margin = 30.dp)
                         end.linkTo(centerGuideline, margin = 8.dp)
                         height = Dimension.fillToConstraints
                         width = Dimension.fillToConstraints
                     } else {
                         top.linkTo(parent.top, margin = 30.dp)
+                        bottom.linkTo(horizontalGuideline, margin = 16.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                        height =
-                            Dimension.ratio("1:1") // rapporto larghezza:altezza
+                        height = Dimension.fillToConstraints
+                        width = Dimension.fillToConstraints
                     }
                 },
             onColorClick = { colorLabel -> // implementazione della callback
@@ -146,7 +150,7 @@ fun MainScreen(
                         end.linkTo(parent.end, margin = 16.dp)
                         width = Dimension.fillToConstraints
                     } else {
-                        top.linkTo(matrix.bottom, margin = 16.dp)
+                        top.linkTo(horizontalGuideline, margin = 16.dp)
                         start.linkTo(parent.start, margin = 16.dp)
                         end.linkTo(parent.end, margin = 16.dp)
                         width = Dimension.fillToConstraints

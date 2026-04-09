@@ -1,5 +1,6 @@
 package it.unipd.dei.esp2526.simon
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -58,6 +60,9 @@ fun SecondScreen(
         // creare le reference <=> creare gli ID nella classe View
         val (titleText, historyRef) = createRefs()
 
+        // configurazione schermo
+        val orientation = LocalConfiguration.current.orientation
+
         // titolo
         Text(
             text = stringResource(R.string.history_title),
@@ -78,6 +83,12 @@ fun SecondScreen(
                 end.linkTo(parent.end)
                 bottom.linkTo(parent.bottom)
                 height = Dimension.fillToConstraints
+
+                width = if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    Dimension.percent(0.9f)
+                } else {
+                    Dimension.fillToConstraints
+                }
             },
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
