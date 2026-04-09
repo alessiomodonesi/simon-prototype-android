@@ -13,16 +13,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -123,11 +121,14 @@ fun MainScreen(
                         bottom.linkTo(parent.bottom, margin = 16.dp)
                         start.linkTo(parent.start, margin = 16.dp)
                         end.linkTo(centerGuideline, margin = 8.dp)
+                        height = Dimension.fillToConstraints
                         width = Dimension.fillToConstraints
                     } else {
                         top.linkTo(parent.top, margin = 30.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
+                        height =
+                            Dimension.ratio("1:1") // rapporto larghezza:altezza
                     }
                 },
             onColorClick = { colorLabel -> // implementazione della callback
@@ -221,29 +222,37 @@ private fun ColorGrid(
     onColorClick: (String) -> Unit // callback invocata al click su un rettangolo
 ) {
     // matrice 3 x 2
-    LazyVerticalGrid( // rendering "on-demand", disegna solo gli elementi visibili sullo schermo
-        // nella variante "Vertical" di LazyGrid bisogna specificare il numero di colonne
-        columns = GridCells.Fixed(2),
-        modifier = modifier.fillMaxWidth(), // larghezza della griglia
-        contentPadding = PaddingValues(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    Column(
+        modifier = modifier.padding(horizontal = 15.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // gli elementi della matrice sono contenuti nella lista simonColors
-        items(simonColors) { simonColor ->
-            Box(
+        val rows =
+            simonColors.chunked(2) // divido i 6 colori in 3 gruppi da 2 (3 righe x 2 colonne)
+
+        rows.forEach { rowColors ->
+            Row(
                 modifier = Modifier
-                    .aspectRatio(1.5f) // rettangoli
-                    .clip(RoundedCornerShape(10.dp)) // ritaglia la forma
-                    .background(simonColor.color) // sfondo a scelta tra i 6 colori
-                    .border(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.outline,
-                        shape = RoundedCornerShape(10.dp)
+                    .fillMaxWidth()
+                    .weight(1f), // peso verticale: ogni riga prende esattamente 1/3 dell'altezza
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                rowColors.forEach { simonColor ->
+                    Box(
+                        modifier = Modifier
+                            .weight(1f) // peso orizzontale: ogni colore prende esattamente 1/2 della larghezza
+                            .fillMaxHeight() // deve riempire l'altezza della riga
+                            .clip(RoundedCornerShape(10.dp)) // ritaglia la forma
+                            .background(simonColor.color) // sfondo a scelta tra i 6 colori
+                            .border(
+                                width = 2.dp,
+                                color = MaterialTheme.colorScheme.outline,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            // rende i box cliccabili e passa la lettera alla callback
+                            .clickable { onColorClick(simonColor.label) }
                     )
-                    // rende i box cliccabili e passa la lettera alla callback
-                    .clickable { onColorClick(simonColor.label) }
-            )
+                }
+            }
         }
     }
 }
