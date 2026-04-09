@@ -229,14 +229,18 @@ private fun ColorGrid(
     modifier: Modifier = Modifier,
     onColorClick: (String) -> Unit // callback invocata al click su un rettangolo
 ) {
+    // faccio uno shuffle sui colori e salvo la disposizione
+    // in questo modo i colori sono random, ma non cambiano posizione ad ogni click
+    // inoltre divido i 6 colori in 3 gruppi da 2 (3 righe x 2 colonne)
+    val rows = remember {
+        simonColors.shuffled().chunked(2)
+    }
+    
     // matrice 3 x 2
     Column(
         modifier = modifier.padding(horizontal = 15.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        val rows =
-            simonColors.chunked(2) // divido i 6 colori in 3 gruppi da 2 (3 righe x 2 colonne)
-
         rows.forEach { rowColors ->
             Row(
                 modifier = Modifier
