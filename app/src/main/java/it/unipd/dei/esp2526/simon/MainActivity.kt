@@ -7,7 +7,6 @@ import android.util.Log
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,10 +46,13 @@ import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             SimonTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .displayCutoutPadding()
+                ) { innerPadding ->
                     MainScreen(
                         modifier = Modifier.padding(innerPadding),
                         // implementazione della callback per inviare lo storico delle partite concluse
@@ -119,20 +122,18 @@ fun MainScreen(
         ColorGrid(
             modifier = Modifier
                 .constrainAs(matrix) {
+                    top.linkTo(parent.top, margin = 16.dp)
+                    height = Dimension.fillToConstraints
+                    width = Dimension.fillToConstraints
+
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        top.linkTo(parent.top, margin = 16.dp)
                         bottom.linkTo(parent.bottom, margin = 16.dp)
-                        start.linkTo(parent.start, margin = 30.dp)
+                        start.linkTo(parent.start, margin = 16.dp)
                         end.linkTo(centerGuideline, margin = 8.dp)
-                        height = Dimension.fillToConstraints
-                        width = Dimension.fillToConstraints
-                    } else {
-                        top.linkTo(parent.top, margin = 30.dp)
+                    } else { // portrait
                         bottom.linkTo(horizontalGuideline, margin = 16.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                        height = Dimension.fillToConstraints
-                        width = Dimension.fillToConstraints
                     }
                 },
             onColorClick = { colorLabel -> // implementazione della callback
@@ -144,16 +145,15 @@ fun MainScreen(
         Box(
             modifier = Modifier
                 .constrainAs(textScrollArea) {
+                    end.linkTo(parent.end, margin = 16.dp)
+                    width = Dimension.fillToConstraints
+
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         top.linkTo(parent.top, margin = 100.dp)
                         start.linkTo(centerGuideline, margin = 8.dp)
-                        end.linkTo(parent.end, margin = 16.dp)
-                        width = Dimension.fillToConstraints
-                    } else {
+                    } else { // portrait
                         top.linkTo(horizontalGuideline, margin = 16.dp)
                         start.linkTo(parent.start, margin = 16.dp)
-                        end.linkTo(parent.end, margin = 16.dp)
-                        width = Dimension.fillToConstraints
                     }
                 }
                 .background(
@@ -184,8 +184,8 @@ fun MainScreen(
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     top.linkTo(textScrollArea.bottom, margin = 16.dp)
                     start.linkTo(centerGuideline, margin = 8.dp)
-                } else {
-                    top.linkTo(textScrollArea.bottom, margin = 16.dp)
+                } else { // portrait
+                    top.linkTo(textScrollArea.bottom, margin = 32.dp)
                     start.linkTo(parent.start, margin = 16.dp)
                 }
             },
@@ -199,12 +199,12 @@ fun MainScreen(
         // bottone "Fine partita"
         Button(
             modifier = Modifier.constrainAs(btnEndGame) {
+                end.linkTo(parent.end, margin = 16.dp)
+
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     top.linkTo(textScrollArea.bottom, margin = 16.dp)
-                    end.linkTo(parent.end, margin = 16.dp)
-                } else {
-                    top.linkTo(textScrollArea.bottom, margin = 16.dp)
-                    end.linkTo(parent.end, margin = 16.dp)
+                } else { // portrait
+                    top.linkTo(textScrollArea.bottom, margin = 32.dp)
                 }
             },
             onClick = {
