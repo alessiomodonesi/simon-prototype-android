@@ -4,9 +4,9 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,10 +33,13 @@ class HistoryActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // recupero l'ArrayList<String> dall'intent usando la stessa chiave
         val historyData = intent.getStringArrayListExtra("GAMES_HISTORY") ?: arrayListOf()
-        enableEdgeToEdge()
         setContent {
             SimonTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .displayCutoutPadding()
+                ) { innerPadding ->
                     SecondScreen(
                         modifier = Modifier.padding(innerPadding),
                         historyList = historyData // passo i dati ricevuti alla schermata
@@ -86,7 +89,7 @@ fun SecondScreen(
 
                 width = if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     Dimension.percent(0.9f)
-                } else {
+                } else { // portrait
                     Dimension.fillToConstraints
                 }
             },
