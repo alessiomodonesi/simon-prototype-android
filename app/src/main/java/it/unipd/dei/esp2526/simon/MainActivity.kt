@@ -127,6 +127,12 @@ fun MainScreen(
         scrollState.animateScrollTo(scrollState.maxValue)
     }
 
+    // GIUSTIFICAZIONE LAYOUT: in questa schermata utilizzo ConstraintLayout per gestire
+    // in modo efficiente ed elegante il cambio di orientamento (Portrait vs Landscape).
+    // invece di duplicare il codice UI o annidare complesse gerarchie di Column e Row,
+    // ConstraintLayout mi permette di riposizionare gli elementi dinamicamente
+    // modificando semplicemente i loro vincoli (anchor) in base all'orientamento attuale.
+    
     ConstraintLayout(modifier = modifier.fillMaxSize()) { // interfaccia utente
         // creare le reference <=> creare gli ID nella classe View
         val (matrix, textScrollArea, btnCancel, btnEndGame) = createRefs()
@@ -283,7 +289,7 @@ fun MainScreenPreview() {
         "M, Y, C, R, G, B, M, Y, C, R, G, B, M, Y, C",
         ""
     )
-    
+
     MainScreen(
         currentSequence = dummyData,
         onColorClick = {},
