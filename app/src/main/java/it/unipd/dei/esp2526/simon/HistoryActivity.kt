@@ -116,7 +116,6 @@ fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G, B")
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween, // spinge gli elementi ai lati opposti
         verticalAlignment = Alignment.CenterVertically
     ) {
         // numero di rettangoli premuti
@@ -133,7 +132,10 @@ fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G, B")
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.End
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .weight(1f) // prende tutto lo spazio rimanente DOPO aver calcolato il testo a sx
+                .padding(start = 16.dp) // tiene una distanza di sicurezza dal contatore
         )
     }
 }
