@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 
 class HistoryActivity : ComponentActivity() {
@@ -80,10 +81,12 @@ fun SecondScreen(
         Text(
             text = stringResource(R.string.history_title),
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.primary,
+            letterSpacing = 1.15.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 20.dp, top = 8.dp)
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // lista dinamica
         LazyColumn(
