@@ -1,6 +1,12 @@
 # simon-prototype-android
 Progetto di Sistemi Embedded 2025/2026
 
+## Kotlin Files
+
+- [MainActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/MainActivity.kt)
+
+- [HistoryActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/HistoryActivity.kt)
+
 ## Dispositivi di Sviluppo e Test
 
 Come richiesto dalle specifiche del progetto, l'applicazione è stata sviluppata e testata per garantire la compatibilità su diversi formati di schermo, utilizzando i seguenti dispositivi:
