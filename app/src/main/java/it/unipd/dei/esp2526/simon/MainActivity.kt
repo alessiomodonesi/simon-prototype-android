@@ -106,11 +106,11 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(
-    modifier: Modifier = Modifier,
     currentSequence: List<String>,
     onColorClick: (String) -> Unit,
     onCancelClick: () -> Unit,
-    onEndGameClick: () -> Unit
+    onEndGameClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     // trasformiamo la lista in una stringa separata da virgole, come da specifiche
     val displayText = currentSequence.joinToString(", ")
