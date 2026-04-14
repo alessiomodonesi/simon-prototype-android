@@ -132,7 +132,7 @@ fun MainScreen(
     // invece di duplicare il codice UI o annidare complesse gerarchie di Column e Row,
     // ConstraintLayout mi permette di riposizionare gli elementi dinamicamente
     // modificando semplicemente i loro vincoli (anchor) in base all'orientamento attuale.
-    
+
     ConstraintLayout(modifier = modifier.fillMaxSize()) { // interfaccia utente
         // creare le reference <=> creare gli ID nella classe View
         val (matrix, textScrollArea, btnCancel, btnEndGame) = createRefs()
@@ -283,15 +283,8 @@ private fun ColorGrid(
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    // dati fittizi, servono solo alla preview di android studio
-    val dummyData = listOf(
-        "R, G, B",
-        "M, Y, C, R, G, B, M, Y, C, R, G, B, M, Y, C",
-        ""
-    )
-
     MainScreen(
-        currentSequence = dummyData,
+        currentSequence = listOf("R, G, B"),
         onColorClick = {},
         onCancelClick = {},
         onEndGameClick = {}

@@ -142,7 +142,7 @@ fun SecondScreenPreview() {
         // dati fittizi, servono solo alla preview di android studio
         val dummyData = listOf(
             "R, G, B",
-            "M, Y, C, R, G, B, M, Y, C, R, G, B, M, Y, C",
+            "Y, C, B, C, R",
             ""
         )
 
