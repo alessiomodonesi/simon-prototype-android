@@ -48,20 +48,41 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SimonTheme {
+                // STATE HOISTING: lo stato ora vive a livello di Activity
+                // stato della sequenza (salvato anche per passaggio portrait <-> landscape)
+                var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
+
+                // stato dello storico delle partite (salvato anche per passaggio portrait <-> landscape)
+                var gamesHistory by rememberSaveable { mutableStateOf(listOf<List<String>>()) }
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .displayCutoutPadding(),
+                        // stato della sequenza corrente
+                        currentSequence = currentSequence,
+
+                        // implementazione della callback per il click su un colore
+                        onColorClick = { colorLabel ->
+                            currentSequence += colorLabel // aggiunge la lettera alla sequenza
+                        },
+
+                        // implementazione della callback per il click su "cancella"
+                        onCancelClick = { currentSequence = emptyList() }, // azzera la sequenza
+
                         // implementazione della callback per inviare lo storico delle partite concluse
-                        onEndGame = { history ->
-                            // 1. creo l'intent esplicito per avviare HistoryActivity
+                        onEndGameClick = {
+                            // aggiorno lo storico aggiungendo la sequenza corrente
+                            gamesHistory += listOf(currentSequence)
+
+                            // svuoto la sequenza per la prossima partita
+                            currentSequence = emptyList()
+
+                            // creo l'intent esplicito per avviare HistoryActivity
                             val myIntent = Intent(this, HistoryActivity::class.java).apply {
 
                                 // List<List<String>> -> List<String> -> ArrayList<String>
-                                val stringHistory = history.map {
-                                    it.joinToString(", ")
-                                }.toCollection(ArrayList())
+                                // mappo la List<List<String>> in una List<String> e la passo direttamente al costruttore di ArrayList
+                                val stringHistory =
+                                    ArrayList(gamesHistory.map { it.joinToString(", ") })
 
                                 // inserisco l'ArrayList nell'intent
                                 putStringArrayListExtra("GAMES_HISTORY", stringHistory)
@@ -70,9 +91,12 @@ class MainActivity : ComponentActivity() {
                                 Log.v("GAMES_HISTORY", "$stringHistory")
                             }
 
-                            // 2. lancio l'activity passandogli l'intent
+                            // lancio l'activity passandogli l'intent
                             startActivity(myIntent)
-                        }
+                        },
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .displayCutoutPadding(),
                     )
                 }
             }
@@ -83,14 +107,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    onEndGame: (List<List<String>>) -> Unit // callback per passare lo storico alla HistoryActivity
+    currentSequence: List<String>,
+    onColorClick: (String) -> Unit,
+    onCancelClick: () -> Unit,
+    onEndGameClick: () -> Unit
 ) {
-    // stato della sequenza (salvato anche per passaggio portrait <-> landscape)
-    var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
-
-    // stato dello storico delle partite (salvato anche per passaggio portrait <-> landscape)
-    var gamesHistory by rememberSaveable { mutableStateOf(listOf<List<String>>()) }
-
     // trasformiamo la lista in una stringa separata da virgole, come da specifiche
     val displayText = currentSequence.joinToString(", ")
 
@@ -134,9 +155,7 @@ fun MainScreen(
                         end.linkTo(parent.end)
                     }
                 },
-            onColorClick = { colorLabel -> // implementazione della callback
-                currentSequence += colorLabel // aggiunge la lettera alla sequenza
-            }
+            onColorClick = onColorClick // uso direttamente il parametro
         )
 
         // area di testo multiriga
@@ -187,9 +206,7 @@ fun MainScreen(
                     start.linkTo(parent.start, margin = 16.dp)
                 }
             },
-            onClick = {
-                currentSequence = emptyList() // azzera la sequenza
-            }
+            onClick = onCancelClick
         ) {
             Text(text = stringResource(R.string.cancel_str))
         }
@@ -205,17 +222,7 @@ fun MainScreen(
                     top.linkTo(textScrollArea.bottom, margin = 32.dp)
                 }
             },
-            onClick = {
-                // salvo la sequenza finale per poterla inviare alla HistoryActivity
-                val finalSequence = currentSequence.toList()
-                currentSequence = emptyList() // svuota l'area di testo
-
-                // aggiungo la partita conclusa allo storico
-                gamesHistory += listOf(finalSequence)
-
-                // invoco la callback passando i dati verso l'alto
-                onEndGame(gamesHistory)
-            }
+            onClick = onEndGameClick
         ) {
             Text(text = stringResource(R.string.endgame_str))
         }
@@ -270,7 +277,19 @@ private fun ColorGrid(
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    MainScreen(onEndGame = {})
+    // dati fittizi, servono solo alla preview di android studio
+    val dummyData = listOf(
+        "R, G, B",
+        "M, Y, C, R, G, B, M, Y, C, R, G, B, M, Y, C",
+        ""
+    )
+    
+    MainScreen(
+        currentSequence = dummyData,
+        onColorClick = {},
+        onCancelClick = {},
+        onEndGameClick = {}
+    )
 }
 
 data class SimonColor(val name: String, val color: Color, val label: String)
