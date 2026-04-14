@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -146,5 +147,20 @@ fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G, B")
                 width = Dimension.fillToConstraints
             }
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SecondScreenPreview() {
+    SimonTheme {
+        // dati fittizi, servono solo alla preview di android studio
+        val dummyData = listOf(
+            "R, G, B",
+            "M, Y, C, R, G, B, M, Y, C, R, G, B, M, Y, C",
+            ""
+        )
+        
+        SecondScreen(historyList = dummyData)
     }
 }
