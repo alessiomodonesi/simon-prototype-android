@@ -58,13 +58,14 @@ fun SecondScreen(
     modifier: Modifier = Modifier,
     historyList: List<String> // parametro per ricevere la lista
 ) {
-    // GIUSTIFICAZIONE LAYOUT: in questa schermata prediligo l'uso di Column e Row
-    // poiché l'interfaccia presenta una struttura lineare molto semplice (un titolo
-    // sopra una lista verticale, e testi allineati orizzontalmente all'interno delle righe).
-    // in Jetpack Compose, l'uso di Column e Row per layout di questo tipo rappresenta
-    // la best practice: rende il codice molto più leggibile, leggero e idiomatico
-    // rispetto all'uso inutilmente verboso di un ConstraintLayout.
-
+    /**
+     * GIUSTIFICAZIONE LAYOUT: in questa schermata prediligo l'uso di Column e Row
+     * poiché l'interfaccia presenta una struttura lineare molto semplice (un titolo
+     * sopra una lista verticale, e testi allineati orizzontalmente all'interno delle righe).
+     * in Jetpack Compose, l'uso di Column e Row per layout di questo tipo rappresenta
+     * la best practice: rende il codice molto più leggibile, leggero e idiomatico
+     * rispetto all'uso inutilmente verboso di un ConstraintLayout.
+     */
     Column(
         modifier = modifier
             .fillMaxSize()
