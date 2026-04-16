@@ -48,11 +48,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SimonTheme {
-                // STATE HOISTING: lo stato ora vive a livello di Activity
-                // stato della sequenza (salvato anche per passaggio portrait <-> landscape)
+                // stato della sequenza (Instance State)
                 var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
 
-                // stato dello storico delle partite (salvato anche per passaggio portrait <-> landscape)
+                // stato dello storico delle partite (Instance State)
                 var gamesHistory by rememberSaveable { mutableStateOf(listOf<List<String>>()) }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
