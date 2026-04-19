@@ -1,7 +1,7 @@
 # simon-prototype-android
 Progetto di Sistemi Embedded 2025/2026
 
-## 📋 Descrizione del Progetto
+## Descrizione del Progetto
 
 I dettagli completi della consegna sono disponibili nel documento: [specifiche - (intermediate).pdf](./specifiche%20-%20(intermediate).pdf)
 
