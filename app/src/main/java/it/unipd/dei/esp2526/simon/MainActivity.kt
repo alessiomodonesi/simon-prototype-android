@@ -43,15 +43,19 @@ import androidx.constraintlayout.compose.Dimension
 
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 
+// tag per il logger di debug di MainActivity
+const val mTAG = "MainActivity"
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             SimonTheme {
-                // stato della sequenza (Instance State)
+                // stato di MainActivity : la sequenza contenuta nell'area di testo multiriga non editabile (Instance State)
                 var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
 
-                // stato dello storico delle partite (Instance State)
+                // stato di MainActivity : la lista di sequenze giocate (Instance State)
+                // questa lista viene passata tramite intent ad HistoryActivity per visualizzare lo storico delle partite
                 var gamesHistory by rememberSaveable { mutableStateOf(listOf<List<String>>()) }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -59,16 +63,23 @@ class MainActivity : ComponentActivity() {
                         // stato della sequenza corrente
                         currentSequence = currentSequence,
 
-                        // implementazione della callback per il click su un colore
+                        // funzione lambda il click su un colore, riceve come parametro l'indice del colore premuto
                         onColorClick = { colorLabel ->
                             currentSequence += colorLabel // aggiunge la lettera alla sequenza
+                            Log.v(mTAG, "$colorLabel Btn clicked")
                         },
 
-                        // implementazione della callback per il click su "cancella"
-                        onCancelClick = { currentSequence = emptyList() }, // azzera la sequenza
+                        // funzione lambda per il click sul tasto "Cancella", elimina la sequenza digitata
+                        onCancelClick = {
+                            currentSequence = emptyList() // azzera la sequenza
+                            Log.v(mTAG, "Cancel Btn clicked")
+                        },
 
-                        // implementazione della callback per inviare lo storico delle partite concluse
+                        // funzione lambda per il click sul tasto "Fine Partita", aggiorna la lista di sequenze giocate prima di cancellare la sequenza appena terminata,
+                        // poi lancia un intent verso HistoryActivity passando come dato la lista di sequenze giocate
                         onEndGameClick = {
+                            Log.v(mTAG, "End Game Btn clicked")
+
                             // aggiorno lo storico aggiungendo la sequenza corrente
                             gamesHistory += listOf(currentSequence)
 
@@ -117,7 +128,8 @@ fun MainScreen(
     // configurazione schermo
     val orientation = LocalConfiguration.current.orientation
 
-    // stato dello scroll per l'area di testo
+    // Reference: https://developer.android.com/reference/kotlin/androidx/compose/foundation/rememberScrollState.composable
+    // crea e "ricorda" un oggetto che mantiene traccia della posizione attuale dello scorrimento
     val scrollState = rememberScrollState()
 
     // ogni volta che 'displayText' cambia, compose esegue questo blocco
@@ -238,7 +250,7 @@ fun MainScreen(
 @Composable
 private fun ColorGrid(
     modifier: Modifier = Modifier,
-    onColorClick: (String) -> Unit // callback invocata al click su un rettangolo
+    onColorClick: (String) -> Unit
 ) {
     // faccio uno shuffle sui colori e salvo la disposizione
     // in questo modo i colori sono random, ma non cambiano posizione ad ogni click
