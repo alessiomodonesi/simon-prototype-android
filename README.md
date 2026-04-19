@@ -3,13 +3,12 @@ Progetto di Sistemi Embedded 2025/2026
 
 ## 📋 Descrizione del Progetto
 
-I dettagli completi della consegna sono disponibili nel documento: [specifiche - (intermediate).pdf]
+I dettagli completi della consegna sono disponibili nel documento: [specifiche - (intermediate).pdf](./specifiche%20-%20(intermediate).pdf)
 
 ## Kotlin Files
 
-- [MainActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/MainActivity.kt)
-
-- [HistoryActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/HistoryActivity.kt)
+* [MainActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/MainActivity.kt)
+* [HistoryActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/HistoryActivity.kt)
 
 ## Dispositivi di Sviluppo e Test
 
