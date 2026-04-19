@@ -1,6 +1,10 @@
 # simon-prototype-android
 Progetto di Sistemi Embedded 2025/2026
 
+## 📋 Descrizione del Progetto
+
+I dettagli completi della consegna sono disponibili nel documento: [specifiche - (intermediate).pdf]
+
 ## Kotlin Files
 
 - [MainActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/MainActivity.kt)
