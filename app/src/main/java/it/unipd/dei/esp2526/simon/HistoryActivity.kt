@@ -36,6 +36,14 @@ class HistoryActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // recupero l'ArrayList<String> dall'intent usando la stessa chiave
         val historyData = intent.getStringArrayListExtra("GAMES_HISTORY") ?: arrayListOf()
+
+        /**
+         * nota sulla navigazione: non è necessario implementare alcun pulsante "Indietro" personalizzato.
+         * il sistema android inserisce questa activity in cima al Back Stack.
+         * quando l'utente utilizza il tasto "back" di sistema (fisico, virtuale o gesture),
+         * questa activity viene distrutta automaticamente (pop) e l'utente
+         * ritorna alla MainActivity sottostante.
+         */
         setContent {
             SimonTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -57,7 +65,7 @@ fun SecondScreen(
     historyList: List<String> // parametro per ricevere la lista
 ) {
     /**
-     * GIUSTIFICAZIONE LAYOUT: in questa schermata prediligo l'uso di Column e Row
+     * giustificazione layout: in questa schermata prediligo l'uso di Column e Row
      * poiché l'interfaccia presenta una struttura lineare molto semplice (un titolo
      * sopra una lista verticale, e testi allineati orizzontalmente all'interno delle righe).
      * in Jetpack Compose, l'uso di Column e Row per layout di questo tipo rappresenta
@@ -131,8 +139,8 @@ fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G, B")
             text = sequence.ifEmpty { stringResource(R.string.none) },
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.End,
+            overflow = TextOverflow.Ellipsis, // se la sequenza è troppo lunga, viene troncata
+            textAlign = TextAlign.End, // allineo la stringa a destra
             modifier = Modifier
                 .weight(1f) // prende tutto lo spazio rimanente DOPO aver calcolato il testo a sx
                 .padding(start = 16.dp) // tiene una distanza di sicurezza dal contatore

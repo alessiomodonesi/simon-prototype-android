@@ -51,12 +51,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SimonTheme {
+                /**
+                 * stato di MainActivity : la lista di sequenze giocate (Instance State)
+                 * questa lista viene passata tramite intent ad HistoryActivity per visualizzare lo storico delle partite
+                 * sopravvive ai cambi di orientamento grazie a rememberSaveable,
+                 * ma verrà persa alla terminazione dell'app (non c'è stato persistente),
+                 * rispettando esattamente le specifiche richieste
+                 */
+                var gamesHistory by rememberSaveable { mutableStateOf(listOf<List<String>>()) }
+
                 // stato di MainActivity : la sequenza contenuta nell'area di testo multiriga non editabile (Instance State)
                 var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
-
-                // stato di MainActivity : la lista di sequenze giocate (Instance State)
-                // questa lista viene passata tramite intent ad HistoryActivity per visualizzare lo storico delle partite
-                var gamesHistory by rememberSaveable { mutableStateOf(listOf<List<String>>()) }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(
@@ -83,8 +88,14 @@ class MainActivity : ComponentActivity() {
                             // aggiorno lo storico aggiungendo la sequenza corrente
                             gamesHistory += listOf(currentSequence)
 
-                            // svuoto la sequenza per la prossima partita
-                            currentSequence = emptyList()
+                            /**
+                             * nota sul ritorno alla 1a activity (tasto back): svuotando lo stato qui, mi assicuro che
+                             * quando l'utente premerà il tasto "back" da HistoryActivity, MainActivity
+                             * (che è rimasta in pausa sotto nello stack) si presenterà già pulita
+                             * e pronta per una nuova partita, come richiesto dalle specifiche
+                             */
+                            currentSequence =
+                                emptyList() // svuoto la sequenza per la prossima partita
 
                             // creo l'intent esplicito per avviare HistoryActivity
                             val myIntent = Intent(this, HistoryActivity::class.java).apply {
@@ -128,8 +139,8 @@ fun MainScreen(
     // configurazione schermo
     val orientation = LocalConfiguration.current.orientation
 
-    // Reference: https://developer.android.com/reference/kotlin/androidx/compose/foundation/rememberScrollState.composable
     // crea e "ricorda" un oggetto che mantiene traccia della posizione attuale dello scorrimento
+    // https://developer.android.com/reference/kotlin/androidx/compose/foundation/rememberScrollState.composable
     val scrollState = rememberScrollState()
 
     // ogni volta che 'displayText' cambia, compose esegue questo blocco
@@ -139,7 +150,7 @@ fun MainScreen(
     }
 
     /**
-     * GIUSTIFICAZIONE LAYOUT: in questa schermata utilizzo ConstraintLayout per gestire
+     * giustificazione layout: in questa schermata utilizzo ConstraintLayout per gestire
      * in modo efficiente ed elegante il cambio di orientamento (Portrait vs Landscape).
      * invece di duplicare il codice UI o annidare complesse gerarchie di Column e Row,
      * ConstraintLayout mi permette di riposizionare gli elementi dinamicamente
@@ -152,7 +163,7 @@ fun MainScreen(
         // linea guida per dividere lo schermo a metà in orizzontale
         val centerGuideline = createGuidelineFromStart(0.5f)
 
-        // lLinea guida orizzontale al 60% dell'altezza per il portrait
+        // linea guida orizzontale al 60% dell'altezza per il portrait
         val horizontalGuideline = createGuidelineFromTop(0.60f)
 
         // matrice 3 x 2
@@ -303,9 +314,19 @@ fun MainScreenPreview() {
     )
 }
 
+/**
+ * struttura dati di supporto per mappare il colore visivo alla sua etichetta di logica
+ *
+ * @param name nome esteso del colore (es. "Red")
+ * @param color oggetto color di compose per renderizzare lo sfondo del rettangolo
+ * @param label la singola lettera identificativa in inglese da inserire nella sequenza (es. "R")
+ */
 data class SimonColor(val name: String, val color: Color, val label: String)
 
-// lista di oggetti che mappano il colore UI alla lettera identificativa richiesta
+/** lista dei 6 colori specifici richiesti dalla consegna
+ * vengono istanziati qui staticamente per non dipendere dai file strings.xml
+ * ed evitare traduzioni accidentali delle etichette (label).
+ */
 private val simonColors = listOf(
     SimonColor("Red", Color.Red, "R"),
     SimonColor("Green", Color.Green, "G"),
