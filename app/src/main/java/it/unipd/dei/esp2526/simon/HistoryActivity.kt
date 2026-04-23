@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -131,7 +132,9 @@ fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G, B")
             text = "$count",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center, // centra la singola cifra nello spazio
+            modifier = Modifier.widthIn(min = 30.dp) // larghezza minima per allineare 1 e 2 cifre
         )
 
         // sequenza di rettangoli premuti
