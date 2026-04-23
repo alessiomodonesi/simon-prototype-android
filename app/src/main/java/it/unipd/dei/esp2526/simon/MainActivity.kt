@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -32,12 +33,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 
@@ -74,13 +77,13 @@ class MainActivity : ComponentActivity() {
                             Log.v(mTAG, "$colorLabel Btn clicked")
                         },
 
-                        // funzione lambda per il click sul tasto "Cancella", elimina la sequenza digitata
+                        // funzione lambda per il click sul tasto "Delete", elimina la sequenza digitata
                         onCancelClick = {
                             currentSequence = emptyList() // azzera la sequenza
                             Log.v(mTAG, "Cancel Btn clicked")
                         },
 
-                        // funzione lambda per il click sul tasto "Fine Partita", aggiorna la lista di sequenze giocate prima di cancellare la sequenza appena terminata,
+                        // funzione lambda per il click sul tasto "End Game", aggiorna la lista di sequenze giocate prima di cancellare la sequenza appena terminata,
                         // poi lancia un intent verso HistoryActivity passando come dato la lista di sequenze giocate
                         onEndGameClick = {
                             Log.v(mTAG, "End Game Btn clicked")
@@ -98,7 +101,7 @@ class MainActivity : ComponentActivity() {
                                 emptyList() // svuoto la sequenza per la prossima partita
 
                             // creo l'intent esplicito per avviare HistoryActivity
-                            val myIntent = Intent(this, HistoryActivity::class.java).apply {
+                            val historyIntent = Intent(this, HistoryActivity::class.java).apply {
 
                                 // List<List<String>> -> List<String> -> ArrayList<String>
                                 // mappo la List<List<String>> in una List<String> e la passo direttamente al costruttore di ArrayList
@@ -113,7 +116,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             // lancio l'activity passandogli l'intent
-                            startActivity(myIntent)
+                            this.startActivity(historyIntent)
                         },
                         modifier = Modifier
                             .padding(innerPadding)
@@ -148,6 +151,19 @@ fun MainScreen(
         // anima lo scroll fino al valore massimo (la fine del testo)
         scrollState.animateScrollTo(scrollState.maxValue)
     }
+
+    // pennello sfumato con i colori dell'arcobaleno (gradiente lineare)
+    val rainbowBrush = Brush.linearGradient(
+        colors = listOf(
+            Color.Red,
+            Color(0xFFFF9800),
+            Color.Yellow,
+            Color.Green,
+            Color.Blue,
+            Color(0xFF3F51B5),
+            Color(0xFF9C27B0)
+        )
+    )
 
     /**
      * giustificazione layout: in questa schermata utilizzo ConstraintLayout per gestire
@@ -207,8 +223,9 @@ fun MainScreen(
                     shape = RoundedCornerShape(10.dp)
                 )
                 .border(
-                    width = 2.dp,
-                    color = MaterialTheme.colorScheme.outline,
+                    width = 3.dp,
+                    brush = rainbowBrush, // colore sfumato
+                    // color = MaterialTheme.colorScheme.outline,
                     shape = RoundedCornerShape(10.dp)
                 )
                 .height(120.dp)
@@ -224,36 +241,42 @@ fun MainScreen(
             )
         }
 
-        // bottone "Cancella"
+        // bottone "Delete"
         Button(
-            modifier = Modifier.constrainAs(btnCancel) {
-                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    top.linkTo(textScrollArea.bottom, margin = 16.dp)
-                    start.linkTo(centerGuideline, margin = 8.dp)
-                } else { // portrait
-                    top.linkTo(textScrollArea.bottom, margin = 32.dp)
-                    start.linkTo(parent.start, margin = 16.dp)
+            modifier = Modifier
+                .constrainAs(btnCancel) {
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        top.linkTo(textScrollArea.bottom, margin = 16.dp)
+                        start.linkTo(centerGuideline, margin = 8.dp)
+                    } else { // portrait
+                        top.linkTo(textScrollArea.bottom, margin = 32.dp)
+                        start.linkTo(parent.start, margin = 16.dp)
+                    }
                 }
-            },
+                .height(60.dp)
+                .width(150.dp),
             onClick = onCancelClick
         ) {
-            Text(text = stringResource(R.string.cancel_str))
+            Text(text = stringResource(R.string.delete_str), fontSize = 18.sp)
         }
 
-        // bottone "Fine partita"
+        // bottone "End Game"
         Button(
-            modifier = Modifier.constrainAs(btnEndGame) {
-                end.linkTo(parent.end, margin = 16.dp)
+            modifier = Modifier
+                .constrainAs(btnEndGame) {
+                    end.linkTo(parent.end, margin = 16.dp)
 
-                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    top.linkTo(textScrollArea.bottom, margin = 16.dp)
-                } else { // portrait
-                    top.linkTo(textScrollArea.bottom, margin = 32.dp)
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        top.linkTo(textScrollArea.bottom, margin = 16.dp)
+                    } else { // portrait
+                        top.linkTo(textScrollArea.bottom, margin = 32.dp)
+                    }
                 }
-            },
+                .height(60.dp)
+                .width(150.dp),
             onClick = onEndGameClick
         ) {
-            Text(text = stringResource(R.string.endgame_str))
+            Text(text = stringResource(R.string.endgame_str), fontSize = 18.sp)
         }
     }
 }
@@ -263,9 +286,11 @@ private fun ColorGrid(
     modifier: Modifier = Modifier,
     onColorClick: (String) -> Unit
 ) {
-    // faccio uno shuffle sui colori e salvo la disposizione
-    // in questo modo i colori sono random, ma non cambiano posizione ad ogni click
-    // inoltre divido i 6 colori in 3 gruppi da 2 (3 righe x 2 colonne)
+    /**
+     * faccio uno shuffle sui colori e salvo la disposizione
+     * in questo modo i colori sono random, ma non cambiano posizione ad ogni click
+     * inoltre divido i 6 colori in 3 gruppi da 2 (3 righe x 2 colonne)
+     */
     val rows = remember {
         simonColors.shuffled().chunked(2)
     }
@@ -289,13 +314,7 @@ private fun ColorGrid(
                             .fillMaxHeight() // deve riempire l'altezza della riga
                             .clip(RoundedCornerShape(10.dp)) // ritaglia la forma
                             .background(simonColor.color) // sfondo a scelta tra i 6 colori
-                            .border(
-                                width = 2.dp,
-                                color = MaterialTheme.colorScheme.outline,
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                            // rende i box cliccabili e passa la lettera alla callback
-                            .clickable { onColorClick(simonColor.label) }
+                            .clickable { onColorClick(simonColor.label) } // rende i box cliccabili e passa la lettera alla callback
                     )
                 }
             }
