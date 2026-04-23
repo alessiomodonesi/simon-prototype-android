@@ -112,7 +112,7 @@ fun SecondScreen(
 }
 
 @Composable
-fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G, B")
+private fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G, B")
     // calcolo della dimensione: se la stringa è vuota metto 0, altrimenti conto gli elementi divisi da virgola
     val count = if (sequence.isBlank()) 0 else sequence.split(",").size
 

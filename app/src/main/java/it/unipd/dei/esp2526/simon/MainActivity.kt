@@ -321,7 +321,7 @@ fun MainScreenPreview() {
  * @param color oggetto color di compose per renderizzare lo sfondo del rettangolo
  * @param label la singola lettera identificativa in inglese da inserire nella sequenza (es. "R")
  */
-data class SimonColor(val name: String, val color: Color, val label: String)
+private data class SimonColor(val name: String, val color: Color, val label: String)
 
 /** lista dei 6 colori specifici richiesti dalla consegna
  * vengono istanziati qui staticamente per non dipendere dai file strings.xml
