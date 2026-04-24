@@ -2,7 +2,7 @@
 Progetto di Sistemi Embedded 2025/2026
 
 ## Descrizione del Progetto
-Il progetto consiste in una app Android che costituisce un primo prototipo per l'implementazione di una variante del gioco "Simon". L'interfaccia utente è progettata per funzionare in modo corretto sia in modalità portrait che in modalità landscape. Inoltre, l'applicazione supporta almeno due lingue: l'italiano e l'inglese.
+Il progetto consiste in una app Android che costituisce un primo prototipo per l'implementazione di una variante del gioco "Simon". L'interfaccia utente è progettata per funzionare in modo corretto sia in modalità portrait che in modalità landscape. Inoltre, l'applicazione supporta almeno due lingue: [italiano](/app/src/main/res/values-it/strings.xml) e [inglese](/app/src/main/res/values/strings.xml).
 
 Per quanto riguarda il ciclo di vita, l'app gestisce lo stato dell'istanza: ad esempio, durante una commutazione portrait/landscape vengono preservati sia la sequenza di rettangoli premuti ([MainActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/MainActivity.kt)) che il contenuto della lista dei risultati ([HistoryActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/HistoryActivity.kt)). Non è invece richiesto né gestito lo stato persistente; terminando l'applicazione, tutti i dati sulle partite giocate fino a quel momento vengono persi.
 
