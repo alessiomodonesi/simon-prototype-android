@@ -55,11 +55,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             SimonTheme {
                 /**
-                 * stato di MainActivity : la lista di sequenze giocate (Instance State)
-                 * questa lista viene passata tramite intent ad HistoryActivity per visualizzare lo storico delle partite
+                 * stato di MainActivity : la lista di sequenze giocate (Instance State).
+                 * questa lista viene passata tramite intent ad HistoryActivity per visualizzare lo storico delle partite.
                  * sopravvive ai cambi di orientamento grazie a rememberSaveable,
                  * ma verrà persa alla terminazione dell'app (non c'è stato persistente),
-                 * rispettando esattamente le specifiche richieste
+                 * rispettando esattamente le specifiche richieste.
                  */
                 var gamesHistory by rememberSaveable { mutableStateOf(listOf<List<String>>()) }
 
@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
                         // stato della sequenza corrente
                         currentSequence = currentSequence,
 
-                        // funzione lambda il click su un colore, riceve come parametro l'indice del colore premuto
+                        // funzione lambda per il click su un colore, riceve come parametro l'indice del colore premuto
                         onColorClick = { colorLabel ->
                             currentSequence += colorLabel // aggiunge la lettera alla sequenza
                             Log.v(mTAG, "$colorLabel Btn clicked")
@@ -79,7 +79,7 @@ class MainActivity : ComponentActivity() {
 
                         // funzione lambda per il click sul tasto "Delete", elimina la sequenza digitata
                         onCancelClick = {
-                            currentSequence = emptyList() // azzera la sequenza
+                            currentSequence = emptyList() // svuoto la sequenza
                             Log.v(mTAG, "Cancel Btn clicked")
                         },
 
@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
                              * nota sul ritorno alla 1a activity (tasto back): svuotando lo stato qui, mi assicuro che
                              * quando l'utente premerà il tasto "back" da HistoryActivity, MainActivity
                              * (che è rimasta in pausa sotto nello stack) si presenterà già pulita
-                             * e pronta per una nuova partita, come richiesto dalle specifiche
+                             * e pronta per una nuova partita, come richiesto dalle specifiche.
                              */
                             currentSequence =
                                 emptyList() // svuoto la sequenza per la prossima partita
@@ -115,12 +115,12 @@ class MainActivity : ComponentActivity() {
                                 Log.v("GAMES_HISTORY", "$stringHistory")
                             }
 
-                            // lancio l'activity passandogli l'intent
+                            // lancio l'activity passandogli l'intent, this è il Context
                             this.startActivity(historyIntent)
                         },
                         modifier = Modifier
                             .padding(innerPadding)
-                            .displayCutoutPadding(),
+                            .displayCutoutPadding(), // https://developer.android.com/develop/ui/views/layout/display-cutout
                     )
                 }
             }
@@ -146,13 +146,13 @@ fun MainScreen(
     // https://developer.android.com/reference/kotlin/androidx/compose/foundation/rememberScrollState.composable
     val scrollState = rememberScrollState()
 
-    // ogni volta che 'displayText' cambia, compose esegue questo blocco
+    // ogni volta che 'displayText' cambia, Compose esegue questo blocco
     LaunchedEffect(displayText) {
         // anima lo scroll fino al valore massimo (la fine del testo)
         scrollState.animateScrollTo(scrollState.maxValue)
     }
 
-    // pennello sfumato con i colori dell'arcobaleno (gradiente lineare)
+    // brush sfumato con i colori dell'arcobaleno (gradiente lineare)
     val rainbowBrush = Brush.linearGradient(
         colors = listOf(
             Color.Red,
@@ -169,7 +169,7 @@ fun MainScreen(
      * giustificazione layout: in questa schermata utilizzo ConstraintLayout per gestire
      * in modo efficiente ed elegante il cambio di orientamento (Portrait vs Landscape).
      * invece di duplicare il codice UI o annidare complesse gerarchie di Column e Row,
-     * ConstraintLayout mi permette di riposizionare gli elementi dinamicamente
+     * ConstraintLayout mi permette di riposizionare gli elementi dinamicamente,
      * modificando semplicemente i loro vincoli (anchor) in base all'orientamento attuale.
      */
     ConstraintLayout(modifier = modifier.fillMaxSize()) { // interfaccia utente
@@ -180,9 +180,9 @@ fun MainScreen(
         val centerGuideline = createGuidelineFromStart(0.5f)
 
         // linea guida orizzontale al 60% dell'altezza per il portrait
-        val horizontalGuideline = createGuidelineFromTop(0.60f)
+        val horizontalGuideline = createGuidelineFromTop(0.6f)
 
-        // matrice 3 x 2
+        // matrice 3 x 2 (chiamo la funzione @Composable)
         ColorGrid(
             modifier = Modifier
                 .constrainAs(matrix) {
@@ -203,7 +203,7 @@ fun MainScreen(
             onColorClick = onColorClick // uso direttamente il parametro
         )
 
-        // area di testo multiriga
+        // area di testo multiriga non editabile
         Box(
             modifier = Modifier
                 .constrainAs(textScrollArea) {
@@ -220,7 +220,7 @@ fun MainScreen(
                 }
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(10.dp) // ritaglia la forma
                 )
                 .border(
                     width = 3.dp,
@@ -230,11 +230,11 @@ fun MainScreen(
                 )
                 .height(120.dp)
                 .padding(16.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center // centra il contenuto
         ) {
             Text(
                 text = displayText,
-                modifier = Modifier.verticalScroll(scrollState),
+                modifier = Modifier.verticalScroll(scrollState), // scroll verticale
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -255,7 +255,7 @@ fun MainScreen(
                 }
                 .height(60.dp)
                 .width(150.dp),
-            onClick = onCancelClick
+            onClick = onCancelClick // uso direttamente il parametro
         ) {
             Text(text = stringResource(R.string.delete_str), fontSize = 18.sp)
         }
@@ -266,15 +266,14 @@ fun MainScreen(
                 .constrainAs(btnEndGame) {
                     end.linkTo(parent.end, margin = 16.dp)
 
-                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE)
                         top.linkTo(textScrollArea.bottom, margin = 16.dp)
-                    } else { // portrait
+                    else // portrait
                         top.linkTo(textScrollArea.bottom, margin = 32.dp)
-                    }
                 }
                 .height(60.dp)
                 .width(150.dp),
-            onClick = onEndGameClick
+            onClick = onEndGameClick // uso direttamente il parametro
         ) {
             Text(text = stringResource(R.string.endgame_str), fontSize = 18.sp)
         }
@@ -287,9 +286,9 @@ private fun ColorGrid(
     onColorClick: (String) -> Unit
 ) {
     /**
-     * faccio uno shuffle sui colori e salvo la disposizione
-     * in questo modo i colori sono random, ma non cambiano posizione ad ogni click
-     * inoltre divido i 6 colori in 3 gruppi da 2 (3 righe x 2 colonne)
+     * faccio uno shuffle sui colori e salvo la disposizione (remember).
+     * in questo modo i colori sono random, ma non cambiano posizione ad ogni click.
+     * inoltre divido (chunked) i 6 colori in 3 gruppi da 2 (3 righe x 2 colonne).
      */
     val rows = remember {
         simonColors.shuffled().chunked(2)
@@ -314,7 +313,7 @@ private fun ColorGrid(
                             .fillMaxHeight() // deve riempire l'altezza della riga
                             .clip(RoundedCornerShape(10.dp)) // ritaglia la forma
                             .background(simonColor.color) // sfondo a scelta tra i 6 colori
-                            .clickable { onColorClick(simonColor.label) } // rende i box cliccabili e passa la lettera alla callback
+                            .clickable { onColorClick(simonColor.label) } // rende il box cliccabile e passa la lettera alla callback
                     )
                 }
             }
@@ -326,7 +325,7 @@ private fun ColorGrid(
 @Composable
 fun MainScreenPreview() {
     MainScreen(
-        currentSequence = listOf("R, G, B"),
+        currentSequence = listOf("R, G, B"), // dati fittizi, servono solo alla preview di android studio
         onColorClick = {},
         onCancelClick = {},
         onEndGameClick = {}
@@ -334,15 +333,15 @@ fun MainScreenPreview() {
 }
 
 /**
- * struttura dati di supporto per mappare il colore visivo alla sua etichetta di logica
+ * struttura dati di supporto per mappare il colore visivo alla sua etichetta di logica.
  *
  * @param name nome esteso del colore (es. "Red")
- * @param color oggetto color di compose per renderizzare lo sfondo del rettangolo
+ * @param color oggetto Color di Compose per renderizzare lo sfondo del rettangolo
  * @param label la singola lettera identificativa in inglese da inserire nella sequenza (es. "R")
  */
 private data class SimonColor(val name: String, val color: Color, val label: String)
 
-/** lista dei 6 colori specifici richiesti dalla consegna
+/** lista dei 6 colori specifici richiesti dalla consegna.
  * vengono istanziati qui staticamente per non dipendere dai file strings.xml
  * ed evitare traduzioni accidentali delle etichette (label).
  */

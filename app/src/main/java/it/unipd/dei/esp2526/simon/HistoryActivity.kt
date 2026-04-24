@@ -40,8 +40,8 @@ class HistoryActivity : ComponentActivity() {
 
         /**
          * nota sulla navigazione: non è necessario implementare alcun pulsante "Indietro" personalizzato.
-         * il sistema android inserisce questa activity in cima al Back Stack.
-         * quando l'utente utilizza il tasto "back" di sistema (fisico, virtuale o gesture),
+         * il sistema Android inserisce questa activity in cima al Back Stack.
+         * quando l'utente utilizza il tasto "Back" di sistema (fisico, virtuale o gesture),
          * questa activity viene distrutta automaticamente (pop) e l'utente
          * ritorna alla MainActivity sottostante.
          */
@@ -51,7 +51,7 @@ class HistoryActivity : ComponentActivity() {
                     SecondScreen(
                         modifier = Modifier
                             .padding(innerPadding)
-                            .displayCutoutPadding(),
+                            .displayCutoutPadding(), // https://developer.android.com/develop/ui/views/layout/display-cutout
                         historyList = historyData // passo i dati ricevuti alla schermata
                     )
                 }
@@ -66,7 +66,7 @@ fun SecondScreen(
     historyList: List<String> // parametro per ricevere la lista
 ) {
     /**
-     * giustificazione layout: in questa schermata prediligo l'uso di Column e Row
+     * giustificazione layout: in questa schermata prediligo l'uso di Column e Row,
      * poiché l'interfaccia presenta una struttura lineare molto semplice (un titolo
      * sopra una lista verticale, e testi allineati orizzontalmente all'interno delle righe).
      * in Jetpack Compose, l'uso di Column e Row per layout di questo tipo rappresenta
@@ -82,7 +82,7 @@ fun SecondScreen(
         // configurazione schermo
         val orientation = LocalConfiguration.current.orientation
 
-        // percentuale di larghezza della colonna
+        // percentuale di larghezza della colonna, in la modalità landscape viene frazionata al 90%
         val widthFraction = if (orientation == Configuration.ORIENTATION_LANDSCAPE) 0.9f else 1f
 
         // titolo
@@ -96,16 +96,16 @@ fun SecondScreen(
             modifier = Modifier.padding(bottom = 20.dp, top = 8.dp)
         )
 
-        // lista dinamica
+        // lista dinamica implementata con LazyColumn
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth(widthFraction)
                 .padding(top = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // gli oggetti della lista di sequenze sono invertiti in ordine (in alto la sequenza più recente)
+            // gli oggetti della lista sono invertiti in ordine (in alto la sequenza più recente)
             items(historyList.reversed()) { sequence ->
-                GameHistoryRow(sequence = sequence)
+                GameHistoryRow(sequence = sequence) // chiamo la funzione @Composable
             }
         }
     }
@@ -139,7 +139,7 @@ private fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G,
 
         // sequenza di rettangoli premuti
         Text(
-            text = sequence.ifEmpty { stringResource(R.string.none) },
+            text = sequence.ifEmpty { stringResource(R.string.none) }, // se vuota, testo "None"
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis, // se la sequenza è troppo lunga, viene troncata
