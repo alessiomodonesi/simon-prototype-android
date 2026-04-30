@@ -22,12 +22,8 @@ import kotlinx.coroutines.launch
  */
 class GameViewModel(application: Application) : AndroidViewModel(application) {
 
-    // inizializza il database
-    private val db = Room.databaseBuilder(
-        application,
-        AppDatabase::class.java,
-        "simon_db"
-    ).build()
+    // utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder qui
+    private val dao = AppDatabase.getDatabase(application).gameDao()
 
     // stato reattivo che contiene la cronologia per la HistoryActivity
     // https://developer.android.com/kotlin/flow/stateflow-and-sharedflow
@@ -43,7 +39,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     // Dispatchers.IO indicates that this coroutine should be executed on a thread reserved for I/O operations.
     private fun loadHistory() {
         viewModelScope.launch(Dispatchers.IO) {
-            _history.value = db.gameDao().getAllGames() // chiamo la fun getAllGames() nel Dao
+            _history.value = dao.getAllGames() // chiamo la fun getAllGames() nel Dao
         }
     }
 
@@ -51,7 +47,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun insertGame(maxLength: Int, sequence: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val newRecord = GameRecord(maxLength = maxLength, sequence = sequence)
-            db.gameDao().insertGame(newRecord) // chiamo la fun insertGame() nel Dao
+            dao.insertGame(newRecord) // chiamo la fun insertGame() nel Dao
             loadHistory() // poi aggiorno la lista
         }
     }
