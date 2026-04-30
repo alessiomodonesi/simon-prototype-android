@@ -1,10 +1,13 @@
 package it.unipd.dei.esp2526.simon
 
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +53,20 @@ class HistoryActivity : ComponentActivity() {
             SimonTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     SecondScreen(
+                        // funzione lambda per il click sulla Row della LazyColumn
+                        onRowClick = { sequence ->
+                            // creo l'intent esplicito per avviare detailActivity
+                            val detailIntent = Intent(this, DetailActivity::class.java).apply {
+                                // passo la sequenza come parametro extra
+                                putExtra("MATCH_DETAILS", sequence)
+
+                                // stampo i dati a scopo di test (v = verbose)
+                                Log.v("MATCH_DETAILS", sequence)
+                            }
+
+                            // lancio l'activity passandogli l'intent, this è il Context
+                            this.startActivity(detailIntent)
+                        },
                         modifier = Modifier
                             .padding(innerPadding)
                             .displayCutoutPadding(), // https://developer.android.com/develop/ui/views/layout/display-cutout
@@ -63,6 +81,7 @@ class HistoryActivity : ComponentActivity() {
 @Composable
 fun SecondScreen(
     modifier: Modifier = Modifier,
+    onRowClick: (String) -> Unit,
     historyList: List<String> // parametro per ricevere la lista
 ) {
     /**
@@ -105,14 +124,20 @@ fun SecondScreen(
         ) {
             // gli oggetti della lista sono invertiti in ordine (in alto la sequenza più recente)
             items(historyList.reversed()) { sequence ->
-                GameHistoryRow(sequence = sequence) // chiamo la funzione @Composable
+                GameHistoryRow(
+                    sequence = sequence, // chiamo la funzione @Composable
+                    onClick = { onRowClick(sequence) } // uso direttamente il parametro
+                )
             }
         }
     }
 }
 
 @Composable
-private fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G, B")
+private fun GameHistoryRow(
+    sequence: String, // riceve una stringa (es. "R, G, B")
+    onClick: () -> Unit
+) {
     // calcolo della dimensione: se la stringa è vuota metto 0, altrimenti conto gli elementi divisi da virgola
     val count = if (sequence.isBlank()) 0 else sequence.split(",").size
 
@@ -124,6 +149,8 @@ private fun GameHistoryRow(sequence: String) { // riceve una stringa (es. "R, G,
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(8.dp)
             )
+            .clip(RoundedCornerShape(8.dp)) // utile per contenere l'effetto "ripple" del click
+            .clickable { onClick() } // rende l'intera riga cliccabile
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -162,6 +189,9 @@ fun SecondScreenPreview() {
             ""
         )
 
-        SecondScreen(historyList = dummyData)
+        SecondScreen(
+            historyList = dummyData,
+            onRowClick = { "R, G, B" }
+        )
     }
 }
