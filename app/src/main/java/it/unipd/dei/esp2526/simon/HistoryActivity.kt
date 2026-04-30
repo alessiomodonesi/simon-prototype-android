@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,23 +41,26 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import it.unipd.dei.esp2526.simon.data.GameRecord
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
+import kotlin.getValue
 
 class HistoryActivity : ComponentActivity() {
+    private val gameViewModel: GameViewModel by viewModels() // inizializzo il ViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // recupero l'ArrayList<String> dall'intent usando la stessa chiave
-        val historyData = intent.getStringArrayListExtra("GAMES_HISTORY") ?: arrayListOf()
-
         /**
          * nota sulla navigazione: non è necessario implementare alcun pulsante "Indietro" personalizzato.
          * il sistema Android inserisce questa activity in cima al Back Stack.
          * quando l'utente utilizza il tasto "Back" di sistema (fisico, virtuale o gesture),
          * questa activity viene distrutta automaticamente (pop) e l'utente
-         * ritorna alla MainActivity sottostante.
+         * ritorna alla GameActivity sottostante.
          */
         setContent {
             SimonTheme {
+                // raccoglie i dati dal database in tempo reale
+                val historyList by gameViewModel.history.collectAsState()
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     // aggiungo il Floating Action Button in basso a destra
@@ -62,9 +68,9 @@ class HistoryActivity : ComponentActivity() {
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {
-                                // creo l'intent esplicito per avviare MainActivity (Schermata di Gioco)
+                                // creo l'intent esplicito per avviare GameActivity
                                 val mainIntent =
-                                    Intent(this@HistoryActivity, GameActivity::class.java)
+                                    Intent(this, GameActivity::class.java)
                                 this.startActivity(mainIntent)
                             },
                             containerColor = MaterialTheme.colorScheme.primary,
@@ -82,7 +88,7 @@ class HistoryActivity : ComponentActivity() {
                         onRowClick = { sequence ->
                             // creo l'intent esplicito per avviare detailActivity
                             val detailIntent =
-                                Intent(this@HistoryActivity, DetailActivity::class.java).apply {
+                                Intent(this, DetailActivity::class.java).apply {
                                     // passo la sequenza come parametro extra
                                     putExtra("MATCH_DETAILS", sequence)
                                     // stampo i dati a scopo di test (v = verbose)
@@ -95,7 +101,7 @@ class HistoryActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(innerPadding)
                             .displayCutoutPadding(), // https://developer.android.com/develop/ui/views/layout/display-cutout
-                        historyList = historyData // passo i dati ricevuti alla schermata
+                        historyList = historyList // passo i dati ricevuti alla schermata
                     )
                 }
             }
@@ -107,7 +113,7 @@ class HistoryActivity : ComponentActivity() {
 fun HistoryScreen(
     modifier: Modifier = Modifier,
     onRowClick: (String) -> Unit,
-    historyList: List<String> // parametro per ricevere la lista
+    historyList: List<GameRecord> // ora riceve GameRecord dal DB
 ) {
     /**
      * giustificazione layout: in questa schermata prediligo l'uso di Column e Row,
@@ -131,7 +137,7 @@ fun HistoryScreen(
 
         // titolo
         Text(
-            text = stringResource(R.string.history_title),
+            text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.ExtraBold,
             color = MaterialTheme.colorScheme.primary,
@@ -147,11 +153,10 @@ fun HistoryScreen(
                 .padding(top = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // gli oggetti della lista sono invertiti in ordine (in alto la sequenza più recente)
-            items(historyList.reversed()) { sequence ->
+            items(historyList) { record ->
                 GameHistoryRow(
-                    sequence = sequence, // chiamo la funzione @Composable
-                    onClick = { onRowClick(sequence) } // uso direttamente il parametro
+                    record = record, // passo l'intero record
+                    onClick = { onRowClick(record.sequence) } // passo la sequenza alla callback
                 )
             }
         }
@@ -160,12 +165,9 @@ fun HistoryScreen(
 
 @Composable
 private fun GameHistoryRow(
-    sequence: String, // riceve una stringa (es. "R, G, B")
+    record: GameRecord, // usa il GameRecord
     onClick: () -> Unit
 ) {
-    // calcolo della dimensione: se la stringa è vuota metto 0, altrimenti conto gli elementi divisi da virgola
-    val count = if (sequence.isBlank()) 0 else sequence.split(",").size
-
     // riga che contiene le informazioni di una singola partita
     Row(
         modifier = Modifier
@@ -175,13 +177,13 @@ private fun GameHistoryRow(
                 shape = RoundedCornerShape(8.dp)
             )
             .clip(RoundedCornerShape(8.dp)) // utile per contenere l'effetto "ripple" del click
-            .clickable { onClick() } // rende l'intera riga cliccabile
+            .clickable { onClick() } // chiamo la callback passata come parametro
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // numero di rettangoli premuti
         Text(
-            text = "$count",
+            text = "$record.maxLength", // campo dal db
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -191,7 +193,7 @@ private fun GameHistoryRow(
 
         // sequenza di rettangoli premuti
         Text(
-            text = sequence.ifEmpty { stringResource(R.string.none) }, // se vuota, testo "None"
+            text = record.sequence.ifEmpty { stringResource(R.string.none) }, // se vuota, testo "None"
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis, // se la sequenza è troppo lunga, viene troncata
@@ -207,16 +209,16 @@ private fun GameHistoryRow(
 @Composable
 fun HistoryScreenPreview() {
     SimonTheme {
-        // dati fittizi, servono solo alla preview di android studio
+        // dati fittizi aggiornati al tipo GameRecord, servono solo alla preview
         val dummyData = listOf(
-            "R, G, B",
-            "Y, C, B, C, R",
-            ""
+            GameRecord(id = 1, maxLength = 2, sequence = "R, G, B"),
+            GameRecord(id = 2, maxLength = 4, sequence = "Y, C, B, C, R"),
+            GameRecord(id = 3, maxLength = 0, sequence = "")
         )
 
         HistoryScreen(
-            historyList = dummyData,
-            onRowClick = { "R, G, B" }
+            onRowClick = {},
+            historyList = dummyData
         )
     }
 }

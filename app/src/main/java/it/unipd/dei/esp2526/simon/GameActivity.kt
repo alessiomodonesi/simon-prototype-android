@@ -7,6 +7,7 @@ import android.util.Log
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -50,19 +51,12 @@ import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 const val mTAG = "GameActivity"
 
 class GameActivity : ComponentActivity() {
+    private val gameViewModel: GameViewModel by viewModels() // inizializzo il ViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             SimonTheme {
-                /**
-                 * stato di GameActivity : la lista di sequenze giocate (Instance State).
-                 * questa lista viene passata tramite intent ad HistoryActivity per visualizzare lo storico delle partite.
-                 * sopravvive ai cambi di orientamento grazie a rememberSaveable,
-                 * ma verrà persa alla terminazione dell'app (non c'è stato persistente),
-                 * rispettando esattamente le specifiche richieste.
-                 */
-                var gamesHistory by rememberSaveable { mutableStateOf(listOf<List<String>>()) }
-
                 // stato di GameActivity : la sequenza contenuta nell'area di testo multiriga non editabile (Instance State)
                 var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
 
@@ -92,36 +86,23 @@ class GameActivity : ComponentActivity() {
                         onEndGameClick = {
                             Log.v(mTAG, "End Game Btn clicked")
 
-                            // aggiorno lo storico aggiungendo la sequenza corrente
-                            gamesHistory += listOf(currentSequence)
+                            // calcolo la lunghezza massima (se c'è un errore, la sequenza salvata è n+1, quindi la max length è n)
+                            val sequence = currentSequence.joinToString(", ")
+                            val maxLength =
+                                if (currentSequence.isNotEmpty()) currentSequence.size - 1 else 0
 
-                            /**
-                             * nota sul ritorno alla 1a activity (tasto back): svuotando lo stato qui, mi assicuro che
-                             * quando l'utente premerà il tasto "back" da HistoryActivity, GameActivity
-                             * (che è rimasta in pausa sotto nello stack) si presenterà già pulita
-                             * e pronta per una nuova partita, come richiesto dalle specifiche.
-                             */
-                            currentSequence =
-                                emptyList() // svuoto la sequenza per la prossima partita
+                            // salva nel database chiamando la fun insertGame() dal ViewModel
+                            gameViewModel.insertGame(
+                                maxLength = maxLength,
+                                sequence = sequence
+                            )
 
-                            // creo l'intent esplicito per avviare HistoryActivity
-                            val historyIntent =
-                                Intent(this@GameActivity, HistoryActivity::class.java).apply {
+                            // svuoto la sequenza per la prossima partita
+                            currentSequence = emptyList()
 
-                                    // List<List<String>> -> List<String> -> ArrayList<String>
-                                    // mappo la List<List<String>> in una List<String> e la passo direttamente al costruttore di ArrayList
-                                    val stringHistory =
-                                        ArrayList(gamesHistory.map { it.joinToString(", ") })
-
-                                    // inserisco l'ArrayList nell'intent
-                                    putStringArrayListExtra("GAMES_HISTORY", stringHistory)
-
-                                    // stampo i dati a scopo di test (v = verbose)
-                                    Log.v("GAMES_HISTORY", "$stringHistory")
-                                }
-
-                            // lancio l'activity passandogli l'intent, this è il Context
-                            this.startActivity(historyIntent)
+                            // creo l'intent esplicito per avviare HistoryActivity, senza dati
+                            val historyIntent = Intent(this, HistoryActivity::class.java)
+                            this.startActivity(historyIntent) // lancio l'activity passandogli l'intent, this è il Context
                         },
                         modifier = Modifier
                             .padding(innerPadding)
