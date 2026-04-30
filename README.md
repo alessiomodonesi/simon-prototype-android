@@ -6,7 +6,9 @@ Il progetto consiste in una app Android che costituisce un primo prototipo per l
 
 Per quanto riguarda il ciclo di vita, l'app gestisce lo stato dell'istanza: ad esempio, durante una commutazione portrait/landscape vengono preservati sia la sequenza di rettangoli premuti ([MainActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/MainActivity.kt)) che il contenuto della lista dei risultati ([HistoryActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/HistoryActivity.kt)). Non è invece richiesto né gestito lo stato persistente; terminando l'applicazione, tutti i dati sulle partite giocate fino a quel momento vengono persi.
 
-I dettagli completi della consegna originaria sono disponibili nel documento: [specifiche - (intermediate).pdf](./specifiche%20-%20(intermediate).pdf)
+I dettagli della consegna intermedia sono disponibili nel documento: [specifications - intermediate.pdf](./specifications%20-%20intermediate.pdf)
+
+I dettagli completi della consegna finale sono disponibili nel documento: [specifications - final.pdf](./specifications%20-%20final.pdf)
 
 ## Architettura dell'Interfaccia
 L'interfaccia utente è strutturata su due schermate principali:
