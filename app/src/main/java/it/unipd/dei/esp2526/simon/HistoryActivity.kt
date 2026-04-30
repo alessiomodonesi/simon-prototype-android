@@ -19,6 +19,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,18 +55,39 @@ class HistoryActivity : ComponentActivity() {
          */
         setContent {
             SimonTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    // aggiungo il Floating Action Button in basso a destra
+                    // https://developer.android.com/develop/ui/compose/components/fab
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = {
+                                // creo l'intent esplicito per avviare MainActivity (Schermata di Gioco)
+                                val mainIntent =
+                                    Intent(this@HistoryActivity, MainActivity::class.java)
+                                this.startActivity(mainIntent)
+                            },
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ) {
+                            Icon(
+                                Icons.Filled.PlayArrow,
+                                stringResource(R.string.start_str)
+                            )
+                        }
+                    }
+                ) { innerPadding ->
                     SecondScreen(
                         // funzione lambda per il click sulla Row della LazyColumn
                         onRowClick = { sequence ->
                             // creo l'intent esplicito per avviare detailActivity
-                            val detailIntent = Intent(this, DetailActivity::class.java).apply {
-                                // passo la sequenza come parametro extra
-                                putExtra("MATCH_DETAILS", sequence)
-
-                                // stampo i dati a scopo di test (v = verbose)
-                                Log.v("MATCH_DETAILS", sequence)
-                            }
+                            val detailIntent =
+                                Intent(this@HistoryActivity, DetailActivity::class.java).apply {
+                                    // passo la sequenza come parametro extra
+                                    putExtra("MATCH_DETAILS", sequence)
+                                    // stampo i dati a scopo di test (v = verbose)
+                                    Log.v("MATCH_DETAILS", sequence)
+                                }
 
                             // lancio l'activity passandogli l'intent, this è il Context
                             this.startActivity(detailIntent)
