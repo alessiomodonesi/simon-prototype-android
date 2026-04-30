@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -77,10 +76,14 @@ class MainActivity : ComponentActivity() {
                             Log.v(mTAG, "$colorLabel Btn clicked")
                         },
 
-                        // funzione lambda per il click sul tasto "Delete", elimina la sequenza digitata
-                        onCancelClick = {
-                            currentSequence = emptyList() // svuoto la sequenza
-                            Log.v(mTAG, "Cancel Btn clicked")
+                        // funzione lambda per il click sul tasto "Start Game"
+                        onStartClick = {
+                            Log.v(mTAG, "Start Game Btn clicked")
+                        },
+
+                        // funzione lambda per il click sul tasto "Pause"
+                        onPauseClick = {
+                            Log.v(mTAG, "Pause Btn clicked")
                         },
 
                         // funzione lambda per il click sul tasto "End Game", aggiorna la lista di sequenze giocate prima di cancellare la sequenza appena terminata,
@@ -132,7 +135,8 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     currentSequence: List<String>,
     onColorClick: (String) -> Unit,
-    onCancelClick: () -> Unit,
+    onStartClick: () -> Unit,
+    onPauseClick: () -> Unit,
     onEndGameClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -174,7 +178,7 @@ fun MainScreen(
      */
     ConstraintLayout(modifier = modifier.fillMaxSize()) { // interfaccia utente
         // creare le reference <=> creare gli ID nella classe View
-        val (matrix, textScrollArea, btnCancel, btnEndGame) = createRefs()
+        val (matrix, textScrollArea, btnStart, btnPause, btnEndGame) = createRefs()
 
         // linea guida per dividere lo schermo a metà in orizzontale
         val centerGuideline = createGuidelineFromStart(0.5f)
@@ -241,10 +245,10 @@ fun MainScreen(
             )
         }
 
-        // bottone "Delete"
+        // bottone "Start Game"
         Button(
             modifier = Modifier
-                .constrainAs(btnCancel) {
+                .constrainAs(btnStart) {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         top.linkTo(textScrollArea.bottom, margin = 16.dp)
                         start.linkTo(centerGuideline, margin = 8.dp)
@@ -252,30 +256,67 @@ fun MainScreen(
                         top.linkTo(textScrollArea.bottom, margin = 32.dp)
                         start.linkTo(parent.start, margin = 16.dp)
                     }
+                    // collega la fine all'inizio del bottone Pause
+                    end.linkTo(btnPause.start, margin = 4.dp)
+                    // divide uniformemente lo spazio disponibile
+                    width = Dimension.fillToConstraints
                 }
-                .height(60.dp)
-                .width(150.dp),
-            onClick = onCancelClick // uso direttamente il parametro
+                .height(55.dp),
+            onClick = onStartClick // uso direttamente il parametro
         ) {
-            Text(text = stringResource(R.string.delete_str), fontSize = 18.sp)
+            Text(
+                text = stringResource(R.string.start_str),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        // bottone "Pause"
+        Button(
+            modifier = Modifier
+                .constrainAs(btnPause) {
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        top.linkTo(textScrollArea.bottom, margin = 16.dp)
+                    } else { // portrait
+                        top.linkTo(textScrollArea.bottom, margin = 32.dp)
+                    }
+                    // incatenato tra Start e End Game
+                    start.linkTo(btnStart.end, margin = 4.dp)
+                    end.linkTo(btnEndGame.start, margin = 4.dp)
+                    width = Dimension.fillToConstraints
+                }
+                .height(55.dp),
+            onClick = onPauseClick // uso direttamente il parametro
+        ) {
+            Text(
+                text = stringResource(R.string.pause_str),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
+            )
         }
 
         // bottone "End Game"
         Button(
             modifier = Modifier
                 .constrainAs(btnEndGame) {
-                    end.linkTo(parent.end, margin = 16.dp)
-
-                    if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         top.linkTo(textScrollArea.bottom, margin = 16.dp)
-                    else // portrait
+                    } else { // portrait
                         top.linkTo(textScrollArea.bottom, margin = 32.dp)
+                    }
+                    // inizia dove finisce Pause e termina a fine schermo
+                    start.linkTo(btnPause.end, margin = 4.dp)
+                    end.linkTo(parent.end, margin = 16.dp)
+                    width = Dimension.fillToConstraints
                 }
-                .height(60.dp)
-                .width(150.dp),
+                .height(55.dp),
             onClick = onEndGameClick // uso direttamente il parametro
         ) {
-            Text(text = stringResource(R.string.endgame_str), fontSize = 18.sp)
+            Text(
+                text = stringResource(R.string.end_str),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
@@ -327,7 +368,8 @@ fun MainScreenPreview() {
     MainScreen(
         currentSequence = listOf("R, G, B"), // dati fittizi, servono solo alla preview di android studio
         onColorClick = {},
-        onCancelClick = {},
+        onStartClick = {},
+        onPauseClick = {},
         onEndGameClick = {}
     )
 }
