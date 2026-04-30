@@ -81,10 +81,6 @@ fun ThirdScreen(
             modifier = Modifier.padding(bottom = 32.dp, top = 8.dp)
         )
 
-        // crea e "ricorda" un oggetto che mantiene traccia della posizione attuale dello scorrimento
-        // https://developer.android.com/reference/kotlin/androidx/compose/foundation/rememberScrollState.composable
-        val scrollState = rememberScrollState()
-
         // contenitore principale per i dettagli (gestisce sfondo e spazio)
         Column(
             modifier = Modifier
