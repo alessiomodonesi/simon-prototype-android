@@ -35,6 +35,7 @@ captures/
 .DS_Store
 Thumbs.db
 Icon?
+simon
 
 # Build outputs
 *.apk
