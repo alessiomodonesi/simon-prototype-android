@@ -77,7 +77,7 @@ class HistoryActivity : ComponentActivity() {
                         }
                     }
                 ) { innerPadding ->
-                    SecondScreen(
+                    HistoryScreen(
                         // funzione lambda per il click sulla Row della LazyColumn
                         onRowClick = { sequence ->
                             // creo l'intent esplicito per avviare detailActivity
@@ -104,7 +104,7 @@ class HistoryActivity : ComponentActivity() {
 }
 
 @Composable
-fun SecondScreen(
+fun HistoryScreen(
     modifier: Modifier = Modifier,
     onRowClick: (String) -> Unit,
     historyList: List<String> // parametro per ricevere la lista
@@ -205,7 +205,7 @@ private fun GameHistoryRow(
 
 @Preview(showBackground = true)
 @Composable
-fun SecondScreenPreview() {
+fun HistoryScreenPreview() {
     SimonTheme {
         // dati fittizi, servono solo alla preview di android studio
         val dummyData = listOf(
@@ -214,7 +214,7 @@ fun SecondScreenPreview() {
             ""
         )
 
-        SecondScreen(
+        HistoryScreen(
             historyList = dummyData,
             onRowClick = { "R, G, B" }
         )

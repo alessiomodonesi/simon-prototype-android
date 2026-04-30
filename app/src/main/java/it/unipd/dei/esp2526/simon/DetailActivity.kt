@@ -44,7 +44,7 @@ class DetailActivity : ComponentActivity() {
         setContent {
             SimonTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ThirdScreen(
+                    DetailScreen(
                         modifier = Modifier
                             .padding(innerPadding)
                             .displayCutoutPadding(), // https://developer.android.com/develop/ui/views/layout/display-cutout
@@ -57,7 +57,7 @@ class DetailActivity : ComponentActivity() {
 }
 
 @Composable
-fun ThirdScreen(
+fun DetailScreen(
     modifier: Modifier = Modifier,
     matchDetails: String
 ) {
@@ -126,9 +126,9 @@ fun ThirdScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun ThirdScreenPreview() {
+fun DetailScreenPreview() {
     SimonTheme {
         // dati fittizi, servono solo alla preview di android studio
-        ThirdScreen(matchDetails = "R, G, B")
+        DetailScreen(matchDetails = "R, G, B")
     }
 }

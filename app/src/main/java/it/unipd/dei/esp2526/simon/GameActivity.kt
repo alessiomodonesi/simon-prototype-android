@@ -67,7 +67,7 @@ class GameActivity : ComponentActivity() {
                 var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(
+                    GameScreen(
                         // stato della sequenza corrente
                         currentSequence = currentSequence,
 
@@ -134,7 +134,7 @@ class GameActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(
+fun GameScreen(
     currentSequence: List<String>,
     onColorClick: (String) -> Unit,
     onStartClick: () -> Unit,
@@ -366,8 +366,8 @@ private fun ColorGrid(
 
 @Preview(showBackground = true)
 @Composable
-fun MainScreenPreview() {
-    MainScreen(
+fun GameScreenPreview() {
+    GameScreen(
         currentSequence = listOf("R, G, B"), // dati fittizi, servono solo alla preview di android studio
         onColorClick = {},
         onStartClick = {},
