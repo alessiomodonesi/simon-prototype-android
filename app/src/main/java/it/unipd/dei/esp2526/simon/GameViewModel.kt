@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
  * https://developer.android.com/topic/libraries/architecture/viewmodel
  */
 class GameViewModel(application: Application) : AndroidViewModel(application) {
-
     // utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder qui
     private val dao = AppDatabase.getDatabase(application).gameDao()
 
