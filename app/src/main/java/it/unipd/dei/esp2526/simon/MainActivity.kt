@@ -104,19 +104,20 @@ class MainActivity : ComponentActivity() {
                                 emptyList() // svuoto la sequenza per la prossima partita
 
                             // creo l'intent esplicito per avviare HistoryActivity
-                            val historyIntent = Intent(this, HistoryActivity::class.java).apply {
+                            val historyIntent =
+                                Intent(this@MainActivity, HistoryActivity::class.java).apply {
 
-                                // List<List<String>> -> List<String> -> ArrayList<String>
-                                // mappo la List<List<String>> in una List<String> e la passo direttamente al costruttore di ArrayList
-                                val stringHistory =
-                                    ArrayList(gamesHistory.map { it.joinToString(", ") })
+                                    // List<List<String>> -> List<String> -> ArrayList<String>
+                                    // mappo la List<List<String>> in una List<String> e la passo direttamente al costruttore di ArrayList
+                                    val stringHistory =
+                                        ArrayList(gamesHistory.map { it.joinToString(", ") })
 
-                                // inserisco l'ArrayList nell'intent
-                                putStringArrayListExtra("GAMES_HISTORY", stringHistory)
+                                    // inserisco l'ArrayList nell'intent
+                                    putStringArrayListExtra("GAMES_HISTORY", stringHistory)
 
-                                // stampo i dati a scopo di test (v = verbose)
-                                Log.v("GAMES_HISTORY", "$stringHistory")
-                            }
+                                    // stampo i dati a scopo di test (v = verbose)
+                                    Log.v("GAMES_HISTORY", "$stringHistory")
+                                }
 
                             // lancio l'activity passandogli l'intent, this è il Context
                             this.startActivity(historyIntent)
