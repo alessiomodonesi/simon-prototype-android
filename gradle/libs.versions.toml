@@ -11,9 +11,11 @@ kotlin = "2.3.21"
 composeBom = "2026.04.01"
 foundation = "1.11.0"
 foundationLayout = "1.11.0"
+materialIconsExtended = "1.7.8"
 roomRuntime = "2.8.4"
 
 [libraries]
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
