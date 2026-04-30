@@ -8,8 +8,7 @@ Il progetto consiste in una app Android che costituisce un prototipo funzionante
 
 Per quanto riguarda il ciclo di vita, l'app gestisce sia lo stato dell'istanza che lo stato persistente. Durante un cambio di configurazione (come la commutazione portrait/landscape), viene preservata la sequenza di rettangoli premuti e, se in corso, continua la riproduzione della sequenza da parte del computer. I dati delle partite concluse sono memorizzati in maniera persistente utilizzando un database SQL (gestito tramite SqliteDatabase o Room), il che permette di mantenere intatto lo storico anche in caso di chiusura dell'app o riavvio del dispositivo.
 
-**Release e Documentazione:**
-* [Release Intermedia (v0.9)](https://github.com/alessiomodonesi/simon-prototype-android/releases/tag/v0.9)
+**Documentazione:**
 * I dettagli della consegna intermedia sono disponibili nel documento: [specifications - intermediate.pdf](./specifications%20-%20intermediate.pdf)
 * I dettagli completi della consegna finale sono disponibili nel documento: [specifications - final.pdf](./specifications%20-%20final.pdf)
 
