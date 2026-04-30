@@ -183,7 +183,7 @@ private fun GameHistoryRow(
     ) {
         // numero di rettangoli premuti
         Text(
-            text = "$record.maxLength", // campo dal db
+            text = "${record.maxLength}", // campo dal db
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
