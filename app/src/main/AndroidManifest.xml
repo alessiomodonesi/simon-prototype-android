@@ -12,9 +12,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Simon">
 
-        <!-- MainActivity (1a schermata) -->
+        <!-- MainActivity (1a schermata)
+        android:exported="false" => essendo un intent esplicito quello che parte da MainActivity
+        non c'è bisogno che il sistema o altre app "vedano" questa activity all'esterno -->
         <activity
             android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Simon" />
+
+        <!-- HistoryActivity (2a schermata)
+        nella versione finale dell'app, questa schermata diventa la principale -->
+        <activity
+            android:name=".HistoryActivity"
             android:exported="true"
             android:theme="@style/Theme.Simon">
             <intent-filter>
@@ -22,14 +31,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- HistoryActivity (2a schermata)
-        android:exported="false" => essendo un intent esplicito quello che parte da MainActivity
-        non c'è bisogno che il sistema o altre app "vedano" questa activity all'esterno -->
-        <activity
-            android:name=".HistoryActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Simon" />
 
         <!-- DetailActivity (3a schermata)
             android:exported="false" => essendo un intent esplicito quello che parte da MainActivity
