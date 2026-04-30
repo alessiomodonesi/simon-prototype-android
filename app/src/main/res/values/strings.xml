@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name" translatable="false">Simon</string>
-    <string name="delete_str">Delete</string>
-    <string name="endgame_str">End Game</string>
+    <string name="start_str">Start Game</string>
+    <string name="pause_str">Pause</string>
+    <string name="end_str">End Game</string>
     <string name="history_title">Match History</string>
+    <string name="details_title">Match Details</string>
     <string name="none">None</string>
 </resources>
