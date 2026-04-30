@@ -64,7 +64,7 @@ class HistoryActivity : ComponentActivity() {
                             onClick = {
                                 // creo l'intent esplicito per avviare MainActivity (Schermata di Gioco)
                                 val mainIntent =
-                                    Intent(this@HistoryActivity, MainActivity::class.java)
+                                    Intent(this@HistoryActivity, GameActivity::class.java)
                                 this.startActivity(mainIntent)
                             },
                             containerColor = MaterialTheme.colorScheme.primary,

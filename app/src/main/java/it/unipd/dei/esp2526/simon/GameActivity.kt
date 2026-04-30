@@ -46,16 +46,16 @@ import it.unipd.dei.esp2526.simon.model.simonColors
 
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 
-// tag per il logger di debug di MainActivity
-const val mTAG = "MainActivity"
+// tag per il logger di debug di GameActivity
+const val mTAG = "GameActivity"
 
-class MainActivity : ComponentActivity() {
+class GameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             SimonTheme {
                 /**
-                 * stato di MainActivity : la lista di sequenze giocate (Instance State).
+                 * stato di GameActivity : la lista di sequenze giocate (Instance State).
                  * questa lista viene passata tramite intent ad HistoryActivity per visualizzare lo storico delle partite.
                  * sopravvive ai cambi di orientamento grazie a rememberSaveable,
                  * ma verrà persa alla terminazione dell'app (non c'è stato persistente),
@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                  */
                 var gamesHistory by rememberSaveable { mutableStateOf(listOf<List<String>>()) }
 
-                // stato di MainActivity : la sequenza contenuta nell'area di testo multiriga non editabile (Instance State)
+                // stato di GameActivity : la sequenza contenuta nell'area di testo multiriga non editabile (Instance State)
                 var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -97,7 +97,7 @@ class MainActivity : ComponentActivity() {
 
                             /**
                              * nota sul ritorno alla 1a activity (tasto back): svuotando lo stato qui, mi assicuro che
-                             * quando l'utente premerà il tasto "back" da HistoryActivity, MainActivity
+                             * quando l'utente premerà il tasto "back" da HistoryActivity, GameActivity
                              * (che è rimasta in pausa sotto nello stack) si presenterà già pulita
                              * e pronta per una nuova partita, come richiesto dalle specifiche.
                              */
@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
 
                             // creo l'intent esplicito per avviare HistoryActivity
                             val historyIntent =
-                                Intent(this@MainActivity, HistoryActivity::class.java).apply {
+                                Intent(this@GameActivity, HistoryActivity::class.java).apply {
 
                                     // List<List<String>> -> List<String> -> ArrayList<String>
                                     // mappo la List<List<String>> in una List<String> e la passo direttamente al costruttore di ArrayList

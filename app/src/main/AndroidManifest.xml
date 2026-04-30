@@ -12,16 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Simon">
 
-        <!-- MainActivity (1a schermata)
-        android:exported="false" => essendo un intent esplicito quello che parte da MainActivity
-        non c'è bisogno che il sistema o altre app "vedano" questa activity all'esterno -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Simon" />
-
-        <!-- HistoryActivity (2a schermata)
-        nella versione finale dell'app, questa schermata diventa la principale -->
+        <!-- HistoryActivity (1a schermata) -->
         <activity
             android:name=".HistoryActivity"
             android:exported="true"
@@ -32,9 +23,13 @@
             </intent-filter>
         </activity>
 
-        <!-- DetailActivity (3a schermata)
-            android:exported="false" => essendo un intent esplicito quello che parte da MainActivity
-            non c'è bisogno che il sistema o altre app "vedano" questa activity all'esterno -->
+        <!-- GameActivity (2a schermata) -->
+        <activity
+            android:name=".GameActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Simon" />
+
+        <!-- DetailActivity (3a schermata) -->
         <activity
             android:name=".DetailActivity"
             android:exported="false"
