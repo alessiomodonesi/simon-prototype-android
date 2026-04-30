@@ -5,7 +5,6 @@ import androidx.room.RoomDatabase
 
 @Database(entities = [GameRecord::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
-
     // espone il DAO per permettere l'accesso ai dati
     abstract fun gameDao(): GameDao
 }
