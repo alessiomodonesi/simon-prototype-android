@@ -1,31 +1,40 @@
 # simon-prototype-android
 Progetto di Sistemi Embedded 2025/2026
 
+[![Latest Release](https://img.shields.io/github/v/release/alessiomodonesi/simon-prototype-android)](https://github.com/alessiomodonesi/simon-prototype-android/releases/latest)
+
 ## Descrizione del Progetto
-Il progetto consiste in una app Android che costituisce un primo prototipo per l'implementazione di una variante del gioco "Simon". L'interfaccia utente è progettata per funzionare in modo corretto sia in modalità portrait che in modalità landscape. Inoltre, l'applicazione supporta almeno due lingue: [inglese](/app/src/main/res/values/strings.xml) e [italiano](/app/src/main/res/values-it/strings.xml).
+Il progetto consiste in una app Android che costituisce un prototipo funzionante per l'implementazione di una variante del gioco "Simon". L'interfaccia utente è progettata per funzionare in modo corretto sia in modalità portrait che in modalità landscape. Inoltre, l'applicazione supporta almeno due lingue: [inglese](/app/src/main/res/values/strings.xml) e [italiano](/app/src/main/res/values-it/strings.xml).
 
-Per quanto riguarda il ciclo di vita, l'app gestisce lo stato dell'istanza: ad esempio, durante una commutazione portrait/landscape vengono preservati sia la sequenza di rettangoli premuti ([MainActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/MainActivity.kt)) che il contenuto della lista dei risultati ([HistoryActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/HistoryActivity.kt)). Non è invece richiesto né gestito lo stato persistente; terminando l'applicazione, tutti i dati sulle partite giocate fino a quel momento vengono persi.
+Per quanto riguarda il ciclo di vita, l'app gestisce sia lo stato dell'istanza che lo stato persistente. Durante un cambio di configurazione (come la commutazione portrait/landscape), viene preservata la sequenza di rettangoli premuti e, se in corso, continua la riproduzione della sequenza da parte del computer. I dati delle partite concluse sono memorizzati in maniera persistente utilizzando un database SQL (gestito tramite SqliteDatabase o Room), il che permette di mantenere intatto lo storico anche in caso di chiusura dell'app o riavvio del dispositivo.
 
-I dettagli della consegna intermedia sono disponibili nel documento: [specifications - intermediate.pdf](./specifications%20-%20intermediate.pdf)
-
-I dettagli completi della consegna finale sono disponibili nel documento: [specifications - final.pdf](./specifications%20-%20final.pdf)
+**Release e Documentazione:**
+* [Release Intermedia (v0.9)](https://github.com/alessiomodonesi/simon-prototype-android/releases/tag/v0.9)
+* I dettagli della consegna intermedia sono disponibili nel documento: [specifications - intermediate.pdf](./specifications%20-%20intermediate.pdf)
+* I dettagli completi della consegna finale sono disponibili nel documento: [specifications - final.pdf](./specifications%20-%20final.pdf)
 
 ## Architettura dell'Interfaccia
-L'interfaccia utente è strutturata su due schermate principali:
+L'interfaccia utente è ora strutturata su tre schermate principali:
 
-### MainActivity (Area di Gioco)
-Questa è la schermata visualizzata all'avvio dell'applicazione. I suoi elementi sono disposti uno sotto l'altro in modalità portrait, mentre in modalità landscape la griglia di colori si trova a sinistra e gli altri elementi al suo fianco.
-* **Matrice dei Colori:** Una matrice composta da 3 righe per 2 colonne di rettangoli. I colori disponibili sono rosso (R), verde (G), blu (B), magenta (M), giallo (Y) e ciano (C). L'ordine in cui questi colori vengono disposti può essere qualsiasi e la matrice mantiene le dimensioni 3x2 in qualsiasi orientamento del dispositivo.
-* **Area di Testo:** Un'area multiriga non editabile in cui viene mostrata la sequenza dei colori premuti fino a quel momento. I colori sono indicati tramite la prima lettera del loro nome in inglese (indipendentemente dalla lingua impostata nell'app) e le lettere sono separate da virgole.
+### 1. Lista delle Partite (Schermata di Avvio)
+* Questa è la prima schermata mostrata all'avvio dell'applicazione e mostra una lista dinamica contenente i dati sulle partite concluse dall'installazione dell'app.
+* Sulla sinistra di ciascun elemento è indicata la lunghezza massima di una sequenza riprodotta correttamente dal giocatore.
+* Sulla destra viene visualizzata la sequenza completa in cui si è verificato il primo errore, che viene mostrato con un colore diverso dal punto in cui si è sbagliato in poi. Nel caso in cui la sequenza risulti troppo lunga per lo spazio disponibile, ne viene mostrata solo la parte iniziale accompagnata da un indicatore grafico di troncamento.
+* Cliccando su un elemento della lista, viene visualizzata la partita completa nella schermata "Dettaglio Partita".
+* È presente un pulsante (convenzionale o floating action button) che porta alla "Schermata di Gioco".
+
+### 2. Dettaglio Partita
+* Si tratta di una schermata molto semplice che visualizza la partita con lo stesso aspetto della Lista delle Partite ma con maggiore spazio a disposizione.
+* Da questa schermata si esce utilizzando il tasto "Back" di sistema (fisico, virtuale o touch gesture).
+
+### 3. Schermata di Gioco
+* **Matrice dei Colori:** Una matrice composta da 3 righe per 2 colonne di rettangoli.
+* **Area di Testo:** Un'area multiriga non editabile in cui viene mostrata la sequenza dei rettangoli premuti. Durante le proposte del computer, quest'area rimane vuota.
 * **Controlli della Partita:**
-  * Il pulsante **"Cancella"** azzera immediatamente il contenuto dell'area di testo e la sequenza in corso.
-  * Il pulsante **"Fine partita"** termina la sequenza corrente, la rimuove dall'area di testo e la memorizza (anche se si tratta di una sequenza con zero elementi). Subito dopo richiama la HistoryActivity.
-
-### HistoryActivity (Storico delle Partite)
-Questa schermata viene richiamata dalla MainActivity e presenta una lista dinamica contenente i dati sulle partite che sono state concluse dall'avvio dell'applicazione.
-* Ogni elemento della lista mostra sulla sinistra il numero totale di rettangoli premuti.
-* Sulla destra viene visualizzata l'intera sequenza dei rettangoli premuti. Nel caso in cui la sequenza risulti troppo lunga per lo spazio disponibile, ne viene mostrata solo la parte iniziale accompagnata da un indicatore grafico di troncamento.
-* Utilizzando il tasto "back" di sistema (fisico, virtuale o touch gesture) è possibile tornare alla MainActivity, che sarà pronta per raccogliere una nuova sequenza.
+  * Il pulsante **"Avvia partita"** è attivo all'ingresso nella schermata e dà il via alla partita disattivandosi; il computer propone sequenze casuali partendo da una lunghezza di 1, che il giocatore deve replicare.
+  * Il pulsante **"Pausa"** è attivo durante la proposta del computer; se premuto, si trasforma in "Riprendi" e interrompe la riproduzione fino a nuova pressione.
+  * Il pulsante **"Fine partita"** è attivo mentre si gioca. Se premuto, salva un errore nel punto corrente della sequenza (tranne per la sequenza iniziale di lunghezza 1, in quel caso l'app ignora la partita) e riporta alla Lista delle Partite.
+* **Feedback:** Sia durante la proposta del computer che per le interazioni del giocatore, l'app fornisce un duplice feedback al rettangolo attivo: uno visivo (cambiamento di colore o forma) e uno uditivo (riproduzione di un tono per ogni rettangolo). In caso di errore del giocatore, viene mostrata una segnalazione, la partita termina e si resta in attesa della pressione del tasto "Back".
 
 ## Dispositivi di Sviluppo e Test
 
