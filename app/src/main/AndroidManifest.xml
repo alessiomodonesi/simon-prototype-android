@@ -30,5 +30,13 @@
             android:name=".HistoryActivity"
             android:exported="false"
             android:theme="@style/Theme.Simon" />
+
+        <!-- DetailActivity (3a schermata)
+            android:exported="false" => essendo un intent esplicito quello che parte da MainActivity
+            non c'è bisogno che il sistema o altre app "vedano" questa activity all'esterno -->
+        <activity
+            android:name=".DetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Simon" />
     </application>
 </manifest>
