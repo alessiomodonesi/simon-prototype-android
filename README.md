@@ -15,18 +15,18 @@ Per quanto riguarda il ciclo di vita, l'app gestisce sia lo stato dell'istanza c
 ## Architettura dell'Interfaccia
 L'interfaccia utente è ora strutturata su tre schermate principali:
 
-### 1. Lista delle Partite (Schermata di Avvio)
+### 1. Lista delle Partite: [HistoryActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/HistoryActivity.kt)
 * Questa è la prima schermata mostrata all'avvio dell'applicazione e mostra una lista dinamica contenente i dati sulle partite concluse dall'installazione dell'app.
 * Sulla sinistra di ciascun elemento è indicata la lunghezza massima di una sequenza riprodotta correttamente dal giocatore.
 * Sulla destra viene visualizzata la sequenza completa in cui si è verificato il primo errore, che viene mostrato con un colore diverso dal punto in cui si è sbagliato in poi. Nel caso in cui la sequenza risulti troppo lunga per lo spazio disponibile, ne viene mostrata solo la parte iniziale accompagnata da un indicatore grafico di troncamento.
 * Cliccando su un elemento della lista, viene visualizzata la partita completa nella schermata "Dettaglio Partita".
 * È presente un pulsante (convenzionale o floating action button) che porta alla "Schermata di Gioco".
 
-### 2. Dettaglio Partita
+### 2. Dettaglio Partita: [DetailActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/DetailActivity.kt)
 * Si tratta di una schermata molto semplice che visualizza la partita con lo stesso aspetto della Lista delle Partite ma con maggiore spazio a disposizione.
 * Da questa schermata si esce utilizzando il tasto "Back" di sistema (fisico, virtuale o touch gesture).
 
-### 3. Schermata di Gioco
+### 3. Schermata di Gioco: [GameActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/Gamectivity.kt)
 * **Matrice dei Colori:** Una matrice composta da 3 righe per 2 colonne di rettangoli.
 * **Area di Testo:** Un'area multiriga non editabile in cui viene mostrata la sequenza dei rettangoli premuti. Durante le proposte del computer, quest'area rimane vuota.
 * **Controlli della Partita:**
