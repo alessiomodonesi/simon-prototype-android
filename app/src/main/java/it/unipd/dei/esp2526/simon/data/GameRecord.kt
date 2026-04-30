@@ -10,6 +10,9 @@ data class GameRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0, // chiave primaria univoca per ogni partita
 
+    @ColumnInfo(name = "max_length")
+    val maxLength: Int, // lunghezza massima riprodotta correttamente
+
     @ColumnInfo(name = "sequence")
     val sequence: String // sequenza salvata come stringa separata da virgole (es. "R, G, B")
 )
