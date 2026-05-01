@@ -60,10 +60,18 @@ class GameActivity : ComponentActivity() {
                 // stato di GameActivity : la sequenza contenuta nell'area di testo multiriga non editabile (Instance State)
                 var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
 
+                // stato per capire se il gioco è in corso o meno
+                var isGameRunning by rememberSaveable { mutableStateOf(false) }
+
+                // stato per capire se il computer ha il comando
+                var isComputerPlaying by rememberSaveable { mutableStateOf(false) }
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     GameScreen(
-                        // stato della sequenza corrente
+                        // passo le variabili di stato
                         currentSequence = currentSequence,
+                        isGameRunning = isGameRunning,
+                        isComputerPlaying = isComputerPlaying,
 
                         // funzione lambda per il click su un colore, riceve come parametro l'indice del colore premuto
                         onColorClick = { colorLabel ->
@@ -73,6 +81,8 @@ class GameActivity : ComponentActivity() {
 
                         // funzione lambda per il click sul tasto "Start Game"
                         onStartClick = {
+                            isGameRunning = true
+                            isComputerPlaying = true // il computer inizia a proporre
                             Log.v(mTAG, "Start Game Btn clicked")
                         },
 
@@ -84,6 +94,7 @@ class GameActivity : ComponentActivity() {
                         // funzione lambda per il click sul tasto "End Game", aggiorna la lista di sequenze giocate prima di cancellare la sequenza appena terminata,
                         // poi lancia un intent verso HistoryActivity passando come dato la lista di sequenze giocate
                         onEndGameClick = {
+                            isGameRunning = false
                             Log.v(mTAG, "End Game Btn clicked")
 
                             // calcolo la lunghezza massima (se c'è un errore, la sequenza salvata è n+1, quindi la max length è n)
@@ -121,6 +132,8 @@ fun GameScreen(
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onEndGameClick: () -> Unit,
+    isGameRunning: Boolean,
+    isComputerPlaying: Boolean,
     modifier: Modifier = Modifier
 ) {
     // trasformiamo la lista in una stringa separata da virgole, come da specifiche
@@ -187,7 +200,9 @@ fun GameScreen(
                         end.linkTo(parent.end)
                     }
                 },
-            onColorClick = onColorClick // uso direttamente il parametro
+            onColorClick = onColorClick, // uso direttamente il parametro
+            isGameRunning = isGameRunning,
+            isComputerPlaying = isComputerPlaying
         )
 
         // area di testo multiriga non editabile
@@ -245,7 +260,8 @@ fun GameScreen(
                     width = Dimension.fillToConstraints
                 }
                 .height(55.dp),
-            onClick = onStartClick // uso direttamente il parametro
+            onClick = onStartClick, // uso direttamente il parametro
+            enabled = !isGameRunning // si disattiva appena il gioco inizia
         ) {
             Text(
                 text = stringResource(R.string.start_str),
@@ -269,7 +285,8 @@ fun GameScreen(
                     width = Dimension.fillToConstraints
                 }
                 .height(55.dp),
-            onClick = onPauseClick // uso direttamente il parametro
+            onClick = onPauseClick, // uso direttamente il parametro
+            enabled = isComputerPlaying // si attiva SOLO durante il turno del computer
         ) {
             Text(
                 text = stringResource(R.string.pause_str),
@@ -293,7 +310,8 @@ fun GameScreen(
                     width = Dimension.fillToConstraints
                 }
                 .height(55.dp),
-            onClick = onEndGameClick // uso direttamente il parametro
+            onClick = onEndGameClick, // uso direttamente il parametro
+            enabled = isGameRunning // rimane attivo per tutta la durata della partita
         ) {
             Text(
                 text = stringResource(R.string.end_str),
@@ -307,7 +325,9 @@ fun GameScreen(
 @Composable
 private fun ColorGrid(
     modifier: Modifier = Modifier,
-    onColorClick: (String) -> Unit
+    onColorClick: (String) -> Unit,
+    isGameRunning: Boolean,
+    isComputerPlaying: Boolean,
 ) {
     /**
      * faccio uno shuffle sui colori e salvo la disposizione (remember).
@@ -337,7 +357,12 @@ private fun ColorGrid(
                             .fillMaxHeight() // deve riempire l'altezza della riga
                             .clip(RoundedCornerShape(10.dp)) // ritaglia la forma
                             .background(simonColor.color) // sfondo a scelta tra i 6 colori
-                            .clickable { onColorClick(simonColor.label) } // rende il box cliccabile e passa la lettera alla callback
+                            // disabilita il click se il gioco non è partito o se è il turno del computer
+                            .clickable(
+                                enabled = isGameRunning, // provvisorio
+                                // enabled = isGameRunning && !isComputerPlaying,
+                                onClick = { onColorClick(simonColor.label) }
+                            )
                     )
                 }
             }
@@ -353,6 +378,8 @@ fun GameScreenPreview() {
         onColorClick = {},
         onStartClick = {},
         onPauseClick = {},
-        onEndGameClick = {}
+        onEndGameClick = {},
+        isGameRunning = false,
+        isComputerPlaying = false
     )
 }
