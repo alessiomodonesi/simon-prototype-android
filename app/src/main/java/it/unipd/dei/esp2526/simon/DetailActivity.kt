@@ -58,7 +58,7 @@ fun DetailScreen(
     matchDetails: String
 ) {
     // calcolo della dimensione: se la stringa è vuota metto 0, altrimenti conto gli elementi divisi da virgola
-    val count = if (matchDetails.isBlank()) 0 else matchDetails.split(",").size
+    val count = if (matchDetails.isBlank()) 0 else matchDetails.split(",").size - 1
 
     Column(
         modifier = modifier
