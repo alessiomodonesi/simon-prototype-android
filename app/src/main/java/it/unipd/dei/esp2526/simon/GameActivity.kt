@@ -55,7 +55,7 @@ import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 const val mTAG = "GameActivity"
 
 class GameActivity : ComponentActivity() {
-    private val gameViewModel: GameViewModel by viewModels() // inizializzo il ViewModel
+    private val vm: ViewModel by viewModels() // inizializzo il ViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,7 +107,7 @@ class GameActivity : ComponentActivity() {
                                 if (currentSequence.isNotEmpty()) currentSequence.size - 1 else 0
 
                             // salva nel database chiamando la fun insertGame() dal ViewModel
-                            gameViewModel.insertGame(
+                            vm.insertGame(
                                 maxLength = maxLength,
                                 sequence = sequence
                             )

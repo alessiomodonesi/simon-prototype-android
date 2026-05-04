@@ -51,7 +51,7 @@ import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 import kotlin.getValue
 
 class HistoryActivity : ComponentActivity() {
-    private val gameViewModel: GameViewModel by viewModels() // inizializzo il ViewModel
+    private val vm: ViewModel by viewModels() // inizializzo il ViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +65,7 @@ class HistoryActivity : ComponentActivity() {
         setContent {
             SimonTheme {
                 // raccoglie i dati dal database in tempo reale
-                val historyList by gameViewModel.history.collectAsState()
+                val historyList by vm.history.collectAsState()
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     // aggiungo il Floating Action Button in basso a destra
