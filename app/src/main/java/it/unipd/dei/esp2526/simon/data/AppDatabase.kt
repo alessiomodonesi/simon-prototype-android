@@ -10,7 +10,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun gameDao(): GameDao  // espone il DAO per permettere l'accesso ai dati
 
     companion object {
-        // volatile garantisce che il valore di questa variabile sia sempre aggiornato per tutti i thread
+        // @Volatile garantisce che il valore di questa variabile sia sempre aggiornato per tutti i thread
         @Volatile
         private var INSTANCE: AppDatabase? =
             null // singleton per evitare di creare più istanze del database

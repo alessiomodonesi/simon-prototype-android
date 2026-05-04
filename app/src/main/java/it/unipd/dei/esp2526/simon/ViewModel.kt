@@ -46,7 +46,6 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     // crea lo StateFlow direttamente dalla query di Room
     // stato reattivo che contiene la cronologia per la HistoryActivity
-    // https://developer.android.com/kotlin/flow/stateflow-and-sharedflow
     val history: StateFlow<List<GameRecord>> = dao.getAllGames()
         .stateIn(
             scope = viewModelScope,
