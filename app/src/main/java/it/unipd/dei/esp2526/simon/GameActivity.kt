@@ -271,11 +271,6 @@ fun GameScreen(
                 Icons.Filled.PlayArrow,
                 stringResource(R.string.start_str)
             )
-            // Text(
-            // text = stringResource(R.string.start_str),
-            // fontSize = 14.sp,
-            // textAlign = TextAlign.Center
-            // )
         }
 
         // bottone "Pause"
@@ -300,11 +295,6 @@ fun GameScreen(
                 Icons.Filled.Pause,
                 stringResource(R.string.pause_str)
             )
-            // Text(
-            // text = stringResource(R.string.pause_str),
-            // fontSize = 14.sp,
-            // textAlign = TextAlign.Center
-            // )
         }
 
         // bottone "End Game"
@@ -329,11 +319,6 @@ fun GameScreen(
                 Icons.Filled.Stop,
                 stringResource(R.string.end_str)
             )
-            // Text(
-            // text = stringResource(R.string.end_str),
-            // fontSize = 14.sp,
-            // textAlign = TextAlign.Center
-            // )
         }
     }
 }

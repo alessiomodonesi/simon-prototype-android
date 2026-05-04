@@ -55,13 +55,6 @@ class HistoryActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        /**
-         * nota sulla navigazione: non è necessario implementare alcun pulsante "Indietro" personalizzato.
-         * il sistema Android inserisce questa activity in cima al Back Stack.
-         * quando l'utente utilizza il tasto "Back" di sistema (fisico, virtuale o gesture),
-         * questa activity viene distrutta automaticamente (pop) e l'utente
-         * ritorna alla GameActivity sottostante.
-         */
         setContent {
             SimonTheme {
                 // raccoglie i dati dal database in tempo reale
