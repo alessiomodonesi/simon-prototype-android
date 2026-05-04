@@ -115,9 +115,8 @@ class GameActivity : ComponentActivity() {
                             // svuoto la sequenza per la prossima partita
                             currentSequence = emptyList()
 
-                            // creo l'intent esplicito per avviare HistoryActivity, senza dati
-                            val historyIntent = Intent(this, HistoryActivity::class.java)
-                            this.startActivity(historyIntent) // lancio l'activity passandogli l'intent, this è il Context
+                            // utilizzo finish() per chiudere GameActivity (pop) e tornare indietro
+                            this@GameActivity.finish()
                         },
                         modifier = Modifier
                             .padding(innerPadding)
