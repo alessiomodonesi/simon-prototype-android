@@ -7,10 +7,13 @@ import androidx.room.Query
 @Dao
 interface GameDao {
     // inserisce una nuova partita
+    // utilizzo "suspend" per eseguire l'operazione in modo asincrono
+    // questo delega il lavoro di I/O ad un thread in background,
+    // evitando di bloccare il Main Thread (UI).
     @Insert
-    fun insertGame(game: GameRecord)
+    suspend fun insertGame(game: GameRecord)
 
     // recupera tutte le partite, ordinate dall'ultima alla prima
     @Query("SELECT * FROM games_history ORDER BY id DESC")
-    fun getAllGames(): List<GameRecord>
+    suspend fun getAllGames(): List<GameRecord>
 }

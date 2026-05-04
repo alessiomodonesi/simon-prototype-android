@@ -24,7 +24,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Square
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -263,11 +269,15 @@ fun GameScreen(
             onClick = onStartClick, // uso direttamente il parametro
             enabled = !isGameRunning // si disattiva appena il gioco inizia
         ) {
-            Text(
-                text = stringResource(R.string.start_str),
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center
+            Icon(
+                Icons.Filled.PlayArrow,
+                stringResource(R.string.start_str)
             )
+            // Text(
+            // text = stringResource(R.string.start_str),
+            // fontSize = 14.sp,
+            // textAlign = TextAlign.Center
+            // )
         }
 
         // bottone "Pause"
@@ -288,11 +298,15 @@ fun GameScreen(
             onClick = onPauseClick, // uso direttamente il parametro
             enabled = isComputerPlaying // si attiva SOLO durante il turno del computer
         ) {
-            Text(
-                text = stringResource(R.string.pause_str),
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center
+            Icon(
+                Icons.Filled.Pause,
+                stringResource(R.string.start_str)
             )
+            // Text(
+            // text = stringResource(R.string.pause_str),
+            // fontSize = 14.sp,
+            // textAlign = TextAlign.Center
+            // )
         }
 
         // bottone "End Game"
@@ -313,11 +327,15 @@ fun GameScreen(
             onClick = onEndGameClick, // uso direttamente il parametro
             enabled = isGameRunning // rimane attivo per tutta la durata della partita
         ) {
-            Text(
-                text = stringResource(R.string.end_str),
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center
+            Icon(
+                Icons.Filled.Square,
+                stringResource(R.string.start_str)
             )
+            // Text(
+            // text = stringResource(R.string.end_str),
+            // fontSize = 14.sp,
+            // textAlign = TextAlign.Center
+            // )
         }
     }
 }

@@ -12,17 +12,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -66,7 +68,7 @@ class HistoryActivity : ComponentActivity() {
                     // aggiungo il Floating Action Button in basso a destra
                     // https://developer.android.com/develop/ui/compose/components/fab
                     floatingActionButton = {
-                        FloatingActionButton(
+                        ExtendedFloatingActionButton(
                             onClick = {
                                 // creo l'intent esplicito per avviare GameActivity
                                 val mainIntent =
@@ -78,8 +80,10 @@ class HistoryActivity : ComponentActivity() {
                         ) {
                             Icon(
                                 Icons.Filled.PlayArrow,
-                                stringResource(R.string.start_str)
+                                stringResource(R.string.start_str) // per accessibilità
                             )
+                            Spacer(modifier = Modifier.width(10.dp)) // spazio tra icona e testo
+                            Text(stringResource(R.string.start_str))
                         }
                     }
                 ) { innerPadding ->
