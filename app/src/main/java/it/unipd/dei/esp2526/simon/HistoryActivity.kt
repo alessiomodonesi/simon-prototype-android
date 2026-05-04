@@ -12,12 +12,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,11 +33,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -89,14 +92,14 @@ class HistoryActivity : ComponentActivity() {
                 ) { innerPadding ->
                     HistoryScreen(
                         // funzione lambda per il click sulla Row della LazyColumn
-                        onRowClick = { sequence ->
+                        onRowClick = { record ->
                             // creo l'intent esplicito per avviare detailActivity
                             val detailIntent =
                                 Intent(this, DetailActivity::class.java).apply {
                                     // passo la sequenza come parametro extra
-                                    putExtra("MATCH_DETAILS", sequence)
+                                    putExtra("MATCH_ID", record.id)
                                     // stampo i dati a scopo di test (v = verbose)
-                                    Log.v("MATCH_DETAILS", sequence)
+                                    Log.v("MATCH_ID", "id: ${record.id}")
                                 }
 
                             // lancio l'activity passandogli l'intent, this è il Context
@@ -116,7 +119,7 @@ class HistoryActivity : ComponentActivity() {
 @Composable
 fun HistoryScreen(
     modifier: Modifier = Modifier,
-    onRowClick: (String) -> Unit,
+    onRowClick: (GameRecord) -> Unit,
     historyList: List<GameRecord> // ora riceve GameRecord dal DB
 ) {
     /**
@@ -160,7 +163,7 @@ fun HistoryScreen(
             items(historyList) { record ->
                 GameHistoryRow(
                     record = record, // passo l'intero record
-                    onClick = { onRowClick(record.sequence) } // passo la sequenza alla callback
+                    onClick = { onRowClick(record) } // passo la sequenza alla callback
                 )
             }
         }
@@ -197,7 +200,7 @@ private fun GameHistoryRow(
 
         // sequenza di rettangoli premuti
         Text(
-            text = record.sequence.ifEmpty { stringResource(R.string.none) }, // se vuota, testo "None"
+            text = getColoredSequence(record),
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis, // se la sequenza è troppo lunga, viene troncata
@@ -207,6 +210,38 @@ private fun GameHistoryRow(
                 .padding(start = 16.dp) // tiene una distanza di sicurezza dal contatore
         )
     }
+}
+
+@Composable
+fun getColoredSequence(record: GameRecord): AnnotatedString {
+    // sequenza divisa in corretta/errata e colorata, come da specifiche
+    val annotatedSequence = buildAnnotatedString {
+        if (record.sequence.isBlank()) {
+            append(stringResource(R.string.none)) // se vuota, testo "None"
+        } else {
+            // divido la sequenza in una lista di stringhe
+            val items = record.sequence.split(", ")
+
+            // i primi 'maxLength' elementi sono corretti
+            val correctItems = items.take(record.maxLength).joinToString(", ")
+            // i restanti elementi sono sbagliati
+            val wrongItems = items.drop(record.maxLength).joinToString(", ")
+
+            // aggiungo la parte corretta con il colore di default
+            append(correctItems)
+
+            // aggiungo la virgola separatrice se entrambe le parti esistono
+            if (correctItems.isNotEmpty() && wrongItems.isNotEmpty())
+                append(", ")
+
+            // aggiungo la parte sbagliata con un colore diverso
+            if (wrongItems.isNotEmpty())
+                withStyle(style = SpanStyle(color = Color.Red)) {
+                    append(wrongItems)
+                }
+        }
+    }
+    return annotatedSequence
 }
 
 @Preview(showBackground = true)
