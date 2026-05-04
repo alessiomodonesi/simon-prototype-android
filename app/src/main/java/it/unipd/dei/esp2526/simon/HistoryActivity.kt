@@ -23,7 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Games
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -79,7 +79,7 @@ class HistoryActivity : ComponentActivity() {
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ) {
                             Icon(
-                                Icons.Filled.Add,
+                                Icons.Filled.Games,
                                 stringResource(R.string.new_game_str) // per accessibilità
                             )
                             Spacer(modifier = Modifier.width(10.dp)) // spazio tra icona e testo
