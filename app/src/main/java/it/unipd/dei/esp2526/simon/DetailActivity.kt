@@ -3,6 +3,7 @@ package it.unipd.dei.esp2526.simon
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -26,26 +32,42 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import it.unipd.dei.esp2526.simon.data.GameRecord
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
-import kotlin.text.ifEmpty
-import kotlin.text.isBlank
-import kotlin.text.split
+import kotlin.getValue
 
 class DetailActivity : ComponentActivity() {
+    private val gameViewModel: GameViewModel by viewModels() // inizializzo il ViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // recupero la stringa dall'intent usando la stessa chiave. se è null, assegna una stringa vuota
-        val detailsData = intent.getStringExtra("MATCH_DETAILS") ?: ""
+        // recupero l'ID (di default metto -1 se non lo trova)
+        val matchId = intent.getIntExtra("MATCH_ID", -1)
 
         setContent {
             SimonTheme {
+                // stato per contenere il record caricato dal DB
+                var record by remember { mutableStateOf<GameRecord?>(null) }
+
+                // ogni volta che 'matchId' cambia, Compose esegue questo blocco
+                // LaunchedEffect avvia una coroutine non appena la composizione inizia
+                LaunchedEffect(matchId) {
+                    if (matchId != -1)
+                        record =
+                            gameViewModel.getGameById(matchId) // chiamo la funzione dal ViewModel
+                }
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    DetailScreen(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .displayCutoutPadding(), // https://developer.android.com/develop/ui/views/layout/display-cutout
-                        matchDetails = detailsData // passo i dati ricevuti alla schermata
-                    )
+                    // se il record è stato caricato, mostro la schermata
+                    // k?.let{…}, azione tra {} eseguita if k != null
+                    record?.let { loadedRecord ->
+                        DetailScreen(
+                            modifier = Modifier
+                                .padding(innerPadding)
+                                .displayCutoutPadding(), // https://developer.android.com/develop/ui/views/layout/display-cutout
+                            record = loadedRecord // passo l'intero record
+                        )
+                    }
                 }
             }
         }
@@ -55,11 +77,8 @@ class DetailActivity : ComponentActivity() {
 @Composable
 fun DetailScreen(
     modifier: Modifier = Modifier,
-    matchDetails: String
+    record: GameRecord
 ) {
-    // calcolo della dimensione: se la stringa è vuota metto 0, altrimenti conto gli elementi divisi da virgola
-    val count = if (matchDetails.isBlank()) 0 else matchDetails.split(",").size - 1
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -97,7 +116,7 @@ fun DetailScreen(
             ) {
                 // numero di rettangoli premuti
                 Text(
-                    text = "$count",
+                    text = "${record.maxLength}", // campo dal db
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -109,7 +128,7 @@ fun DetailScreen(
 
                 // Sequenza di rettangoli premuti
                 Text(
-                    text = matchDetails.ifEmpty { stringResource(R.string.none) },  // se vuota, testo "None"
+                    text = getColoredSequence(record), // chiamo la funzione implementata in HistoryActivity.kt
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Start, // allineo la stringa a sinistra
                     lineHeight = 28.sp,
@@ -124,7 +143,8 @@ fun DetailScreen(
 @Composable
 fun DetailScreenPreview() {
     SimonTheme {
-        // dati fittizi, servono solo alla preview di android studio
-        DetailScreen(matchDetails = "R, G, B")
+        // dati fittizi aggiornati al tipo GameRecord, servono solo alla preview
+        val dummyData = GameRecord(id = 1, maxLength = 2, sequence = "R, G, B")
+        DetailScreen(record = dummyData)
     }
 }
