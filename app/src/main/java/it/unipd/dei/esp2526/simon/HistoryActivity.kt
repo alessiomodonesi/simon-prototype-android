@@ -75,16 +75,16 @@ class HistoryActivity : ComponentActivity() {
                                     Intent(this, GameActivity::class.java)
                                 this.startActivity(mainIntent)
                             },
+                            icon = {
+                                Icon(
+                                    Icons.Filled.Games,
+                                    stringResource(R.string.new_game_str) // per accessibilità
+                                )
+                            },
+                            text = { Text(stringResource(R.string.new_game_str)) },
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
-                        ) {
-                            Icon(
-                                Icons.Filled.Games,
-                                stringResource(R.string.new_game_str) // per accessibilità
-                            )
-                            Spacer(modifier = Modifier.width(10.dp)) // spazio tra icona e testo
-                            Text(stringResource(R.string.new_game_str))
-                        }
+                        )
                     }
                 ) { innerPadding ->
                     HistoryScreen(
