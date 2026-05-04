@@ -80,10 +80,10 @@ class HistoryActivity : ComponentActivity() {
                         ) {
                             Icon(
                                 Icons.Filled.Add,
-                                stringResource(R.string.play_str) // per accessibilità
+                                stringResource(R.string.new_game_str) // per accessibilità
                             )
                             Spacer(modifier = Modifier.width(10.dp)) // spazio tra icona e testo
-                            Text(stringResource(R.string.play_str))
+                            Text(stringResource(R.string.new_game_str))
                         }
                     }
                 ) { innerPadding ->
