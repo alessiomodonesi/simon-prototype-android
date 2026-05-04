@@ -126,7 +126,7 @@ fun DetailScreen(
                         .widthIn(min = 40.dp) // larghezza minima per allineare 1 e 2 cifre
                 )
 
-                // Sequenza di rettangoli premuti
+                // sequenza di rettangoli premuti
                 Text(
                     text = getColoredSequence(record), // chiamo la funzione implementata in HistoryActivity.kt
                     style = MaterialTheme.typography.bodyLarge,

@@ -57,7 +57,12 @@ class HistoryActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SimonTheme {
-                // raccoglie i dati dal database in tempo reale
+                /**
+                 * si iscrive allo StateFlow del ViewModel convertendolo in uno stato di Compose.
+                 * quando il database Room si aggiorna, il flusso emette i nuovi dati e Compose
+                 * "ricompone" (ridisegna) automaticamente l'interfaccia utente in tempo reale.
+                 * l'uso del delegato "by" estrae comodamente il valore in una List<GameRecord>
+                 */
                 val historyList by vm.history.collectAsState()
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
