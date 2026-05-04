@@ -215,6 +215,7 @@ private fun GameHistoryRow(
 @Composable
 fun getColoredSequence(record: GameRecord): AnnotatedString {
     // sequenza divisa in corretta/errata e colorata, come da specifiche
+    // https://developer.android.com/reference/kotlin/androidx/compose/ui/text/AnnotatedString
     val annotatedSequence = buildAnnotatedString {
         if (record.sequence.isBlank()) {
             append(stringResource(R.string.none)) // se vuota, testo "None"
