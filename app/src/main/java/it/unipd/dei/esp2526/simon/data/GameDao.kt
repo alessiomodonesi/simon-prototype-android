@@ -16,4 +16,8 @@ interface GameDao {
     // recupera tutte le partite, ordinate dall'ultima alla prima
     @Query("SELECT * FROM games_history ORDER BY id DESC")
     suspend fun getAllGames(): List<GameRecord>
+
+    // recupera una singola partita, utile per recupere i dettagli nella DetailActivity
+    @Query("SELECT * FROM games_history WHERE id = :gameId")
+    suspend fun getGameById(gameId: Int): GameRecord?
 }
