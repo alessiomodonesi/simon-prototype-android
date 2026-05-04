@@ -27,8 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Square
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -46,7 +45,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import it.unipd.dei.esp2526.simon.model.simonColors
@@ -300,7 +298,7 @@ fun GameScreen(
         ) {
             Icon(
                 Icons.Filled.Pause,
-                stringResource(R.string.start_str)
+                stringResource(R.string.pause_str)
             )
             // Text(
             // text = stringResource(R.string.pause_str),
@@ -328,8 +326,8 @@ fun GameScreen(
             enabled = isGameRunning // rimane attivo per tutta la durata della partita
         ) {
             Icon(
-                Icons.Filled.Square,
-                stringResource(R.string.start_str)
+                Icons.Filled.Stop,
+                stringResource(R.string.end_str)
             )
             // Text(
             // text = stringResource(R.string.end_str),

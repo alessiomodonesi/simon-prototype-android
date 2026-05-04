@@ -1,4 +1,5 @@
 <resources>
+    <string name="play_str">Gioca</string>
     <string name="start_str">Avvia Partita</string>
     <string name="pause_str">Pausa</string>
     <string name="end_str">Fine partita</string>
