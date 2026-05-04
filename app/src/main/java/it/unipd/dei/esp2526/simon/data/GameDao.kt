@@ -8,13 +8,16 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface GameDao {
     // inserisce una nuova partita
-    // utilizzo "suspend" per eseguire l'operazione in modo asincrono
+    // utilizzo "suspend" per eseguire l'operazione in modo asincrono.
     // questo delega il lavoro di I/O ad un thread in background,
-    // evitando di bloccare il Main Thread (UI).
+    // evitando di bloccare il Main Thread (UI)
     @Insert
     suspend fun insertGame(game: GameRecord)
 
     // recupera tutte le partite, ordinate dall'ultima alla prima
+    // il Flow è di per sé un "tubo" reattivo e asincrono.
+    // creare il tubo è un'operazione istantanea (quindi non serve suspend);
+    // è l'ascolto dei dati all'interno del tubo che avverrà in modo asincrono nel tempo
     // https://developer.android.com/kotlin/flow
     @Query("SELECT * FROM games_history ORDER BY id DESC")
     fun getAllGames(): Flow<List<GameRecord>>

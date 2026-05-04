@@ -54,17 +54,23 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             initialValue = emptyList()
         )
 
-    // inserisce una nuova partita e aggiorna la lista
-    // Dispatchers.IO indicates that this coroutine should be executed on a thread reserved for I/O operations.
+    // inserisce una nuova partita
+    // è una funzione normale: la UI non aspetta il risultato.
+    // è un'operazione "spara e dimentica" (fire-and-forget)
     fun insertGame(maxLength: Int, sequence: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        // NON serve specificare Dispatchers.IO, Room si sposterà da solo
+        // in background perché la funzione insertGame nel DAO è "suspend"
+        viewModelScope.launch {
             val newRecord = GameRecord(maxLength = maxLength, sequence = sequence)
             dao.insertGame(newRecord) // chiamo la fun insertGame() nel Dao
         }
     }
 
-    // chiamo la fun getGameById() nel Dao
+    // recupera una partita.
+    // "suspend": la UI deve chiamarla da una coroutine
+    // (es. LaunchedEffect) e aspettare il valore
     suspend fun getGameById(id: Int): GameRecord? {
+        // anche qui Room gestisce il thread in autonomia
         return dao.getGameById(id)
     }
 }
