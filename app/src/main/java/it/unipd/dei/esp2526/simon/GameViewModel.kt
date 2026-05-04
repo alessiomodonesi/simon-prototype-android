@@ -50,4 +50,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             loadHistory() // poi aggiorno la lista
         }
     }
+
+    // chiamo la fun getGameById() nel Dao
+    suspend fun getGameById(id: Int): GameRecord? {
+        return dao.getGameById(id)
+    }
 }
