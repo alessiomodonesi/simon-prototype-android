@@ -318,7 +318,6 @@ fun GameScreen(
                 .border(
                     width = 3.dp,
                     brush = rainbowBrush, // colore sfumato
-                    // color = MaterialTheme.colorScheme.outline,
                     shape = RoundedCornerShape(10.dp)
                 )
                 .height(120.dp)
