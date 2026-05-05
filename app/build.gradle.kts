@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "it.unipd.dei.esp2526.simon"
-        minSdk = 24
+        minSdk = 29
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     // noinspection UseTomlInstead
     implementation("androidx.room:room-ktx:2.8.4")
+    implementation(libs.androidx.compose.remote.creation.compose)
     // noinspection UseTomlInstead
     ksp("androidx.room:room-compiler:2.8.4")
     testImplementation(libs.junit)
