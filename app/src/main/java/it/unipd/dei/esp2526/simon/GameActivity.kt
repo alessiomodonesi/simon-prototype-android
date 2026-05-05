@@ -1,6 +1,5 @@
 package it.unipd.dei.esp2526.simon
 
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
