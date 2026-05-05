@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
@@ -36,10 +37,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import it.unipd.dei.esp2526.simon.model.simonColors
@@ -48,9 +51,6 @@ import it.unipd.dei.esp2526.simon.utils.SoundManager
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-// tag per il logger di debug di GameActivity
-const val mTAG = "GameActivity"
 
 class GameActivity : ComponentActivity() {
     private val vm: ViewModel by viewModels() // inizializzo il ViewModel
@@ -74,6 +74,9 @@ class GameActivity : ComponentActivity() {
                 // stato per gestire la pausa durante il turno del computer
                 var isPaused by rememberSaveable { mutableStateOf(false) }
 
+                // stato per gestire la sconfitta dell'utente
+                var isGameOver by rememberSaveable { mutableStateOf(false) }
+
                 // stato per il colore attualmente illuminato
                 var activeColor by remember { mutableStateOf<String?>(null) }
 
@@ -88,11 +91,15 @@ class GameActivity : ComponentActivity() {
                         isGameRunning = isGameRunning,
                         isComputerPlaying = isComputerPlaying,
                         isPaused = isPaused,
+                        isGameOver = isGameOver,
                         activeColor = activeColor,
 
                         // funzione lambda per il click su un colore, riceve come parametro l'indice del colore premuto
                         onColorClick = { colorLabel ->
-                            userSequence += colorLabel // aggiunge la lettera alla sequenza
+                            // ignora i click se: il gioco è finito || se NON è avviato || se tocca al computer
+                            if (isGameOver || !isGameRunning || isComputerPlaying) return@GameScreen
+
+                            userSequence += colorLabel // aggiunge la lettera alla sequenza utente
                             Log.v(mTAG, "$colorLabel Btn clicked")
 
                             // animazione del feedback visivo e uditivo dell'utente
@@ -108,12 +115,29 @@ class GameActivity : ComponentActivity() {
                                 delay(250) // tiene acceso per 250ms
                                 activeColor = null // spegne il colore
                             }
+
+                            // indice per la validazione della mossa
+                            val i = userSequence.size - 1
+
+                            // debug
+                            computerSequence = listOf("R", "G", "B")
+
+                            // verifica se l'indice esiste nella sequenza del computer e se il colore coincide
+                            if (i < computerSequence.size && colorLabel == computerSequence[i]) { // mossa corretta
+                                if (userSequence.size == computerSequence.size) { // l'utente ha completato l'intera sequenza correttamente
+                                    isComputerPlaying = true
+                                    // qui chiamiamo la funzione da simon.utils.GameEngine.kt
+                                }
+                            } else { // mossa errata
+                                isGameOver = true
+                                isGameRunning = false // ferma il gioco e disabilita ulteriori input
+                            }
                         },
 
                         // funzione lambda per il click sul tasto "Start Game"
                         onStartClick = {
                             isGameRunning = true
-                            isComputerPlaying = true // il computer inizia a proporre
+                            // isComputerPlaying = true // il computer inizia a proporre
                             Log.v(mTAG, "Start Game Btn clicked")
                         },
 
@@ -167,9 +191,35 @@ fun GameScreen(
     isGameRunning: Boolean,
     isComputerPlaying: Boolean,
     isPaused: Boolean,
+    isGameOver: Boolean,
     activeColor: String?,
     modifier: Modifier = Modifier
 ) {
+    // segnalazione di errore che blocca il gioco
+    // https://developer.android.com/develop/ui/views/components/dialogs
+    if (isGameOver) {
+        androidx.compose.material3.AlertDialog(
+            confirmButton = {},
+            onDismissRequest = {
+                onEndGameClick() // questo scatta quando l'utente preme il tasto "Back" di sistema mentre il Dialog è aperto
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.game_over_title),
+                    color = MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(stringResource(R.string.game_over_description))
+            },
+            properties = DialogProperties(
+                dismissOnClickOutside = false, // impedisce di chiudere il modal cliccando fuori
+                dismissOnBackPress = true // permette al tasto Back di invocare onDismissRequest
+            ),
+        )
+    }
+
     // trasformiamo la lista in una stringa separata da virgole, come da specifiche
     val displayText = userSequence.joinToString(", ")
 
@@ -184,6 +234,12 @@ fun GameScreen(
     LaunchedEffect(displayText) {
         // anima lo scroll fino al valore massimo (la fine del testo)
         scrollState.animateScrollTo(scrollState.maxValue)
+    }
+
+    // intercetta il tasto "Back" di sistema in qualsiasi momento
+    // https://developer.android.com/guide/navigation/custom-back
+    BackHandler {
+        onEndGameClick()
     }
 
     // brush sfumato con i colori dell'arcobaleno (gradiente lineare)
@@ -423,6 +479,10 @@ fun GameScreenPreview() {
         isGameRunning = false,
         isComputerPlaying = false,
         isPaused = false,
+        isGameOver = false,
         activeColor = null
     )
 }
+
+// tag per il logger di debug di GameActivity
+const val mTAG = "GameActivity"
