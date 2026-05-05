@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import it.unipd.dei.esp2526.simon.model.simonColors
+import it.unipd.dei.esp2526.simon.utils.SoundManager
 
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 import kotlinx.coroutines.delay
@@ -91,11 +92,18 @@ class GameActivity : ComponentActivity() {
                             currentSequence += colorLabel // aggiunge la lettera alla sequenza
                             Log.v(mTAG, "$colorLabel Btn clicked")
 
-                            // animazione del feedback visivo dell'utente
+                            // animazione del feedback visivo e uditivo dell'utente
                             coroutineScope.launch {
-                                activeColor = colorLabel // accende il colore
+                                activeColor = colorLabel // accende visivamente il colore
+
+                                // lancia la riproduzione audio in background
+                                val freq = SoundManager.getFrequencyForColor(colorLabel)
+                                launch {
+                                    SoundManager.playTone(frequency = freq, durationMs = 250)
+                                }
+
                                 delay(250) // tiene acceso per 250ms
-                                activeColor = null // spegne
+                                activeColor = null // spegne il colore
                             }
                         },
 
