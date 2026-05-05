@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import it.unipd.dei.esp2526.simon.data.GameRecord
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
+import it.unipd.dei.esp2526.simon.utils.getColoredSequence
 import kotlin.getValue
 
 class DetailActivity : ComponentActivity() {
