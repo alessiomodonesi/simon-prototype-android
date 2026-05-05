@@ -50,6 +50,8 @@ import androidx.constraintlayout.compose.Dimension
 import it.unipd.dei.esp2526.simon.model.simonColors
 
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // tag per il logger di debug di GameActivity
 const val mTAG = "GameActivity"
@@ -61,7 +63,7 @@ class GameActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SimonTheme {
-                // stato di GameActivity : la sequenza contenuta nell'area di testo multiriga non editabile (Instance State)
+                // stato di GameActivity: la sequenza contenuta nell'area di testo multiriga non editabile (Instance State)
                 var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
 
                 // stato per capire se il gioco è in corso o meno
@@ -70,17 +72,32 @@ class GameActivity : ComponentActivity() {
                 // stato per capire se il computer ha il comando
                 var isComputerPlaying by rememberSaveable { mutableStateOf(false) }
 
+                // stato per il colore attualmente illuminato
+                var activeColor by remember { mutableStateOf<String?>(null) }
+
+                // scope per lanciare le coroutine legate al ciclo di vita della composizione
+                // https://developer.android.com/kotlin/coroutines
+                val coroutineScope = rememberCoroutineScope()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     GameScreen(
                         // passo le variabili di stato
                         currentSequence = currentSequence,
                         isGameRunning = isGameRunning,
                         isComputerPlaying = isComputerPlaying,
+                        activeColor = activeColor,
 
                         // funzione lambda per il click su un colore, riceve come parametro l'indice del colore premuto
                         onColorClick = { colorLabel ->
                             currentSequence += colorLabel // aggiunge la lettera alla sequenza
                             Log.v(mTAG, "$colorLabel Btn clicked")
+
+                            // animazione del feedback visivo dell'utente
+                            coroutineScope.launch {
+                                activeColor = colorLabel // accende il colore
+                                delay(250) // tiene acceso per 250ms
+                                activeColor = null // spegne
+                            }
                         },
 
                         // funzione lambda per il click sul tasto "Start Game"
@@ -137,6 +154,7 @@ fun GameScreen(
     onEndGameClick: () -> Unit,
     isGameRunning: Boolean,
     isComputerPlaying: Boolean,
+    activeColor: String?,
     modifier: Modifier = Modifier
 ) {
     // trasformiamo la lista in una stringa separata da virgole, come da specifiche
@@ -205,7 +223,8 @@ fun GameScreen(
                 },
             onColorClick = onColorClick, // uso direttamente il parametro
             isGameRunning = isGameRunning,
-            isComputerPlaying = isComputerPlaying
+            isComputerPlaying = isComputerPlaying,
+            activeColor = activeColor
         )
 
         // area di testo multiriga non editabile
@@ -328,6 +347,7 @@ private fun ColorGrid(
     onColorClick: (String) -> Unit,
     isGameRunning: Boolean,
     isComputerPlaying: Boolean,
+    activeColor: String?
 ) {
     /**
      * faccio uno shuffle sui colori e salvo la disposizione (remember).
@@ -351,12 +371,15 @@ private fun ColorGrid(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 rowColors.forEach { simonColor ->
+                    // calcola l'opacità (1f se è il colore attivo, altrimenti 0.4f)
+                    val backgroundAlpha = if (simonColor.label == activeColor) 1f else 0.4f
+
                     Box(
                         modifier = Modifier
                             .weight(1f) // peso orizzontale: ogni colore prende esattamente 1/2 della larghezza
                             .fillMaxHeight() // deve riempire l'altezza della riga
                             .clip(RoundedCornerShape(10.dp)) // ritaglia la forma
-                            .background(simonColor.color) // sfondo a scelta tra i 6 colori
+                            .background(simonColor.color.copy(alpha = backgroundAlpha)) // sfondo a scelta tra i 6 colori
                             // disabilita il click se il gioco non è partito o se è il turno del computer
                             .clickable(
                                 enabled = isGameRunning, // provvisorio
@@ -380,6 +403,7 @@ fun GameScreenPreview() {
         onPauseClick = {},
         onEndGameClick = {},
         isGameRunning = false,
-        isComputerPlaying = false
+        isComputerPlaying = false,
+        activeColor = null
     )
 }
