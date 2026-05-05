@@ -10,11 +10,13 @@ import androidx.compose.ui.text.withStyle
 import it.unipd.dei.esp2526.simon.R
 import it.unipd.dei.esp2526.simon.data.GameRecord
 
+/**
+ * sequenza divisa in corretta/errata e colorata, come da specifiche
+ * @see "https://developer.android.com/reference/kotlin/androidx/compose/ui/text/AnnotatedString"
+ */
 @Composable
 fun getColoredSequence(record: GameRecord): AnnotatedString {
-    // sequenza divisa in corretta/errata e colorata, come da specifiche
-    // https://developer.android.com/reference/kotlin/androidx/compose/ui/text/AnnotatedString
-    val annotatedSequence = buildAnnotatedString {
+    return buildAnnotatedString {
         if (record.sequence.isBlank()) {
             append(stringResource(R.string.none)) // se vuota, testo "None"
         } else {
@@ -34,11 +36,11 @@ fun getColoredSequence(record: GameRecord): AnnotatedString {
                 append(", ")
 
             // aggiungo la parte sbagliata con un colore diverso
-            if (wrongItems.isNotEmpty())
+            if (wrongItems.isNotEmpty()) {
                 withStyle(style = SpanStyle(color = Color.Red)) {
                     append(wrongItems)
                 }
+            }
         }
     }
-    return annotatedSequence
 }
