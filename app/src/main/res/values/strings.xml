@@ -3,6 +3,7 @@
     <string name="new_game_str">New Game</string>
     <string name="start_str">Start Game</string>
     <string name="pause_str">Pause</string>
+    <string name="resume_str">Resume</string>
     <string name="end_str">End Game</string>
     <string name="history_title">Match History</string>
     <string name="details_title">Match Details</string>

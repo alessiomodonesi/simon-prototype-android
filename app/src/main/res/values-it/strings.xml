@@ -2,6 +2,7 @@
     <string name="new_game_str">Nuova Partita</string>
     <string name="start_str">Avvia Partita</string>
     <string name="pause_str">Pausa</string>
+    <string name="resume_str">Riprendi</string>
     <string name="end_str">Fine partita</string>
     <string name="history_title">Storico Partite</string>
     <string name="details_title">Dettagli Partita</string>

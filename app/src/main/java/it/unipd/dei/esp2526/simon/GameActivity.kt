@@ -23,12 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -44,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import it.unipd.dei.esp2526.simon.model.simonColors
@@ -71,6 +67,9 @@ class GameActivity : ComponentActivity() {
                 // stato per capire se il computer ha il comando
                 var isComputerPlaying by rememberSaveable { mutableStateOf(false) }
 
+                // stato per gestire la pausa durante il turno del computer
+                var isPaused by rememberSaveable { mutableStateOf(false) }
+
                 // stato per il colore attualmente illuminato
                 var activeColor by remember { mutableStateOf<String?>(null) }
 
@@ -84,6 +83,7 @@ class GameActivity : ComponentActivity() {
                         currentSequence = currentSequence,
                         isGameRunning = isGameRunning,
                         isComputerPlaying = isComputerPlaying,
+                        isPaused = isPaused,
                         activeColor = activeColor,
 
                         // funzione lambda per il click su un colore, riceve come parametro l'indice del colore premuto
@@ -108,6 +108,7 @@ class GameActivity : ComponentActivity() {
 
                         // funzione lambda per il click sul tasto "Pause"
                         onPauseClick = {
+                            isPaused = !isPaused // inverte lo stato di pausa ad ogni click
                             Log.v(mTAG, "Pause Btn clicked")
                         },
 
@@ -115,6 +116,7 @@ class GameActivity : ComponentActivity() {
                         // poi lancia un intent verso HistoryActivity passando come dato la lista di sequenze giocate
                         onEndGameClick = {
                             isGameRunning = false
+                            isPaused = false // resetto la pausa a fine partita
                             Log.v(mTAG, "End Game Btn clicked")
 
                             // calcolo la lunghezza massima (se c'è un errore, la sequenza salvata è n+1, quindi la max length è n)
@@ -153,6 +155,7 @@ fun GameScreen(
     onEndGameClick: () -> Unit,
     isGameRunning: Boolean,
     isComputerPlaying: Boolean,
+    isPaused: Boolean,
     activeColor: String?,
     modifier: Modifier = Modifier
 ) {
@@ -284,9 +287,10 @@ fun GameScreen(
             onClick = onStartClick, // uso direttamente il parametro
             enabled = !isGameRunning // si disattiva appena il gioco inizia
         ) {
-            Icon(
-                Icons.Filled.PlayArrow,
-                stringResource(R.string.start_str)
+            Text(
+                text = stringResource(R.string.start_str),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
             )
         }
 
@@ -308,9 +312,12 @@ fun GameScreen(
             onClick = onPauseClick, // uso direttamente il parametro
             enabled = isComputerPlaying // si attiva SOLO durante il turno del computer
         ) {
-            Icon(
-                Icons.Filled.Pause,
-                stringResource(R.string.pause_str)
+            // cambia testo in base allo stato
+            Text(
+                text = if (isPaused) stringResource(R.string.resume_str)
+                else stringResource(R.string.pause_str),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
             )
         }
 
@@ -332,9 +339,10 @@ fun GameScreen(
             onClick = onEndGameClick, // uso direttamente il parametro
             enabled = isGameRunning // rimane attivo per tutta la durata della partita
         ) {
-            Icon(
-                Icons.Filled.Stop,
-                stringResource(R.string.end_str)
+            Text(
+                text = stringResource(R.string.end_str),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -403,6 +411,7 @@ fun GameScreenPreview() {
         onEndGameClick = {},
         isGameRunning = false,
         isComputerPlaying = false,
+        isPaused = false,
         activeColor = null
     )
 }
