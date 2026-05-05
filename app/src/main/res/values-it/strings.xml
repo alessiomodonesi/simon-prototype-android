@@ -1,10 +1,19 @@
 <resources>
+    <!-- FAB in HistoryActivity -->
     <string name="new_game_str">Nuova Partita</string>
+
+    <!-- Buttons in GameActivity -->
     <string name="start_str">Avvia Partita</string>
     <string name="pause_str">Pausa</string>
     <string name="resume_str">Riprendi</string>
-    <string name="end_str">Fine partita</string>
+    <string name="end_str">Fine Partita</string>
+
+    <!-- Titoli -->
     <string name="history_title">Storico Partite</string>
     <string name="details_title">Dettagli Partita</string>
+    <string name="game_over_title">Hai Perso!</string>
+
+    <!-- Altro -->
+    <string name="game_over_description">Hai inserito il colore sbagliato.\nLa partita è terminata, premi il tasto "Back" del sistema per tornare alla lista.</string>
     <string name="none">Nessuna</string>
 </resources>

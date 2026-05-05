@@ -1,11 +1,22 @@
 <resources>
+    <!-- App Name -->
     <string name="app_name" translatable="false">Simon</string>
+
+    <!-- FAB in HistoryActivity -->
     <string name="new_game_str">New Game</string>
+
+    <!-- Buttons in GameActivity -->
     <string name="start_str">Start Game</string>
     <string name="pause_str">Pause</string>
     <string name="resume_str">Resume</string>
     <string name="end_str">End Game</string>
+
+    <!-- Titoli -->
     <string name="history_title">Match History</string>
     <string name="details_title">Match Details</string>
+    <string name="game_over_title">Game Over!</string>
+
+    <!-- Altro -->
+    <string name="game_over_description">You entered the wrong color. The game is over, press the system\'s "Back" button to return to the list.</string>
     <string name="none">None</string>
 </resources>
