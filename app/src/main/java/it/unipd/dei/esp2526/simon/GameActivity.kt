@@ -59,8 +59,11 @@ class GameActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SimonTheme {
-                // stato di GameActivity: la sequenza contenuta nell'area di testo multiriga non editabile (Instance State)
-                var currentSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
+                // stato per tenere traccia della sequenza generata dal computer
+                var computerSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
+
+                // stato per tenere traccia della sequenza riprodotta dall'utente
+                var userSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
 
                 // stato per capire se il gioco è in corso o meno
                 var isGameRunning by rememberSaveable { mutableStateOf(false) }
@@ -81,7 +84,7 @@ class GameActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     GameScreen(
                         // passo le variabili di stato
-                        currentSequence = currentSequence,
+                        userSequence = userSequence,
                         isGameRunning = isGameRunning,
                         isComputerPlaying = isComputerPlaying,
                         isPaused = isPaused,
@@ -89,7 +92,7 @@ class GameActivity : ComponentActivity() {
 
                         // funzione lambda per il click su un colore, riceve come parametro l'indice del colore premuto
                         onColorClick = { colorLabel ->
-                            currentSequence += colorLabel // aggiunge la lettera alla sequenza
+                            userSequence += colorLabel // aggiunge la lettera alla sequenza
                             Log.v(mTAG, "$colorLabel Btn clicked")
 
                             // animazione del feedback visivo e uditivo dell'utente
@@ -128,9 +131,9 @@ class GameActivity : ComponentActivity() {
                             Log.v(mTAG, "End Game Btn clicked")
 
                             // calcolo la lunghezza massima (se c'è un errore, la sequenza salvata è n+1, quindi la max length è n)
-                            val sequence = currentSequence.joinToString(", ")
+                            val sequence = userSequence.joinToString(", ")
                             val maxLength =
-                                if (currentSequence.isNotEmpty()) currentSequence.size - 1 else 0
+                                if (userSequence.isNotEmpty()) userSequence.size - 1 else 0
 
                             // salva nel database chiamando la fun insertGame() dal ViewModel
                             vm.insertGame(
@@ -139,7 +142,7 @@ class GameActivity : ComponentActivity() {
                             )
 
                             // svuoto la sequenza per la prossima partita
-                            currentSequence = emptyList()
+                            userSequence = emptyList()
 
                             // utilizzo finish() per chiudere GameActivity (pop) e tornare indietro
                             this@GameActivity.finish()
@@ -156,7 +159,7 @@ class GameActivity : ComponentActivity() {
 
 @Composable
 fun GameScreen(
-    currentSequence: List<String>,
+    userSequence: List<String>,
     onColorClick: (String) -> Unit,
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
@@ -168,7 +171,7 @@ fun GameScreen(
     modifier: Modifier = Modifier
 ) {
     // trasformiamo la lista in una stringa separata da virgole, come da specifiche
-    val displayText = currentSequence.joinToString(", ")
+    val displayText = userSequence.joinToString(", ")
 
     // configurazione schermo
     val orientation = LocalConfiguration.current.orientation
@@ -412,7 +415,7 @@ private fun ColorGrid(
 @Composable
 fun GameScreenPreview() {
     GameScreen(
-        currentSequence = listOf("R, G, B"), // dati fittizi, servono solo alla preview di android studio
+        userSequence = listOf("R, G, B"), // dati fittizi, servono solo alla preview di android studio
         onColorClick = {},
         onStartClick = {},
         onPauseClick = {},
