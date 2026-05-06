@@ -49,6 +49,7 @@ import it.unipd.dei.esp2526.simon.model.simonColors
 import it.unipd.dei.esp2526.simon.utils.*
 
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class GameActivity : ComponentActivity() {
@@ -114,14 +115,26 @@ class GameActivity : ComponentActivity() {
                             // indice per la validazione della mossa
                             val i = userSequence.size - 1
 
-                            // debug
-                            computerSequence = listOf("R", "G", "B")
-
                             // verifica se l'indice esiste nella sequenza del computer e se il colore coincide
                             if (i < computerSequence.size && colorLabel == computerSequence[i]) { // mossa corretta
                                 if (userSequence.size == computerSequence.size) { // l'utente ha completato l'intera sequenza correttamente
                                     isComputerPlaying = true
-                                    // qui chiamiamo la funzione da simon.utils.GameEngine.kt
+
+                                    // avvia gli altri turni del computer
+                                    // il 1o turno viene avviato dentro onStartClick, questo blocco serve per i turni successivi
+                                    coroutineScope.launch {
+                                        delay(1000)
+                                        computerSequence =
+                                            GameEngine.generateNextSequence(computerSequence)
+                                        GameEngine.playComputerSequence(
+                                            sequence = computerSequence,
+                                            isPaused = { isPaused },
+                                            onColorActive = { activeColor = it }
+                                        )
+
+                                        isComputerPlaying = false // finito il turno del computer
+                                        userSequence = emptyList() // reset della sequenza utente
+                                    }
                                 }
                             } else { // mossa errata
                                 isGameOver = true
@@ -132,8 +145,22 @@ class GameActivity : ComponentActivity() {
                         // funzione lambda per il click sul tasto "Start Game"
                         onStartClick = {
                             isGameRunning = true
-                            // isComputerPlaying = true // il computer inizia a proporre
+                            isComputerPlaying = true // il computer inizia a proporre
+                            userSequence = emptyList()
+                            computerSequence = emptyList()
                             Log.v(mTAG, "Start Game Btn clicked")
+
+                            // lancia SOLO il PRIMO turno del computer
+                            coroutineScope.launch {
+                                computerSequence = GameEngine.generateNextSequence(computerSequence)
+                                GameEngine.playComputerSequence(
+                                    sequence = computerSequence,
+                                    isPaused = { isPaused },
+                                    onColorActive = { activeColor = it }
+                                )
+                                isComputerPlaying =
+                                    false // finito il turno del computer, tocca all'utente
+                            }
                         },
 
                         // funzione lambda per il click sul tasto "Pause"
@@ -216,7 +243,7 @@ fun GameScreen(
     }
 
     // trasformiamo la lista in una stringa separata da virgole, come da specifiche
-    val displayText = userSequence.joinToString(", ")
+    val displayText = if (isComputerPlaying) "" else userSequence.joinToString(", ")
 
     // configurazione schermo
     val orientation = LocalConfiguration.current.orientation
@@ -450,8 +477,7 @@ private fun ColorGrid(
                             .background(simonColor.color.copy(alpha = backgroundAlpha)) // sfondo a scelta tra i 6 colori
                             // disabilita il click se il gioco non è partito o se è il turno del computer
                             .clickable(
-                                enabled = isGameRunning, // provvisorio
-                                // enabled = isGameRunning && !isComputerPlaying,
+                                enabled = isGameRunning && !isComputerPlaying,
                                 onClick = { onColorClick(simonColor.label) }
                             )
                     )
