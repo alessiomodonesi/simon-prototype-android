@@ -119,6 +119,8 @@ class GameActivity : ComponentActivity() {
                             if (i < computerSequence.size && colorLabel == computerSequence[i]) { // mossa corretta
                                 if (userSequence.size == computerSequence.size) { // l'utente ha completato l'intera sequenza correttamente
                                     isComputerPlaying = true
+                                    userSequence =
+                                        emptyList() // reset della sequenza utente prima del turno del computer
 
                                     // avvia gli altri turni del computer
                                     // il 1o turno viene avviato dentro onStartClick, questo blocco serve per i turni successivi
@@ -133,7 +135,6 @@ class GameActivity : ComponentActivity() {
                                         )
 
                                         isComputerPlaying = false // finito il turno del computer
-                                        userSequence = emptyList() // reset della sequenza utente
                                     }
                                 }
                             } else { // mossa errata
