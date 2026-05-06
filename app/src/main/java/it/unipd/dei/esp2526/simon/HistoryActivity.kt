@@ -99,10 +99,10 @@ class HistoryActivity : ComponentActivity() {
                             // lancio l'activity passandogli l'intent, this è il Context
                             this.startActivity(detailIntent)
                         },
+                        historyList = historyList,// passo i dati ricevuti alla schermata
                         modifier = Modifier
                             .padding(innerPadding)
-                            .displayCutoutPadding(), // https://developer.android.com/develop/ui/views/layout/display-cutout
-                        historyList = historyList // passo i dati ricevuti alla schermata
+                            .displayCutoutPadding() // https://developer.android.com/develop/ui/views/layout/display-cutout
                     )
                 }
             }
@@ -112,9 +112,9 @@ class HistoryActivity : ComponentActivity() {
 
 @Composable
 fun HistoryScreen(
-    modifier: Modifier = Modifier,
     onRowClick: (GameRecord) -> Unit,
-    historyList: List<GameRecord> // ora riceve GameRecord dal DB
+    historyList: List<GameRecord>, // ora riceve GameRecord dal DB
+    modifier: Modifier = Modifier
 ) {
     /**
      * giustificazione layout: in questa schermata prediligo l'uso di Column e Row,

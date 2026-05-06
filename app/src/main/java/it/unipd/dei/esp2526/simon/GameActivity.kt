@@ -206,7 +206,7 @@ class GameActivity : ComponentActivity() {
                         },
                         modifier = Modifier
                             .padding(innerPadding)
-                            .displayCutoutPadding(), // https://developer.android.com/develop/ui/views/layout/display-cutout
+                            .displayCutoutPadding() // https://developer.android.com/develop/ui/views/layout/display-cutout
                     )
                 }
             }
@@ -307,6 +307,10 @@ fun GameScreen(
 
         // matrice 3 x 2 (chiamo la funzione @Composable)
         ColorGrid(
+            onColorClick = onColorClick, // uso direttamente il parametro
+            isGameRunning = isGameRunning,
+            isComputerPlaying = isComputerPlaying,
+            activeColor = activeColor,
             modifier = Modifier
                 .constrainAs(matrix) {
                     top.linkTo(parent.top, margin = 16.dp)
@@ -322,11 +326,7 @@ fun GameScreen(
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
-                },
-            onColorClick = onColorClick, // uso direttamente il parametro
-            isGameRunning = isGameRunning,
-            isComputerPlaying = isComputerPlaying,
-            activeColor = activeColor
+                }
         )
 
         // area di testo multiriga non editabile
@@ -449,11 +449,11 @@ fun GameScreen(
 
 @Composable
 private fun ColorGrid(
-    modifier: Modifier = Modifier,
     onColorClick: (String) -> Unit,
     isGameRunning: Boolean,
     isComputerPlaying: Boolean,
-    activeColor: String?
+    activeColor: String?,
+    modifier: Modifier = Modifier
 ) {
     /**
      * faccio uno shuffle sui colori e salvo la disposizione (remember).
