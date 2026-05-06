@@ -105,12 +105,6 @@ fun DetailScreen(
     // gli errori sono i colori che il computer ha proposto ma che l'utente non ha indovinato
     val errorCount = if (totalLength > 0) totalLength - record.maxLength else 0
 
-    // configurazione schermo
-    val orientation = LocalConfiguration.current.orientation
-
-    // percentuale di larghezza della colonna, in la modalità landscape viene frazionata al 90%
-    val widthFraction = if (orientation == Configuration.ORIENTATION_LANDSCAPE) 0.9f else 1f
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -131,7 +125,7 @@ fun DetailScreen(
         // contenitore principale per i dettagli (gestisce sfondo e spazio)
         Column(
             modifier = Modifier
-                .fillMaxWidth(widthFraction) // in landscape prende solo una parte della larghezza
+                .fillMaxWidth()
                 .weight(1f) // prende tutto lo spazio sotto il titolo
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
