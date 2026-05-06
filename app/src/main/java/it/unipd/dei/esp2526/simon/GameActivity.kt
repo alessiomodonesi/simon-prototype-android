@@ -46,10 +46,9 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import it.unipd.dei.esp2526.simon.model.simonColors
-import it.unipd.dei.esp2526.simon.utils.SoundManager
+import it.unipd.dei.esp2526.simon.utils.*
 
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class GameActivity : ComponentActivity() {
@@ -103,17 +102,13 @@ class GameActivity : ComponentActivity() {
                             Log.v(mTAG, "$colorLabel Btn clicked")
 
                             // animazione del feedback visivo e uditivo dell'utente
+                            // chiama la funzione dentro GameUtils.kt
                             coroutineScope.launch {
-                                activeColor = colorLabel // accende visivamente il colore
-
-                                // lancia la riproduzione audio in background
-                                val freq = SoundManager.getFrequencyForColor(colorLabel)
-                                launch {
-                                    SoundManager.playTone(frequency = freq, durationMs = 250)
-                                }
-
-                                delay(250) // tiene acceso per 250ms
-                                activeColor = null // spegne il colore
+                                playColorFeedback(
+                                    colorLabel = colorLabel,
+                                    durationMs = 250,
+                                    onColorActive = { activeColor = it }
+                                )
                             }
 
                             // indice per la validazione della mossa
