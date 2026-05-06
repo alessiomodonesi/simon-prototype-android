@@ -1,7 +1,6 @@
 package it.unipd.dei.esp2526.simon
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -10,9 +9,12 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,10 +24,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,13 +35,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import it.unipd.dei.esp2526.simon.data.GameRecord
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
@@ -60,30 +63,18 @@ class HistoryActivity : ComponentActivity() {
                  * l'uso del delegato "by" estrae comodamente il valore in una List<GameRecord>
                  */
                 val historyList by vm.history.collectAsState()
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    // aggiungo il Floating Action Button in basso a destra
-                    // https://developer.android.com/develop/ui/compose/components/fab
-                    floatingActionButton = {
-                        ExtendedFloatingActionButton(
-                            onClick = {
-                                // creo l'intent esplicito per avviare GameActivity
-                                val mainIntent =
-                                    Intent(this, GameActivity::class.java)
-                                this.startActivity(mainIntent)
-                            },
-                            icon = {
-                                Icon(
-                                    Icons.Filled.Add,
-                                    stringResource(R.string.new_game_str) // per accessibilità
-                                )
-                            },
-                            text = { Text(stringResource(R.string.new_game_str)) },
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                ) { innerPadding ->
+
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    // grandezza del cutout
+                    val layoutDirection = LocalLayoutDirection.current
+                    val cutout = WindowInsets.displayCutout.asPaddingValues()
+
+                    // valore massimo tra lato destro e sinistro
+                    val symmetricCutout = max(
+                        cutout.calculateLeftPadding(layoutDirection),
+                        cutout.calculateRightPadding(layoutDirection)
+                    )
+
                     HistoryScreen(
                         // funzione lambda per il click sulla Row della LazyColumn
                         onRowClick = { record ->
@@ -99,10 +90,16 @@ class HistoryActivity : ComponentActivity() {
                             // lancio l'activity passandogli l'intent, this è il Context
                             this.startActivity(detailIntent)
                         },
-                        historyList = historyList,// passo i dati ricevuti alla schermata
+                        // funzione lambda per il click sul FAB "New Game"
+                        onNewGameClick = {
+                            // creo l'intent esplicito per avviare GameActivity
+                            val mainIntent = Intent(this, GameActivity::class.java)
+                            this.startActivity(mainIntent)
+                        },
+                        historyList = historyList, // passo i dati ricevuti alla schermata
                         modifier = Modifier
                             .padding(innerPadding)
-                            .displayCutoutPadding() // https://developer.android.com/develop/ui/views/layout/display-cutout
+                            .padding(horizontal = symmetricCutout)
                     )
                 }
             }
@@ -112,6 +109,7 @@ class HistoryActivity : ComponentActivity() {
 
 @Composable
 fun HistoryScreen(
+    onNewGameClick: () -> Unit,
     onRowClick: (GameRecord) -> Unit,
     historyList: List<GameRecord>, // ora riceve GameRecord dal DB
     modifier: Modifier = Modifier
@@ -130,28 +128,40 @@ fun HistoryScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // configurazione schermo
-        val orientation = LocalConfiguration.current.orientation
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 20.dp, top = 8.dp),
+            contentAlignment = Alignment.Center // centra il contenuto principale (il titolo)
+        ) {
+            // titolo
+            Text(
+                text = stringResource(R.string.app_name),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.primary,
+                letterSpacing = 1.15.sp,
+                textAlign = TextAlign.Center
+            )
 
-        // percentuale di larghezza della colonna, in la modalità landscape viene frazionata al 90%
-        val widthFraction = if (orientation == Configuration.ORIENTATION_LANDSCAPE) 0.9f else 1f
-
-        // titolo
-        Text(
-            text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.ExtraBold,
-            color = MaterialTheme.colorScheme.primary,
-            letterSpacing = 1.15.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 20.dp, top = 8.dp)
-        )
+            // FAB "New Game"
+            SmallFloatingActionButton(
+                onClick = onNewGameClick,
+                modifier = Modifier.align(Alignment.CenterEnd),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.new_game_str)
+                )
+            }
+        }
 
         // lista dinamica implementata con LazyColumn
         LazyColumn(
             modifier = Modifier
-                .fillMaxWidth(widthFraction)
-                .padding(top = 16.dp),
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(historyList) { record ->
@@ -195,7 +205,10 @@ private fun GameHistoryRow(
         // sequenza di rettangoli premuti
         Text(
             text = getColoredSequence(record),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 2.sp,
+            lineHeight = 24.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis, // se la sequenza è troppo lunga, viene troncata
             textAlign = TextAlign.End, // allineo la stringa a destra
@@ -218,6 +231,7 @@ fun HistoryScreenPreview() {
         )
 
         HistoryScreen(
+            onNewGameClick = {},
             onRowClick = {},
             historyList = dummyData
         )
