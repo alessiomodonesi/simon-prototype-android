@@ -19,18 +19,27 @@ object GameEngine {
      */
     suspend fun playComputerSequence(
         sequence: List<String>,
+        startIndex: Int = 0, // da dove partire, utile se si vuole riprodurre solo una parte della sequenza
         isPaused: () -> Boolean,
-        onColorActive: (String?) -> Unit
+        onColorActive: (String?) -> Unit,
+        onIndexUpdate: (Int) -> Unit // callback per aggiornare l'indice dal quale ripartire
     ) {
-        delay(500) // pausa iniziale
+        for (i in startIndex until sequence.size) {
+            // aggiorno subito l'indice al tono successivo (i + 1)
+            onIndexUpdate(i + 1)
 
-        for (color in sequence) {
             // se il gioco è in pausa, il ciclo si sospende e controlla ogni 100ms finché non viene tolta la pausa
             while (isPaused()) delay(100)
 
             // chiama la fun playColorFeedback in GameUtils.kt
-            playColorFeedback(colorLabel = color, durationMs = 250, onColorActive = onColorActive)
-            delay(250) // pausa tra un colore e l'altro
+            playColorFeedback(
+                colorLabel = sequence[i],
+                durationMs = 250,
+                onColorActive = onColorActive
+            )
+
+            // pausa tra un colore e l'altro
+            delay(250)
         }
     }
 }
