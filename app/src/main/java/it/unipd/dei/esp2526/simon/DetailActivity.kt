@@ -1,5 +1,6 @@
 package it.unipd.dei.esp2526.simon
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,7 +9,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,11 +31,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import it.unipd.dei.esp2526.simon.data.GameRecord
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
@@ -64,12 +70,21 @@ class DetailActivity : ComponentActivity() {
                     // se il record è stato caricato, mostro la schermata
                     // k?.let{…}, azione tra {} eseguita if k != null
                     record?.let { loadedRecord ->
+                        // grandezza del cutout
+                        val layoutDirection = LocalLayoutDirection.current
+                        val cutout = WindowInsets.displayCutout.asPaddingValues()
+
+                        // valore massimo tra lato destro e sinistro
+                        val symmetricCutout = max(
+                            cutout.calculateLeftPadding(layoutDirection),
+                            cutout.calculateRightPadding(layoutDirection)
+                        )
+
                         DetailScreen(
                             record = loadedRecord, // passo l'intero record
                             modifier = Modifier
                                 .padding(innerPadding)
-                                .displayCutoutPadding() // https://developer.android.com/develop/ui/views/layout/display-cutout
-
+                                .padding(horizontal = symmetricCutout)
                         )
                     }
                 }
@@ -89,6 +104,12 @@ fun DetailScreen(
 
     // gli errori sono i colori che il computer ha proposto ma che l'utente non ha indovinato
     val errorCount = if (totalLength > 0) totalLength - record.maxLength else 0
+
+    // configurazione schermo
+    val orientation = LocalConfiguration.current.orientation
+
+    // percentuale di larghezza della colonna, in la modalità landscape viene frazionata al 90%
+    val widthFraction = if (orientation == Configuration.ORIENTATION_LANDSCAPE) 0.9f else 1f
 
     Column(
         modifier = modifier
@@ -110,7 +131,7 @@ fun DetailScreen(
         // contenitore principale per i dettagli (gestisce sfondo e spazio)
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(widthFraction) // in landscape prende solo una parte della larghezza
                 .weight(1f) // prende tutto lo spazio sotto il titolo
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
