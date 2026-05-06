@@ -5,16 +5,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -63,10 +65,11 @@ class DetailActivity : ComponentActivity() {
                     // k?.let{…}, azione tra {} eseguita if k != null
                     record?.let { loadedRecord ->
                         DetailScreen(
+                            record = loadedRecord, // passo l'intero record
                             modifier = Modifier
                                 .padding(innerPadding)
-                                .displayCutoutPadding(), // https://developer.android.com/develop/ui/views/layout/display-cutout
-                            record = loadedRecord // passo l'intero record
+                                .displayCutoutPadding() // https://developer.android.com/develop/ui/views/layout/display-cutout
+
                         )
                     }
                 }
@@ -77,9 +80,16 @@ class DetailActivity : ComponentActivity() {
 
 @Composable
 fun DetailScreen(
-    modifier: Modifier = Modifier,
-    record: GameRecord
+    record: GameRecord,
+    modifier: Modifier = Modifier
 ) {
+    // calcola i dati extra partendo dalla stringa del db
+    val sequenceItems = if (record.sequence.isBlank()) emptyList() else record.sequence.split(", ")
+    val totalLength = sequenceItems.size
+
+    // gli errori sono i colori che il computer ha proposto ma che l'utente non ha indovinato
+    val errorCount = if (totalLength > 0) totalLength - record.maxLength else 0
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -106,37 +116,77 @@ fun DetailScreen(
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(12.dp)
                 )
-                // permette lo scorrimento verticale se la stringa è molto lunga (si scorre l'intera area)
+                // permette lo scorrimento verticale
                 .verticalScroll(rememberScrollState())
-                .padding(24.dp)
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp) // spazio uniforme tra le sezioni
         ) {
-            // riga che contiene i dettagli della partita selezionata
+            // statistiche: 3 x StatItem()
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                // numero di rettangoli premuti
+                StatItem(title = stringResource(R.string.round_str), value = "${record.maxLength}")
+                StatItem(title = stringResource(R.string.total_colors_str), value = "$totalLength")
+                StatItem(
+                    title = stringResource(R.string.errors_str),
+                    value = "$errorCount",
+                    isError = errorCount > 0 // colora di rosso se c'è un errore
+                )
+            }
+
+            // linea di separazione
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
+            )
+
+            // sequenza visiva
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
-                    text = "${record.maxLength}", // campo dal db
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center, // centra la singola cifra nello spazio
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .widthIn(min = 40.dp) // larghezza minima per allineare 1 e 2 cifre
+                    text = stringResource(R.string.computer_sequence_str),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
 
-                // sequenza di rettangoli premuti
                 Text(
-                    text = getColoredSequence(record), // chiamo la funzione implementata in HistoryActivity.kt
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Start, // allineo la stringa a sinistra
-                    lineHeight = 28.sp,
-                    modifier = Modifier.weight(1f) // usa tutto lo spazio a destra del numero
+                    text = getColoredSequence(record), // chiamo la funzione implementata in GameUtils.kt
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 36.sp,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun StatItem(
+    title: String,
+    value: String,
+    isError: Boolean = false
+) {
+    // componente riutilizzabile per mostrare una singola statistica
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.displaySmall,
+            fontWeight = FontWeight.Bold,
+            // se è un errore, usa il colore rosso, altrimenti il colore primario
+            color = if (isError) Color.Red else MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -145,7 +195,7 @@ fun DetailScreen(
 fun DetailScreenPreview() {
     SimonTheme {
         // dati fittizi aggiornati al tipo GameRecord, servono solo alla preview
-        val dummyData = GameRecord(id = 1, maxLength = 2, sequence = "R, G, B")
+        val dummyData = GameRecord(id = 1, maxLength = 5, sequence = "R, G, B, Y, C, M")
         DetailScreen(record = dummyData)
     }
 }
