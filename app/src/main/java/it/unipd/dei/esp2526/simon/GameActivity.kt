@@ -113,7 +113,7 @@ class GameActivity : ComponentActivity() {
                     LaunchedEffect(isComputerPlaying) {
                         if (isComputerPlaying && computerSequence.isNotEmpty()) {
                             // se parto da zero = non è un ripristino da rotazione, facciamo una pausa iniziale
-                            if (computerPlaybackIndex == 0) delay(500)
+                            if (computerPlaybackIndex == 0) delay(1000)
 
                             // faccio continuare la sequenza da dove si era fermata
                             GameEngine.playComputerSequence(
@@ -520,7 +520,7 @@ private fun ColorGrid(
      * in questo modo i colori sono random, ma non cambiano posizione ad ogni click.
      * inoltre divido (chunked) i 6 colori in 3 gruppi da 2 (3 righe x 2 colonne).
      */
-    val rows = remember {
+    val rows = rememberSaveable() {
         simonColors.shuffled().chunked(2)
     }
 
