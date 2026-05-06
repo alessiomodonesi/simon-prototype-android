@@ -323,9 +323,6 @@ fun GameScreen(
         // linea guida per dividere lo schermo a metà in orizzontale
         val centerGuideline = createGuidelineFromStart(0.5f)
 
-        // linea guida orizzontale al 60% dell'altezza per il portrait
-        val horizontalGuideline = createGuidelineFromTop(0.6f)
-
         // catena verticale compatta per la modalità landscape
         // https://developer.android.com/develop/ui/views/layout/constraint-layout#constrain-chain
         if (orientation == Configuration.ORIENTATION_LANDSCAPE)
@@ -353,7 +350,7 @@ fun GameScreen(
                         start.linkTo(parent.start, margin = 16.dp)
                         end.linkTo(centerGuideline, margin = 8.dp)
                     } else { // portrait
-                        bottom.linkTo(horizontalGuideline, margin = 16.dp)
+                        bottom.linkTo(textScrollArea.top, margin = 16.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
@@ -370,7 +367,7 @@ fun GameScreen(
                         start.linkTo(centerGuideline, margin = 8.dp)
                         end.linkTo(parent.end, margin = 16.dp)
                     } else { // portrait
-                        top.linkTo(horizontalGuideline, margin = 16.dp)
+                        bottom.linkTo(btnStart.top, margin = 16.dp)
                         start.linkTo(parent.start, margin = 16.dp)
                         end.linkTo(parent.end, margin = 16.dp)
                     }
@@ -409,7 +406,7 @@ fun GameScreen(
                         start.linkTo(centerGuideline, margin = 8.dp)
                         end.linkTo(parent.end, margin = 16.dp)
                     } else { // portrait
-                        top.linkTo(textScrollArea.bottom, margin = 32.dp)
+                        bottom.linkTo(btnPause.top, margin = 8.dp)
                         start.linkTo(parent.start, margin = 16.dp)
                         end.linkTo(parent.end, margin = 16.dp)
                     }
@@ -442,7 +439,7 @@ fun GameScreen(
                         bottom.linkTo(parent.bottom)
                         start.linkTo(centerGuideline, margin = 8.dp)
                     } else { // portrait
-                        top.linkTo(btnStart.bottom, margin = 8.dp)
+                        bottom.linkTo(parent.bottom, margin = 16.dp)
                         start.linkTo(parent.start, margin = 16.dp)
                     }
                     end.linkTo(btnEndGame.start, margin = 4.dp)
@@ -477,7 +474,7 @@ fun GameScreen(
                         bottom.linkTo(btnPause.bottom)
                         start.linkTo(btnPause.end, margin = 4.dp)
                     } else { // portrait
-                        top.linkTo(btnStart.bottom, margin = 8.dp)
+                        bottom.linkTo(parent.bottom, margin = 16.dp)
                         start.linkTo(btnPause.end, margin = 4.dp)
                     }
                     end.linkTo(parent.end, margin = 16.dp)
