@@ -173,14 +173,24 @@ class GameActivity : ComponentActivity() {
                         // funzione lambda per il click sul tasto "End Game", aggiorna la lista di sequenze giocate prima di cancellare la sequenza appena terminata,
                         // poi lancia un intent verso HistoryActivity passando come dato la lista di sequenze giocate
                         onEndGameClick = {
-                            isGameRunning = false
-                            isPaused = false // resetto la pausa a fine partita
                             Log.v(mTAG, "End Game Btn clicked")
 
-                            // calcolo la lunghezza massima (se c'è un errore, la sequenza salvata è n+1, quindi la max length è n)
-                            val sequence = userSequence.joinToString(", ")
+                            // se non c'è stato un vero game over && (il gioco non è partito || siamo al 1o turno),
+                            // l'app si comporta come se non fosse mai iniziata e non salva nulla[cite: 9].
+                            if (!isGameOver && (!isGameRunning || computerSequence.size <= 1)) {
+                                isGameRunning = false
+                                isPaused = false // resetto la pausa a fine partita
+                                userSequence = emptyList()
+                                this@GameActivity.finish()
+                                return@GameScreen // esce immediatamente dalla lambda senza eseguire il resto
+                            }
+
+                            // la sequenza da salvare è quella COMPLETA proposta dal computer in questo turno
+                            val sequence = computerSequence.joinToString(", ")
+
+                            // if: l'utente ha sbagliato un colore, else: uscita volontaria
                             val maxLength =
-                                if (userSequence.isNotEmpty()) userSequence.size - 1 else 0
+                                if (isGameOver) userSequence.size - 1 else userSequence.size
 
                             // salva nel database chiamando la fun insertGame() dal ViewModel
                             vm.insertGame(
