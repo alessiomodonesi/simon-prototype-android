@@ -154,6 +154,7 @@ fun DetailScreen(
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
+                // sequenza di rettangoli premuti
                 Text(
                     text = getColoredSequence(record), // chiamo la funzione implementata in GameUtils.kt
                     style = MaterialTheme.typography.headlineSmall,
