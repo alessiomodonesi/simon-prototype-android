@@ -15,16 +15,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -305,6 +312,16 @@ fun GameScreen(
         // linea guida orizzontale al 60% dell'altezza per il portrait
         val horizontalGuideline = createGuidelineFromTop(0.6f)
 
+        // catena verticale compatta per la modalità landscape
+        // https://developer.android.com/develop/ui/views/layout/constraint-layout#constrain-chain
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+            createVerticalChain(
+                textScrollArea,
+                btnStart,
+                btnPause,
+                chainStyle = androidx.constraintlayout.compose.ChainStyle.Packed
+            )
+
         // matrice 3 x 2 (chiamo la funzione @Composable)
         ColorGrid(
             onColorClick = onColorClick, // uso direttamente il parametro
@@ -333,17 +350,19 @@ fun GameScreen(
         Box(
             modifier = Modifier
                 .constrainAs(textScrollArea) {
-                    end.linkTo(parent.end, margin = 16.dp)
-                    width = Dimension.fillToConstraints
-
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        top.linkTo(parent.top, margin = 100.dp)
+                        top.linkTo(parent.top)
+                        bottom.linkTo(btnStart.top)
                         start.linkTo(centerGuideline, margin = 8.dp)
+                        end.linkTo(parent.end, margin = 16.dp)
                     } else { // portrait
                         top.linkTo(horizontalGuideline, margin = 16.dp)
                         start.linkTo(parent.start, margin = 16.dp)
+                        end.linkTo(parent.end, margin = 16.dp)
                     }
+                    width = Dimension.fillToConstraints
                 }
+                .padding(bottom = if (orientation == Configuration.ORIENTATION_LANDSCAPE) 24.dp else 0.dp)
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(10.dp) // ritaglia la forma
@@ -371,21 +390,28 @@ fun GameScreen(
             modifier = Modifier
                 .constrainAs(btnStart) {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        top.linkTo(textScrollArea.bottom, margin = 16.dp)
+                        top.linkTo(textScrollArea.bottom)
+                        bottom.linkTo(btnPause.top)
                         start.linkTo(centerGuideline, margin = 8.dp)
+                        end.linkTo(parent.end, margin = 16.dp)
                     } else { // portrait
                         top.linkTo(textScrollArea.bottom, margin = 32.dp)
                         start.linkTo(parent.start, margin = 16.dp)
+                        end.linkTo(parent.end, margin = 16.dp)
                     }
-                    // collega la fine all'inizio del bottone Pause
-                    end.linkTo(btnPause.start, margin = 4.dp)
                     // divide uniformemente lo spazio disponibile
                     width = Dimension.fillToConstraints
                 }
+                .padding(bottom = if (orientation == Configuration.ORIENTATION_LANDSCAPE) 16.dp else 0.dp)
                 .height(55.dp),
             onClick = onStartClick, // uso direttamente il parametro
             enabled = !isGameRunning // si disattiva appena il gioco inizia
         ) {
+            Icon(
+                imageVector = Icons.Filled.PlayArrow,
+                contentDescription = stringResource(R.string.start_str)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = stringResource(R.string.start_str),
                 fontSize = 14.sp,
@@ -398,12 +424,13 @@ fun GameScreen(
             modifier = Modifier
                 .constrainAs(btnPause) {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        top.linkTo(textScrollArea.bottom, margin = 16.dp)
+                        top.linkTo(btnStart.bottom)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(centerGuideline, margin = 8.dp)
                     } else { // portrait
-                        top.linkTo(textScrollArea.bottom, margin = 32.dp)
+                        top.linkTo(btnStart.bottom, margin = 8.dp)
+                        start.linkTo(parent.start, margin = 16.dp)
                     }
-                    // incatenato tra Start e End Game
-                    start.linkTo(btnStart.end, margin = 4.dp)
                     end.linkTo(btnEndGame.start, margin = 4.dp)
                     width = Dimension.fillToConstraints
                 }
@@ -411,10 +438,17 @@ fun GameScreen(
             onClick = onPauseClick, // uso direttamente il parametro
             enabled = isComputerPlaying // si attiva SOLO durante il turno del computer
         ) {
+            val text =
+                if (isPaused) stringResource(R.string.resume_str) else stringResource(R.string.pause_str)
+
+            Icon(
+                imageVector = if (isPaused) Icons.Filled.PlayArrow else Icons.Filled.Pause,
+                contentDescription = text
+            )
+            Spacer(modifier = Modifier.width(8.dp))
             // cambia testo in base allo stato
             Text(
-                text = if (isPaused) stringResource(R.string.resume_str)
-                else stringResource(R.string.pause_str),
+                text = text,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
             )
@@ -425,12 +459,13 @@ fun GameScreen(
             modifier = Modifier
                 .constrainAs(btnEndGame) {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        top.linkTo(textScrollArea.bottom, margin = 16.dp)
+                        top.linkTo(btnPause.top)
+                        bottom.linkTo(btnPause.bottom)
+                        start.linkTo(btnPause.end, margin = 4.dp)
                     } else { // portrait
-                        top.linkTo(textScrollArea.bottom, margin = 32.dp)
+                        top.linkTo(btnStart.bottom, margin = 8.dp)
+                        start.linkTo(btnPause.end, margin = 4.dp)
                     }
-                    // inizia dove finisce Pause e termina a fine schermo
-                    start.linkTo(btnPause.end, margin = 4.dp)
                     end.linkTo(parent.end, margin = 16.dp)
                     width = Dimension.fillToConstraints
                 }
@@ -438,6 +473,11 @@ fun GameScreen(
             onClick = onEndGameClick, // uso direttamente il parametro
             enabled = isGameRunning // rimane attivo per tutta la durata della partita
         ) {
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = stringResource(R.string.end_str)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = stringResource(R.string.end_str),
                 fontSize = 14.sp,
