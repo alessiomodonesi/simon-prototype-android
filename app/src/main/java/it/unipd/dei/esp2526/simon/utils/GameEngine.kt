@@ -29,7 +29,7 @@ object GameEngine {
             while (isPaused()) delay(100)
 
             // chiama la fun playColorFeedback in GameUtils.kt
-            playColorFeedback(colorLabel = color, durationMs = 500, onColorActive = onColorActive)
+            playColorFeedback(colorLabel = color, durationMs = 250, onColorActive = onColorActive)
             delay(250) // pausa tra un colore e l'altro
         }
     }
