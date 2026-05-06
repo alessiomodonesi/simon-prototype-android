@@ -17,9 +17,24 @@ object SoundManager {
         val numSamples = (durationMs * sampleRate / 1000.0).toInt()
         val generatedSnd = ByteArray(2 * numSamples)
 
+        // fade-in e fade-out per evitare il clipping
+        val fadeDurationMs = 10
+        val fadeSamples = (fadeDurationMs * sampleRate / 1000.0).toInt()
+
         // generazione dell'onda sinusoidale
         for (i in 0 until numSamples) {
-            val dVal = sin(2 * Math.PI * i / (sampleRate / frequency))
+            // genera il valore base dell'onda
+            var dVal = sin(2 * Math.PI * i / (sampleRate / frequency))
+
+            // applica l'inviluppo (ammorbidisce i bordi del suono)
+            if (i < fadeSamples) {
+                // fade-in: il volume sale da 0 a 1 nei primi 10ms
+                dVal *= (i.toDouble() / fadeSamples)
+            } else if (i > numSamples - fadeSamples) {
+                // fade-out: il volume scende da 1 a 0 negli ultimi 10ms
+                dVal *= ((numSamples - i).toDouble() / fadeSamples)
+            }
+
             val valShort = (dVal * 32767).toInt().toShort()
             generatedSnd[i * 2] = (valShort.toInt() and 0x00ff).toByte()
             generatedSnd[i * 2 + 1] = (valShort.toInt() and 0xff00 ushr 8).toByte()
