@@ -89,7 +89,10 @@ class GameActivity : ComponentActivity() {
                 var isGameOver by rememberSaveable { mutableStateOf(false) }
 
                 // stato per il colore attualmente illuminato
-                var activeColor by remember { mutableStateOf<String?>(null) }
+                var activeColor by rememberSaveable { mutableStateOf<String?>(null) }
+
+                // stato per l'indice della sequenza del computer
+                var computerPlaybackIndex by rememberSaveable { mutableIntStateOf(0) }
 
                 // scope per lanciare le coroutine legate al ciclo di vita della composizione
                 // https://developer.android.com/kotlin/coroutines
@@ -105,6 +108,27 @@ class GameActivity : ComponentActivity() {
                         cutout.calculateLeftPadding(layoutDirection),
                         cutout.calculateRightPadding(layoutDirection)
                     )
+
+                    // scatta ogni volta che isComputerPlaying diventa true o l'activity viene ricreata
+                    LaunchedEffect(isComputerPlaying) {
+                        if (isComputerPlaying && computerSequence.isNotEmpty()) {
+                            // se parto da zero = non è un ripristino da rotazione, facciamo una pausa iniziale
+                            if (computerPlaybackIndex == 0) delay(500)
+
+                            // faccio continuare la sequenza da dove si era fermata
+                            GameEngine.playComputerSequence(
+                                sequence = computerSequence,
+                                startIndex = computerPlaybackIndex,
+                                isPaused = { isPaused },
+                                onColorActive = { activeColor = it },
+                                onIndexUpdate = { computerPlaybackIndex = it }
+                            )
+
+                            // quando la sequenza finisce regolarmente, passo il turno all'utente
+                            if (computerPlaybackIndex >= computerSequence.size)
+                                isComputerPlaying = false
+                        }
+                    }
 
                     GameScreen(
                         // passo le variabili di stato
@@ -139,24 +163,18 @@ class GameActivity : ComponentActivity() {
                             // verifica se l'indice esiste nella sequenza del computer e se il colore coincide
                             if (i < computerSequence.size && colorLabel == computerSequence[i]) { // mossa corretta
                                 if (userSequence.size == computerSequence.size) { // l'utente ha completato l'intera sequenza correttamente
+                                    // reset della sequenza utente prima del turno del computer
+                                    userSequence = emptyList()
+
+                                    // reset dell'indice
+                                    computerPlaybackIndex = 0
+
+                                    // aggiunge un colore
+                                    computerSequence =
+                                        GameEngine.generateNextSequence(computerSequence)
+
+                                    // innesca il LaunchedEffect in automatico per il turno successivo
                                     isComputerPlaying = true
-                                    userSequence =
-                                        emptyList() // reset della sequenza utente prima del turno del computer
-
-                                    // avvia gli altri turni del computer
-                                    // il 1o turno viene avviato dentro onStartClick, questo blocco serve per i turni successivi
-                                    coroutineScope.launch {
-                                        delay(1000)
-                                        computerSequence =
-                                            GameEngine.generateNextSequence(computerSequence)
-                                        GameEngine.playComputerSequence(
-                                            sequence = computerSequence,
-                                            isPaused = { isPaused },
-                                            onColorActive = { activeColor = it }
-                                        )
-
-                                        isComputerPlaying = false // finito il turno del computer
-                                    }
                                 }
                             } else { // mossa errata
                                 isGameOver = true
@@ -167,22 +185,13 @@ class GameActivity : ComponentActivity() {
                         // funzione lambda per il click sul tasto "Start Game"
                         onStartClick = {
                             isGameRunning = true
-                            isComputerPlaying = true // il computer inizia a proporre
                             userSequence = emptyList()
-                            computerSequence = emptyList()
+                            computerPlaybackIndex = 0 // resetta l'indice
+                            computerSequence =
+                                GameEngine.generateNextSequence(emptyList()) // genera la prima mossa
+                            isComputerPlaying =
+                                true // questo farà scattare il LaunchedEffect da solo
                             Log.v(mTAG, "Start Game Btn clicked")
-
-                            // lancia SOLO il PRIMO turno del computer
-                            coroutineScope.launch {
-                                computerSequence = GameEngine.generateNextSequence(computerSequence)
-                                GameEngine.playComputerSequence(
-                                    sequence = computerSequence,
-                                    isPaused = { isPaused },
-                                    onColorActive = { activeColor = it }
-                                )
-                                isComputerPlaying =
-                                    false // finito il turno del computer, tocca all'utente
-                            }
                         },
 
                         // funzione lambda per il click sul tasto "Pause"
