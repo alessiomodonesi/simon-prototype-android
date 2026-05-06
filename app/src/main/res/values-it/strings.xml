@@ -13,6 +13,12 @@
     <string name="details_title">Dettagli Partita</string>
     <string name="game_over_title">Hai Perso!</string>
 
+    <!-- Statistiche in DetailActivity -->
+    <string name="round_str">Round</string>
+    <string name="total_colors_str">Colori Totali</string>
+    <string name="errors_str">Errori</string>
+    <string name="computer_sequence_str">Sequenza del Computer</string>
+
     <!-- Altro -->
     <string name="game_over_description">Hai inserito il colore sbagliato.\nLa partita è terminata, premi il tasto "Back" del sistema per tornare alla lista.</string>
     <string name="none">Nessuna</string>

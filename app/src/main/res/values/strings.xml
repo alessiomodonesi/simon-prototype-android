@@ -16,6 +16,12 @@
     <string name="details_title">Match Details</string>
     <string name="game_over_title">Game Over!</string>
 
+    <!-- Statistiche in DetailActivity -->
+    <string name="round_str">Round</string>
+    <string name="total_colors_str">Total Colors</string>
+    <string name="errors_str">Errors</string>
+    <string name="computer_sequence_str">Computer Sequence</string>
+
     <!-- Altro -->
     <string name="game_over_description">You entered the wrong color. The game is over, press the system\'s "Back" button to return to the list.</string>
     <string name="none">None</string>
