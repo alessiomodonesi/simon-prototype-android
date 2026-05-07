@@ -10,30 +10,26 @@ import kotlin.math.sin
 object SoundManager {
     /**
      * riproduce un tono di durata e frequenza specificate utilizzando AudioTrack.
-     * viene eseguito nel thread di IO per non bloccare mai il thread principale.
+     * come indicato nelle slide, AudioTrack è utilizzato per il playback di PCM audio verso memory buffers.
+     * il metodo viene eseguito in un thread separato per non bloccare il thread principale (UI).
      */
     suspend fun playTone(frequency: Double, durationMs: Int) = withContext(Dispatchers.IO) {
         val sampleRate = 44100
         val numSamples = (durationMs * sampleRate / 1000.0).toInt()
         val generatedSnd = ByteArray(2 * numSamples)
 
-        // fade-in e fade-out per evitare il clipping
+        // fade-in e fade-out per ammorbidire l'attacco e il rilascio del suono
         val fadeDurationMs = 10
         val fadeSamples = (fadeDurationMs * sampleRate / 1000.0).toInt()
 
-        // generazione dell'onda sinusoidale
+        // generazione dell'onda sinusoidale (PCM audio)
         for (i in 0 until numSamples) {
-            // genera il valore base dell'onda
             var dVal = sin(2 * Math.PI * i / (sampleRate / frequency))
 
-            // applica l'inviluppo (ammorbidisce i bordi del suono)
-            if (i < fadeSamples) {
-                // fade-in: il volume sale da 0 a 1 nei primi 10ms
+            if (i < fadeSamples)
                 dVal *= (i.toDouble() / fadeSamples)
-            } else if (i > numSamples - fadeSamples) {
-                // fade-out: il volume scende da 1 a 0 negli ultimi 10ms
+            else if (i > numSamples - fadeSamples)
                 dVal *= ((numSamples - i).toDouble() / fadeSamples)
-            }
 
             val valShort = (dVal * 32767).toInt().toShort()
             generatedSnd[i * 2] = (valShort.toInt() and 0x00ff).toByte()
@@ -41,7 +37,6 @@ object SoundManager {
         }
 
         // inizializzazione di AudioTrack
-        // https://developer.android.com/reference/android/media/AudioTrack
         val audioTrack = AudioTrack.Builder()
             .setAudioAttributes(
                 AudioAttributes.Builder()
@@ -57,15 +52,22 @@ object SoundManager {
                     .build()
             )
             .setBufferSizeInBytes(generatedSnd.size)
+
+            // utilizzo la static mode per garantire la latenza più bassa possibile (low-latency playback),
+            // ideale per suoni brevi che entrano interamente nel buffer
             .setTransferMode(AudioTrack.MODE_STATIC)
             .build()
 
-        // scrive i dati e avvia la riproduzione
+        // scrive i dati audio nel memory buffer
         audioTrack.write(generatedSnd, 0, generatedSnd.size)
+
+        // avvia il playback
         audioTrack.play()
 
-        // attende che il suono finisca prima di rilasciare le risorse (eseguito in background)
+        // attesa del completamento del suono
         Thread.sleep(durationMs.toLong())
+
+        // rilascio delle risorse associate all'istanza
         audioTrack.release()
     }
 
