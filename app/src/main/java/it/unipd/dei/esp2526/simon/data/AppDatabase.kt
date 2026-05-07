@@ -17,15 +17,17 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): AppDatabase {
             // se INSTANCE non è null, la ritorna, altrimenti crea il database
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "simon_db"
-                ).build()
-                INSTANCE = instance
-                instance
+            if (INSTANCE == null) {
+                synchronized(this) {
+                    val instance = Room.databaseBuilder(
+                        context.applicationContext,
+                        AppDatabase::class.java,
+                        "simon_db"
+                    ).build()
+                    INSTANCE = instance
+                }
             }
+            return INSTANCE!!
         }
     }
 }

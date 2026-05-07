@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
  *
  * gestione reattiva (Room + Flow -> StateFlow):
  * Room restituisce un "Flow" (un "tubo" asincrono e freddo) che emette aggiornamenti ad ogni modifica
- * della tabella. tramite l'operatore `.stateIn()`, convertiamo questo flusso in uno "StateFlow" ("caldo").
+ * della tabella. tramite l'operatore `.stateIn()`, converto questo flusso in uno "StateFlow" ("caldo").
  * questo funge da serbatoio di stato: memorizza sempre l'ultimo valore noto, permettendo a Compose
  * di ridisegnare la UI istantaneamente non appena i dati cambiano, senza query manuali.
  *
