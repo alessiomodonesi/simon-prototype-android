@@ -24,7 +24,7 @@ suspend fun playColorFeedback(
 
     // lancia la riproduzione audio
     val freq = SoundManager.getFrequencyForColor(colorLabel)
-    SoundManager.playTone(frequency = freq, durationMs = durationMs.toInt())
+    SoundManager.playTone(frequency = freq)
 
     delay(durationMs) // mantiene acceso il colore per la durata del suono
     onColorActive(null) // spegne il colore

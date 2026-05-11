@@ -68,6 +68,10 @@ class GameActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // inizializzo i suoni in memoria
+        SoundManager.initialize(durationMs = 250)
+        
         setContent {
             SimonTheme {
                 // stato per tenere traccia della sequenza generata dal computer
@@ -241,6 +245,11 @@ class GameActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SoundManager.release()
     }
 }
 
