@@ -17,11 +17,13 @@ interface GameDao {
     suspend fun insertGame(game: GameRecord)
 
     /**
-     * recupera tutte le partite, ordinate dall'ultima alla prima
+     * recupera tutte le partite, ordinate dall'ultima alla prima.
      * il Flow è di per sé un "tubo" reattivo e asincrono.
      * creare il tubo è un'operazione istantanea (quindi non serve suspend);
      * è l'ascolto dei dati all'interno del tubo che avverrà in modo asincrono nel tempo.
-     * https://developer.android.com/kotlin/flows
+     * inoltre, Room verifica la sintassi SQL e il tipo di ritorno a compile-time;
+     * i due punti ':' mappano in modo sicuro il parametro della funzione
+     * @see "https://developer.android.com/kotlin/flows"
      */
     @Query("SELECT * FROM games_history ORDER BY id DESC")
     fun getAllGames(): Flow<List<GameRecord>>

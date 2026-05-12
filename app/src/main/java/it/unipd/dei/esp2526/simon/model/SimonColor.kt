@@ -11,9 +11,12 @@ import androidx.compose.ui.graphics.Color
  */
 data class SimonColor(val name: String, val color: Color, val label: String)
 
-/** lista dei 6 colori specifici richiesti dalla consegna.
+/**
+ * lista dei 6 colori specifici richiesti dalla consegna.
  * vengono istanziati qui staticamente per non dipendere dai file strings.xml
  * ed evitare traduzioni accidentali delle etichette (label).
+ * proprietà "top-level": viene istanziata staticamente ed è visibile globalmente
+ * nel package senza richiedere classi wrapper (simile al public static final in Java).
  */
 val simonColors = listOf(
     SimonColor("Red", Color.Red, "R"),

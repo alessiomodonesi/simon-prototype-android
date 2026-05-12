@@ -35,7 +35,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     // utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder qui
     private val dao = AppDatabase.getDatabase(application).gameDao()
 
-    // crea lo StateFlow direttamente dalla query di Room
+    // crea lo StateFlow direttamente dalla query di Room.
     // stato reattivo che contiene la cronologia per la HistoryActivity
     val history: StateFlow<List<GameRecord>> = dao.getAllGames()
         .stateIn(
@@ -44,17 +44,20 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             initialValue = emptyList() // StateFlow ha sempre un valore!
         )
 
-    // inserisce una nuova partita
-    // "fire-and-forget": la UI non aspetta il risultato
+    // inserisce una nuova partita:
+    // "fire-and-forget" -> la UI non aspetta il risultato
     fun insertGame(maxLength: Int, sequence: String) {
+        // inizializza una coroutine sul Dispatchers.Main,
+        // subordinata al ciclo di vita del ViewModel per prevenire memory leak
         viewModelScope.launch {
             val newRecord = GameRecord(maxLength = maxLength, sequence = sequence)
             dao.insertGame(newRecord) // chiamo la fun insertGame() nel Dao
         }
     }
 
-    // recupera una partita
-    // "suspend": la UI deve chiamarla da una coroutine (es. LaunchedEffect) e aspettare il valore
+    // recupera una partita:
+    // "suspend" -> la UI deve chiamarla da una coroutine (es. LaunchedEffect) e aspettare il valore.
+    // inoltre Room è Main-safe di default: sposterà autonomamente l'esecuzione di questa suspend function su un thread di I/O
     suspend fun getGameById(id: Int): GameRecord? {
         return dao.getGameById(id)
     }

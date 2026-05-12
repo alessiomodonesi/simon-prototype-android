@@ -9,7 +9,9 @@ object GameEngine {
      * se la sequenza passata è vuota (1o turno), restituirà una lista di 1 elemento.
      */
     fun generateNextSequence(currentSequence: List<String>): List<String> {
-        // aggiunge, alla sequenza attuale, un colore casuale estratto dalla lista simonColors
+        // aggiunge, alla sequenza attuale, un colore casuale estratto dalla lista simonColors.
+        // overloading dell'operatore '+': crea una nuova lista allocando in memoria
+        // currentSequence unita al nuovo elemento, preservando l'immutabilità dello stato.
         return currentSequence + simonColors.map { it.label }.random()
     }
 
@@ -28,7 +30,8 @@ object GameEngine {
             // aggiorno subito l'indice al tono successivo (i + 1)
             onIndexUpdate(i + 1)
 
-            // se il gioco è in pausa, il ciclo si sospende e controlla ogni 100ms finché non viene tolta la pausa
+            // se il gioco è in pausa, il ciclo si sospende e controlla ogni 100ms finché non viene tolta la pausa.
+            // polling asincrono: cede il thread al dispatcher (non bloccante) e controlla ciclicamente il flag ogni 100ms senza saturare la CPU.
             while (isPaused()) delay(100)
 
             // chiama la fun playColorFeedback in GameUtils.kt

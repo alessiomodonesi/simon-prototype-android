@@ -78,7 +78,9 @@ class HistoryActivity : ComponentActivity() {
                     HistoryScreen(
                         // funzione lambda per il click sulla Row della LazyColumn
                         onRowClick = { record ->
-                            // creo l'intent esplicito per avviare detailActivity
+                            // creo l'intent esplicito per avviare detailActivity:
+                            // la scope function 'apply' agisce sul ricevitore (l'Intent),
+                            // permettendo di configurare i bundle extra senza riassegnare variabili
                             val detailIntent =
                                 Intent(this, DetailActivity::class.java).apply {
                                     // passo la sequenza come parametro extra
@@ -199,6 +201,7 @@ private fun GameHistoryRow(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center, // centra la singola cifra nello spazio
+            // vincolo intrinseco che stabilizza l'allineamento orizzontale dei nodi adiacenti, indipendentemente dal numero di cifre
             modifier = Modifier.widthIn(min = 30.dp) // larghezza minima per allineare 1 e 2 cifre
         )
 

@@ -30,8 +30,11 @@ object SoundManager {
      * il metodo viene eseguito in un thread separato per non bloccare il thread principale (UI).
      */
     private fun generateToneTrack(frequency: Double, durationMs: Int): AudioTrack {
+        // calcolo del buffer: converte il tempo in millisecondi nella frazione esatta
+        // di campioni totali necessari in base al Sample Rate (44100/s)
         val sampleRate = 44100
         val numSamples = (durationMs * sampleRate / 1000.0).toInt()
+
         val generatedSnd = ByteArray(2 * numSamples)
         val fadeSamples = (10 * sampleRate / 1000.0).toInt()
 
@@ -40,7 +43,8 @@ object SoundManager {
             // calcolo della sinusoide per capire in che fase del periodo ci troviamo
             val sineValue = sin(2 * Math.PI * i / (sampleRate / frequency))
 
-            // onda quadra: trasforma la curva in uno scalino netto (+1.0 o -1.0)
+            // quantizzazione hard-clipping: trasforma l'onda sinusoidale continua in un'onda quadra discreta,
+            // spingendo il segnale agli estremi per un suono in stile 8-bit retro
             var dVal = if (sineValue > 0) 1.0 else -1.0
 
             // riduce il volume al 30% (l'onda quadra "spacca" le orecchie se lasciata a 1.0)
@@ -52,8 +56,12 @@ object SoundManager {
             else if (i > numSamples - fadeSamples)
                 dVal *= ((numSamples - i).toDouble() / fadeSamples)
 
-            // conversione in 16-bit PCM
+            // conversione in 16-bit PCM:
+            // 32767 è il valore massimo per un intero con segno a 16 bit (2^15 - 1), necessario per la codifica ENCODING_PCM_16BIT
             val valShort = (dVal * 32767).toInt().toShort()
+
+            // estrae il byte più significativo (High Byte) mascherando i bit inferiori e
+            // attuando uno shift logico unsigned a destra (formato Little Endian)
             generatedSnd[i * 2] = (valShort.toInt() and 0x00ff).toByte()
             generatedSnd[i * 2 + 1] = (valShort.toInt() and 0xff00 ushr 8).toByte()
         }
@@ -104,7 +112,8 @@ object SoundManager {
             track.stop()
         }
 
-        // riavvolge il buffer di memoria all'inizio per poterlo riutilizzare
+        // riavvolge il buffer di memoria all'inizio per poterlo riutilizzare:
+        // resetta forzatamente il play-head (puntatore) del buffer di memoria a zero, operazione indispensabile per i buffer MODE_STATIC riutilizzati
         track.reloadStaticData()
 
         // il metodo play avvia la riproduzione

@@ -68,7 +68,9 @@ class DetailActivity : ComponentActivity() {
                     // se il record è stato caricato, mostro la schermata
                     // k?.let{…}, azione tra {} eseguita if k != null
                     record?.let { loadedRecord ->
-                        // grandezza del cutout
+                        // grandezza del cutout:
+                        // recupera la direzione (LTR o RTL) dal CompositionLocal,
+                        // essenziale per mappare correttamente gli insets asimmetrici del notch
                         val layoutDirection = LocalLayoutDirection.current
                         val cutout = WindowInsets.displayCutout.asPaddingValues()
 
@@ -96,7 +98,8 @@ fun DetailScreen(
     record: GameRecord,
     modifier: Modifier = Modifier
 ) {
-    // calcola i dati extra partendo dalla stringa del db
+    // calcola i dati extra partendo dalla stringa del DB:
+    // deserializza la stringa flat del DB allocando dinamicamente una List in base al delimitatore testuale
     val sequenceItems = if (record.sequence.isBlank()) emptyList() else record.sequence.split(", ")
     val totalLength = sequenceItems.size
 

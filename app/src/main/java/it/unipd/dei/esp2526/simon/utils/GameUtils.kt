@@ -43,8 +43,11 @@ fun getColoredSequence(record: GameRecord): AnnotatedString {
             // divido la sequenza in una lista di stringhe
             val items = record.sequence.split(", ")
 
-            // i primi 'maxLength' elementi sono corretti
+            // i primi 'maxLength' elementi sono corretti.
+            // .take() estrae in modo safe i primi N elementi; se maxLength supera la dimensione totale,
+            // restituisce tutta la lista senza lanciare IndexOutOfBoundsException.
             val correctItems = items.take(record.maxLength).joinToString(", ")
+
             // i restanti elementi sono sbagliati
             val wrongItems = items.drop(record.maxLength).joinToString(", ")
 
@@ -57,6 +60,8 @@ fun getColoredSequence(record: GameRecord): AnnotatedString {
 
             // aggiungo la parte sbagliata con un colore diverso
             if (wrongItems.isNotEmpty()) {
+                // utilizza il builder DSL (Domain Specific Language) per iniettare uno span testuale,
+                // isolando il cambio di colore solo a questa specifica append()
                 withStyle(style = SpanStyle(color = Color.Red)) {
                     append(wrongItems)
                 }

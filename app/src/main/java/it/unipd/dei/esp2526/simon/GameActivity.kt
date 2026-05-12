@@ -71,10 +71,11 @@ class GameActivity : ComponentActivity() {
 
         // inizializzo i suoni in memoria
         SoundManager.initialize(durationMs = 250)
-        
+
         setContent {
             SimonTheme {
-                // stato per tenere traccia della sequenza generata dal computer
+                // stato per tenere traccia della sequenza generata dal computer:
+                // rememberSaveable serializza il dato in un Bundle di sistema, sopravvivendo alla distruzione dell'Activity (es. rotazione)
                 var computerSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
 
                 // stato per tenere traccia della sequenza riprodotta dall'utente
@@ -302,13 +303,14 @@ fun GameScreen(
     // https://developer.android.com/reference/kotlin/androidx/compose/foundation/rememberScrollState.composable
     val scrollState = rememberScrollState()
 
-    // ogni volta che 'displayText' cambia, Compose esegue questo blocco
+    // ogni volta che 'displayText' cambia, Compose esegue questo blocco:
+    // funzione suspend che sfrutta il frame-clock di Compose per interpolare fluidamente l'offset fino a fine layout
     LaunchedEffect(displayText) {
         // anima lo scroll fino al valore massimo (la fine del testo)
         scrollState.animateScrollTo(scrollState.maxValue)
     }
 
-    // intercetta il tasto "Back" di sistema in qualsiasi momento
+    // intercetta l'evento di sistema OnBackPressedDispatcher, sovrascrivendo la navigazione standard
     // https://developer.android.com/guide/navigation/custom-back
     BackHandler {
         onEndGameClick()
@@ -348,6 +350,7 @@ fun GameScreen(
                 textScrollArea,
                 btnStart,
                 btnPause,
+                // il layout a catena 'Packed' compatta i nodi al centro, raggruppando i bottoni senza spazi intermedi
                 chainStyle = androidx.constraintlayout.compose.ChainStyle.Packed
             )
 
@@ -525,6 +528,7 @@ private fun ColorGrid(
     modifier: Modifier = Modifier
 ) {
     /**
+     * trasformazione in catena: randomizza l'array e lo partiziona in List annidate di dimensione 2 per formare le righe.
      * faccio uno shuffle sui colori e salvo la disposizione (remember).
      * in questo modo i colori sono random, ma non cambiano posizione ad ogni click.
      * inoltre divido (chunked) i 6 colori in 3 gruppi da 2 (3 righe x 2 colonne).
