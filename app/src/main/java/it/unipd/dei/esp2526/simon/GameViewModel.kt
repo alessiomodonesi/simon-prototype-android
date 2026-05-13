@@ -40,11 +40,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val history: StateFlow<List<GameRecord>>
 
     init {
-        // ottengo il DAO
-        // utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder qui
+        // ottengo il DAO: utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder
         val gameDao = AppDatabase.getDatabase(application).gameDao()
 
-        // e inizializzo il Repository con il DAO
+        // inizializzo il Repository con il DAO
         repository = GameRepository(gameDao)
 
         // aggancio lo StateFlow al Flow del Repository
