@@ -2,18 +2,19 @@ package it.unipd.dei.esp2526.simon.data
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GameDao {
     /**
-     * inserisce una nuova partita
-     * utilizzo "suspend" per eseguire l'operazione in modo asincrono.
-     * questo delega il lavoro di I/O ad un thread in background,
-     * evitando di bloccare il Main Thread (UI).
+     * inserisce una nuova partita.
+     * utilizzo "suspend" per indicare che l'operazione è asincrona e può essere sospesa.
+     * Room implementa queste funzioni in modo "Main-safe", delegando autonomamente
+     * il lavoro di I/O a un thread in background per non bloccare la UI.
      */
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE) // se il record esiste già, annulla l'inserimento per evitare crash e proteggere i vecchi dati
     suspend fun insertGame(game: GameRecord)
 
     /**
@@ -29,10 +30,10 @@ interface GameDao {
     fun getAllGames(): Flow<List<GameRecord>>
 
     /**
-     * recupera una singola partita, utile per recupere i dettagli nella DetailActivity
-     * utilizzo "suspend" per eseguire l'operazione in modo asincrono.
-     * questo delega il lavoro di I/O ad un thread in background,
-     * evitando di bloccare il Main Thread (UI).
+     * recupera una singola partita, utile per recupere i dettagli nella DetailActivity.
+     * utilizzo "suspend" per indicare che l'operazione è asincrona e può essere sospesa.
+     * Room implementa queste funzioni in modo "Main-safe", delegando autonomamente
+     * il lavoro di I/O a un thread in background per non bloccare la UI.
      */
     @Query("SELECT * FROM games_history WHERE id = :gameId")
     suspend fun getGameById(gameId: Int): GameRecord?
