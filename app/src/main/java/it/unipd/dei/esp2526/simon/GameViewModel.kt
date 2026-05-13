@@ -5,13 +5,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import it.unipd.dei.esp2526.simon.data.AppDatabase
 import it.unipd.dei.esp2526.simon.data.GameRecord
+import it.unipd.dei.esp2526.simon.data.GameRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
- * funge da ponte tra l'interfaccia utente (UI) e il database (DAO), separando la logica visiva dai dati.
+ * funge da ponte tra l'interfaccia utente (UI) e il Repository, separando la logica visiva dai dati.
  * ereditando da "AndroidViewModel", ottiene il context globale ("Application") necessario per inizializzare Room.
  * inoltre, sopravvive nativamente ai cambi di configurazione (es. rotazione dello schermo),
  * proteggendo i dati complessi in modo più robusto rispetto a `rememberSaveable`.
@@ -32,26 +34,36 @@ import kotlinx.coroutines.launch
  * @see "https://developer.android.com/kotlin/flow/stateflow-and-sharedflow"
  */
 class GameViewModel(application: Application) : AndroidViewModel(application) {
-    // utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder qui
-    private val dao = AppDatabase.getDatabase(application).gameDao()
+    private val repository: GameRepository
 
-    // crea lo StateFlow direttamente dalla query di Room.
     // stato reattivo che contiene la cronologia per la HistoryActivity
-    val history: StateFlow<List<GameRecord>> = dao.getAllGames()
-        .stateIn(
-            scope = viewModelScope, // dice al flusso di vivere esattamente finché vive il ViewModel
-            started = SharingStarted.WhileSubscribed(5000L), // ottimizzazione per la batteria
-            initialValue = emptyList() // StateFlow ha sempre un valore!
-        )
+    val history: StateFlow<List<GameRecord>>
+
+    init {
+        // ottengo il DAO
+        // utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder qui
+        val gameDao = AppDatabase.getDatabase(application).gameDao()
+
+        // e inizializzo il Repository con il DAO
+        repository = GameRepository(gameDao)
+
+        // aggancio lo StateFlow al Flow del Repository
+        history = repository.allGames
+            .stateIn(
+                scope = viewModelScope, // dice al flusso di vivere esattamente finché vive il ViewModel
+                started = SharingStarted.WhileSubscribed(5000L), // ottimizzazione per la batteria
+                initialValue = emptyList() // StateFlow ha sempre un valore!
+            )
+    }
 
     // inserisce una nuova partita:
     // "fire-and-forget" -> la UI non aspetta il risultato
     fun insertGame(maxLength: Int, sequence: String) {
-        // inizializza una coroutine sul Dispatchers.Main,
+        // inizializza una coroutine sul Dispatchers.IO,
         // subordinata al ciclo di vita del ViewModel per prevenire memory leak
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val newRecord = GameRecord(maxLength = maxLength, sequence = sequence)
-            dao.insertGame(newRecord) // chiamo la fun insertGame() nel Dao
+            repository.insertGame(newRecord) // chiamo la fun insertGame() nel Repository
         }
     }
 
@@ -59,6 +71,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     // "suspend" -> la UI deve chiamarla da una coroutine (es. LaunchedEffect) e aspettare il valore.
     // inoltre Room è Main-safe di default: sposterà autonomamente l'esecuzione di questa suspend function su un thread di I/O
     suspend fun getGameById(id: Int): GameRecord? {
-        return dao.getGameById(id)
+        return repository.getGameById(id)
     }
 }
