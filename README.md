@@ -35,6 +35,30 @@ L'interfaccia utente è ora strutturata su tre schermate principali:
   * Il pulsante **"Fine partita"** è attivo mentre si gioca. Se premuto, salva un errore nel punto corrente della sequenza (tranne per la sequenza iniziale di lunghezza 1, in quel caso l'app ignora la partita) e riporta alla Lista delle Partite.
 * **Feedback:** Sia durante la proposta del computer che per le interazioni del giocatore, l'app fornisce un duplice feedback al rettangolo attivo: uno visivo (cambiamento di colore o forma) e uno uditivo (riproduzione di un tono per ogni rettangolo). In caso di errore del giocatore, viene mostrata una segnalazione, la partita termina e si resta in attesa della pressione del tasto "Back".
 
+### 4. View Model: [GameViewModel.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/GameViewModel.kt)
+
+Il `GameViewModel` funge da ponte tra l'interfaccia utente (UI) e il database (DAO), separando la logica di presentazione dalla gestione dei dati e coordinando il flusso della partita.
+
+#### Gestione dello Stato Reattiva (StateFlow)
+* **Stato della Partita:** Espone tramite `StateFlow` le fasi del gioco (Attesa, Turno Computer, Turno Giocatore, Pausa, Game Over). Questo permette alla UI di abilitare o disabilitare i pulsanti ("Avvia", "Pausa", "Fine") in modo dinamico.
+* **Sincronizzazione Sequenze:** Gestisce la lista dei colori generati e quella degli inserimenti dell'utente. Durante il turno del giocatore, aggiorna la stringa destinata all'**Area di Testo**, garantendo che venga svuotata durante la fase di proposta del computer.
+* **Feedback e Animazioni:** Gestisce l'indice del rettangolo attualmente attivo nella matrice 3x2, notificando alla View quale elemento deve attivare il feedback visivo e sonoro.
+
+#### Logica di Business e Coroutines
+* **Controllo Proposta:** Utilizza le Coroutines per gestire i tempi di accensione dei rettangoli durante la sequenza del computer. Implementa la logica di **Pausa/Riprendi** sospendendo l'esecuzione del flusso senza perdere il progresso corrente.
+* **Validazione Input:** Confronta in tempo reale ogni pressione sulla matrice 3x2 con la sequenza attesa. In caso di errore, interrompe la partita e prepara i dati per il salvataggio.
+* **Integrazione Room:** Al termine della partita (o pressione di "Fine partita"), se la lunghezza è maggiore di 1, interagisce con il DAO per persistere il risultato nel database in modo asincrono.
+
+#### Ottimizzazione e Resilienza
+* **Resilienza ai Cambi di Configurazione:** Ereditando da `AndroidViewModel`, protegge lo stato della partita (punteggio, sequenza, stato dei timer) da rotazioni dello schermo o ridimensionamenti della finestra.
+* **Efficienza Energetica (`WhileSubscribed`):** La connessione ai dati reattivi del database rimane attiva solo quando la UI è visibile. Il buffer di 5 secondi previene interruzioni superflue durante i rapidi cambi di orientamento del dispositivo (es. passaggio a landscape per la matrice 3x2).
+
+---
+
+**Risorse Utili**
+* [Documentazione ufficiale ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel)
+* [Guida a StateFlow e SharedFlow](https://developer.android.com/kotlin/flow/stateflow-and-sharedflow)
+
 ## Dispositivi di Sviluppo e Test
 
 Come richiesto dalle specifiche del progetto, l'applicazione è stata sviluppata e testata per garantire la compatibilità su diversi formati di schermo, utilizzando i seguenti dispositivi:
