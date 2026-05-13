@@ -64,7 +64,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class GameActivity : ComponentActivity() {
-    private val vm: ViewModel by viewModels() // inizializzo il ViewModel
+    private val vm: GameViewModel by viewModels() // inizializzo il View Model
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

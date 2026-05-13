@@ -50,7 +50,7 @@ import it.unipd.dei.esp2526.simon.utils.getColoredSequence
 import kotlin.getValue
 
 class HistoryActivity : ComponentActivity() {
-    private val vm: ViewModel by viewModels() // inizializzo il ViewModel
+    private val vm: GameViewModel by viewModels() // inizializzo il View Model
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

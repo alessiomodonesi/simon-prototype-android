@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
  * @see "https://developer.android.com/topic/libraries/architecture/viewmodel"
  * @see "https://developer.android.com/kotlin/flow/stateflow-and-sharedflow"
  */
-class ViewModel(application: Application) : AndroidViewModel(application) {
+class GameViewModel(application: Application) : AndroidViewModel(application) {
     // utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder qui
     private val dao = AppDatabase.getDatabase(application).gameDao()
 
