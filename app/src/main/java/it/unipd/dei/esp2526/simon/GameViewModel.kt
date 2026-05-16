@@ -2,8 +2,9 @@ package it.unipd.dei.esp2526.simon
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import it.unipd.dei.esp2526.simon.data.AppDatabase
 import it.unipd.dei.esp2526.simon.data.GameRecord
 import it.unipd.dei.esp2526.simon.data.GameRepository
 import kotlinx.coroutines.Dispatchers
@@ -33,27 +34,18 @@ import kotlinx.coroutines.launch
  * @see "https://developer.android.com/topic/libraries/architecture/viewmodel"
  * @see "https://developer.android.com/kotlin/flow/stateflow-and-sharedflow"
  */
-class GameViewModel(application: Application) : AndroidViewModel(application) {
+class GameViewModel(
+    application: Application,
     private val repository: GameRepository
-
+) : AndroidViewModel(application) {
     // stato reattivo che contiene la cronologia per la HistoryActivity
-    val history: StateFlow<List<GameRecord>>
-
-    init {
-        // ottengo il DAO: utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder
-        val gameDao = AppDatabase.getDatabase(application).gameDao()
-
-        // inizializzo il Repository con il DAO
-        repository = GameRepository(gameDao)
-
-        // aggancio lo StateFlow al Flow del Repository
-        history = repository.allGames
-            .stateIn(
-                scope = viewModelScope, // dice al flusso di vivere esattamente finché vive il ViewModel
-                started = SharingStarted.WhileSubscribed(5000L), // ottimizzazione per la batteria
-                initialValue = emptyList() // StateFlow ha sempre un valore!
-            )
-    }
+    // aggancio lo StateFlow al Flow del Repository
+    val history: StateFlow<List<GameRecord>> = repository.allGames
+        .stateIn(
+            scope = viewModelScope, // dice al flusso di vivere esattamente finché vive il ViewModel
+            started = SharingStarted.WhileSubscribed(5000L), // ottimizzazione per la batteria
+            initialValue = emptyList() // StateFlow ha sempre un valore!
+        )
 
     // inserisce una nuova partita:
     // "fire-and-forget" -> la UI non aspetta il risultato
@@ -71,5 +63,19 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     // inoltre Room è Main-safe di default: sposterà autonomamente l'esecuzione di questa suspend function su un thread di I/O
     suspend fun getGameById(id: Int): GameRecord? {
         return repository.getGameById(id)
+    }
+}
+
+// ViewModelFactory per la creazione di oggetti GameViewModel
+class GameViewModelFactory(
+    private val application: Application,
+    private val repository: GameRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return GameViewModel(application, repository) as T
+        }
+        throw IllegalArgumentException("Classe ViewModel sconosciuta")
     }
 }
