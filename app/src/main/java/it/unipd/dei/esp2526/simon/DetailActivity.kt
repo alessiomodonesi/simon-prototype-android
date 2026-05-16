@@ -38,13 +38,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
-import it.unipd.dei.esp2526.simon.data.GameRecord
+import it.unipd.dei.esp2526.simon.data.*
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 import it.unipd.dei.esp2526.simon.utils.getColoredSequence
 import kotlin.getValue
 
 class DetailActivity : ComponentActivity() {
-    private val vm: GameViewModel by viewModels() // inizializzo il View Model
+    private val vm: GameViewModel by viewModels { // inizializzo il View Model
+        val database =
+            AppDatabase.getDatabase(this.applicationContext) // utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder
+        val repository =
+            GameRepository(database.gameDao()) // inizializzo il Repository con il DAO
+        GameViewModelFactory(this.application, repository) // chiamo il costruttore
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
