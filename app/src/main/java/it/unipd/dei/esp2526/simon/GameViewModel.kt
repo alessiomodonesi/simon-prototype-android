@@ -66,7 +66,16 @@ class GameViewModel(
     }
 }
 
-// ViewModelFactory per la creazione di oggetti GameViewModel
+/**
+ * factory personalizzata per implementare la dependency injection manuale del ViewModel.
+ *
+ * poiché il delegato nativo "viewModels()" non sa come passare parametri custom al costruttore
+ * (come "Application" e "GameRepository"), questa factory si occupa di istanziare
+ * correttamente il "GameViewModel" fornendogli le dipendenze necessarie.
+ *
+ * @param application il context globale dell'applicazione necessario per Room.
+ * @param repository l'astrazione per l'accesso ai dati del database.
+ */
 class GameViewModelFactory(
     private val application: Application,
     private val repository: GameRepository

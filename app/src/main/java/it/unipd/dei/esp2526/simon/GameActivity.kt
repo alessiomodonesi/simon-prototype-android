@@ -261,6 +261,21 @@ class GameActivity : ComponentActivity() {
     }
 }
 
+/**
+ * schermata principale di gioco che gestisce la griglia dei colori, l'output visivo e i controlli.
+ *
+ * @param userSequence lista dei colori attualmente premuti dall'utente.
+ * @param onColorClick callback invocata quando l'utente preme un colore valido sulla griglia.
+ * @param onStartClick callback invocata per inizializzare e avviare una nuova partita.
+ * @param onPauseClick callback invocata per mettere in pausa l'esecuzione automatica del computer.
+ * @param onEndGameClick callback invocata per terminare volontariamente la partita o chiudere il dialog di Game Over.
+ * @param isGameRunning stato che indica se la partita è attualmente in corso.
+ * @param isComputerPlaying stato che indica se è il turno del computer (disabilita l'input utente).
+ * @param isPaused stato che indica se la sequenza del computer è temporaneamente in pausa.
+ * @param isGameOver stato che innesca l'AlertDialog di sconfitta.
+ * @param activeColor l'etichetta del colore attualmente illuminato (es. "R", "G"), null se nessuno.
+ * @param modifier modificatore per gestire layout e insets esterni.
+ */
 @Composable
 fun GameScreen(
     userSequence: List<String>,

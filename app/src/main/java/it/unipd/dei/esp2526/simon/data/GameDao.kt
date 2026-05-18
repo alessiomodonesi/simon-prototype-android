@@ -6,6 +6,13 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * Data Access Object (DAO) per l'entità GameRecord.
+ * fornisce i metodi per interagire con la tabella "games_history" nel database SQLite.
+ * le operazioni di singola scrittura/lettura sono esposte come funzioni "suspend" per
+ * un'esecuzione asincrona sicura (Main-safe), mentre la lettura globale restituisce
+ * un "Flow" per l'osservazione reattiva dei dati.
+ */
 @Dao
 interface GameDao {
     /**

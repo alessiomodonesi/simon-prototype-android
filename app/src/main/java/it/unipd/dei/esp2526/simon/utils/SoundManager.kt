@@ -6,6 +6,13 @@ import android.media.AudioTrack
 import it.unipd.dei.esp2526.simon.model.simonColors
 import kotlin.math.sin
 
+/**
+ * gestore globale (Singleton) per la generazione e riproduzione di effetti sonori a bassa latenza.
+ * utilizza "AudioTrack" in modalità statica ("MODE_STATIC") per pre-caricare e riprodurre
+ * forme d'onda PCM generate matematicamente a runtime (onde quadre con hard-clipping per un effetto retro 8-bit).
+ * questo approccio evita il decoding di file audio esterni (mp3/wav), abbattendo la latenza
+ * e ottimizzando il consumo di memoria durante il gameplay.
+ */
 object SoundManager {
     // mappa per salvare le tracce audio pre-generate in memoria
     private val tracks = mutableMapOf<Double, AudioTrack>()

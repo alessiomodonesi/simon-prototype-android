@@ -5,6 +5,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
+/**
+ * database principale dell'applicazione basato su Room.
+ * definisce la configurazione del database e funge da punto di accesso principale
+ * per i dati persistenti. implementa il pattern singleton tramite il companion object
+ * per evitare l'allocazione multipla di istanze e prevenire memory leak.
+ */
 @Database(entities = [GameRecord::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun gameDao(): GameDao  // espone il DAO per permettere l'accesso ai dati

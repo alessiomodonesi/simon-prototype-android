@@ -4,8 +4,15 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-// l'uso di una data class genera in automatico metodi come equals() e hashCode(),
-// ottimizzando il "diffing" (confronto) nelle liste di Compose
+/**
+ * rappresenta un singolo record nella tabella "games_history" del database,
+ * memorizzando i dati riassuntivi di una partita conclusa.
+ * l'uso di una data class ottimizza il confronto (diffing) nelle liste di Compose.
+ *
+ * @property id chiave primaria univoca. il valore di default 0 viene ignorato in fase di INSERT per delegare l'autoincremento a SQLite.
+ * @property maxLength la lunghezza massima della sequenza riprodotta correttamente dall'utente.
+ * @property sequence la sequenza completa (inclusiva di errori) salvata come stringa separata da virgole (es. "R, G, B").
+ */
 @Entity(tableName = "games_history")
 data class GameRecord(
     // Room mappa questo campo sul ROWID di SQLite:

@@ -3,6 +3,12 @@ package it.unipd.dei.esp2526.simon.utils
 import it.unipd.dei.esp2526.simon.model.simonColors
 import kotlinx.coroutines.delay
 
+/**
+ * motore logico del gioco.
+ * un oggetto Singleton stateless che centralizza le funzioni core del Simon Game,
+ * separando la logica di avanzamento (generazione ed esecuzione della sequenza del computer)
+ * dai componenti puramente legati alla UI o ai dati.
+ */
 object GameEngine {
     /**
      * genera la sequenza successiva aggiungendo un colore casuale alla fine.

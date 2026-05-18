@@ -52,18 +52,27 @@ class DetailActivity : ComponentActivity() {
         GameViewModelFactory(this.application, repository) // chiamo il costruttore
     }
 
+    companion object {
+        /** chiave costante usata per passare l'ID della partita tramite intent in modo sicuro */
+        const val EXTRA_MATCH_ID = "MATCH_ID"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // recupero l'ID (di default metto -1 se non lo trova)
-        val matchId = intent.getIntExtra("MATCH_ID", -1)
+        // recupero l'ID usando la costante (di default metto -1 se non lo trova)
+        val matchId = intent.getIntExtra(EXTRA_MATCH_ID, -1)
 
         setContent {
             SimonTheme {
                 // stato per contenere il record caricato dal DB
                 var record by remember { mutableStateOf<GameRecord?>(null) }
 
-                // ogni volta che 'matchId' cambia, Compose esegue questo blocco
-                // LaunchedEffect avvia una coroutine non appena la composizione inizia
+                /**
+                 * LaunchedEffect avvia una coroutine non appena la composizione inizia.
+                 * la chiave "matchId" assicura che, qualora l'ID dovesse cambiare,
+                 * la coroutine in esecuzione venga cancellata e riavviata col nuovo ID,
+                 * garantendo la consistenza dei dati recuperati dal database.
+                 */
                 LaunchedEffect(matchId) {
                     if (matchId != -1)
                         record =
@@ -99,6 +108,12 @@ class DetailActivity : ComponentActivity() {
     }
 }
 
+/**
+ * schermata di dettaglio che mostra le statistiche e la sequenza visiva di una partita specifica.
+ *
+ * @param record l'oggetto GameRecord contenente i dati della partita da visualizzare.
+ * @param modifier modificatore per gestire layout, padding e insets del notch.
+ */
 @Composable
 fun DetailScreen(
     record: GameRecord,

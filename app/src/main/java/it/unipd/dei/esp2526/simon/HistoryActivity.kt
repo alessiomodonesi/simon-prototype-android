@@ -90,14 +90,15 @@ class HistoryActivity : ComponentActivity() {
                             val detailIntent =
                                 Intent(this, DetailActivity::class.java).apply {
                                     // passo la sequenza come parametro extra
-                                    putExtra("MATCH_ID", record.id)
+                                    putExtra(DetailActivity.EXTRA_MATCH_ID, record.id)
                                     // stampo i dati a scopo di test (v = verbose)
-                                    Log.v("MATCH_ID", "id: ${record.id}")
+                                    Log.v("HistoryActivity", "Aperto dettaglio id: ${record.id}")
                                 }
 
                             // lancio l'activity passandogli l'intent, this è il Context
                             this.startActivity(detailIntent)
                         },
+
                         // funzione lambda per il click sul FAB "New Game"
                         onNewGameClick = {
                             // creo l'intent esplicito per avviare GameActivity
@@ -115,6 +116,14 @@ class HistoryActivity : ComponentActivity() {
     }
 }
 
+/**
+ * schermata principale per la visualizzazione dello storico delle partite.
+ *
+ * @param onNewGameClick callback invocata quando l'utente preme il FAB per iniziare una nuova partita.
+ * @param onRowClick callback invocata al click su una riga per visualizzarne i dettagli.
+ * @param historyList flusso di dati reattivo contenente lo storico delle partite.
+ * @param modifier modificatore per gestire layout e insets esterni.
+ */
 @Composable
 fun HistoryScreen(
     onNewGameClick: () -> Unit,
