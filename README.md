@@ -1,6 +1,6 @@
 # simon-prototype-android
 
-Progetto di Sistemi Embedded 2025/2026
+Progetto di Programmazione di Sistemi Embedded 2025/2026
 
 [![Latest Release](https://img.shields.io/github/v/release/alessiomodonesi/simon-prototype-android)](https://github.com/alessiomodonesi/simon-prototype-android/releases/latest)
 [![License](https://img.shields.io/github/license/alessiomodonesi/simon-prototype-android)](https://github.com/alessiomodonesi/simon-prototype-android/blob/main/LICENSE)
@@ -66,16 +66,16 @@ Il `GameViewModel` funge da ponte tra l'interfaccia utente (UI) e il database (D
 
 ---
 
-**Risorse Utili:**
+## Risorse Utili
 
 * [Documentazione ufficiale ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel)
 * [Guida a StateFlow e SharedFlow](https://developer.android.com/kotlin/flow/stateflow-and-sharedflow)
 
-## Dispositivi di Sviluppo e Test
+### Dispositivi di Sviluppo e Test
 
 Come richiesto dalle specifiche del progetto, l'applicazione è stata sviluppata e testata per garantire la compatibilità su diversi formati di schermo, utilizzando i seguenti dispositivi:
 
-### 1. Dispositivo Virtuale (Riferimento di base)
+#### 1. Dispositivo Virtuale (Riferimento di base)
 
 * **Tipo di dispositivo:** Emulatore (Android Virtual Device)
 * **Modello:** Google Pixel 2 (Aspect Ratio 16:9)
@@ -84,7 +84,7 @@ Come richiesto dalle specifiche del progetto, l'applicazione è stata sviluppata
 * **Densità Schermo:** 420 dpi
 * **RAM:** 4 GB (4096 MB)
 
-### 2. Dispositivo Fisico (Test su schermo allungato)
+#### 2. Dispositivo Fisico (Test su schermo allungato)
 
 * **Tipo di dispositivo:** Smartphone fisico
 * **Modello:** Samsung Galaxy S22 (Aspect Ratio ~19.5:9)
@@ -93,7 +93,7 @@ Come richiesto dalle specifiche del progetto, l'applicazione è stata sviluppata
 * **Densità Schermo:** 425 dpi
 * **RAM:** 8 GB
 
-## Licenza
+### Licenza
 
 Questo progetto è distribuito sotto licenza **MIT**. Sentiti libero di utilizzare, studiare e modificare il codice per i tuoi progetti, a patto di includere l'informativa sul copyright originale.
 Per maggiori dettagli, consulta il file [LICENSE](LICENSE) all'interno della repository.
