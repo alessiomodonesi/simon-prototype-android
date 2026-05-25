@@ -554,12 +554,20 @@ private fun ColorGrid(
 ) {
     /**
      * trasformazione in catena: randomizza l'array e lo partiziona in List annidate di dimensione 2 per formare le righe.
-     * faccio uno shuffle sui colori e salvo la disposizione (remember).
-     * in questo modo i colori sono random, ma non cambiano posizione ad ogni click.
-     * inoltre divido (chunked) i 6 colori in 3 gruppi da 2 (3 righe x 2 colonne).
+     * faccio uno shuffle sui colori e salvo la disposizione.
+     * per evitare il crash dovuto alla serializzazione di SimonColor (e del relativo Color di Compose)
+     * all'interno del Bundle di rememberSaveable, memorizza solo le label di tipo String.
+     * in questo modo i colori sono random, non cambiano posizione ad ogni click e la griglia è sicura contro i crash da rotazione.
      */
-    val rows = rememberSaveable() {
-        simonColors.shuffled().chunked(2)
+    val savedColorLabels = rememberSaveable {
+        simonColors.shuffled().map { it.label }
+    }
+
+    // ricostruisce le righe associando a ciascuna etichetta l'oggetto SimonColor originale
+    val rows = remember(savedColorLabels) {
+        savedColorLabels.map { label ->
+            simonColors.first { it.label == label }
+        }.chunked(2)
     }
 
     // matrice 3 x 2
