@@ -1,4 +1,4 @@
-package it.unipd.dei.esp2526.simon
+package it.unipd.dei.esp2526.simon.ui.history
 
 import android.content.Intent
 import android.os.Bundle
@@ -43,9 +43,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
+import it.unipd.dei.esp2526.simon.R
 import it.unipd.dei.esp2526.simon.data.*
+import it.unipd.dei.esp2526.simon.ui.detail.DetailActivity
+import it.unipd.dei.esp2526.simon.ui.game.GameActivity
+import it.unipd.dei.esp2526.simon.ui.game.GameViewModel
+import it.unipd.dei.esp2526.simon.ui.game.GameViewModelFactory
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
-import it.unipd.dei.esp2526.simon.utils.getColoredSequence
 import kotlin.getValue
 
 class HistoryActivity : ComponentActivity() {
@@ -183,7 +187,7 @@ fun HistoryScreen(
             items(historyList) { record ->
                 GameHistoryRow(
                     record = record, // passo l'intero record
-                    onClick = { onRowClick(record) } // passo la sequenza alla callback
+                    onClick = { onRowClick(record) } // passo il record completo alla callback
                 )
             }
         }

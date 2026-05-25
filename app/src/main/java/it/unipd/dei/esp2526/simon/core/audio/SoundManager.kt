@@ -1,9 +1,9 @@
-package it.unipd.dei.esp2526.simon.utils
+package it.unipd.dei.esp2526.simon.core.audio
 
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
-import it.unipd.dei.esp2526.simon.model.simonColors
+import it.unipd.dei.esp2526.simon.domain.model.simonColors
 import kotlin.math.sin
 
 /**

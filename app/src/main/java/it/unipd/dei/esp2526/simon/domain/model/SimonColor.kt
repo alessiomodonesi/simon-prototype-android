@@ -1,4 +1,4 @@
-package it.unipd.dei.esp2526.simon.model
+package it.unipd.dei.esp2526.simon.domain.model
 
 import androidx.compose.ui.graphics.Color
 

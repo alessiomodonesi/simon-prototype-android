@@ -1,4 +1,4 @@
-package it.unipd.dei.esp2526.simon.utils
+package it.unipd.dei.esp2526.simon.ui.history
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -9,26 +9,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import it.unipd.dei.esp2526.simon.R
 import it.unipd.dei.esp2526.simon.data.GameRecord
-import kotlinx.coroutines.delay
-
-/**
- * gestisce il feedback visivo e uditivo di un singolo colore.
- * centralizza la logica per evitare duplicazioni tra turno PC e click Utente.
- */
-suspend fun playColorFeedback(
-    colorLabel: String,
-    durationMs: Long,
-    onColorActive: (String?) -> Unit
-) {
-    onColorActive(colorLabel) // accende visivamente il colore
-
-    // lancia la riproduzione audio
-    val freq = SoundManager.getFrequencyForColor(colorLabel)
-    SoundManager.playTone(frequency = freq)
-
-    delay(durationMs) // mantiene acceso il colore per la durata del suono
-    onColorActive(null) // spegne il colore
-}
 
 /**
  * sequenza divisa in corretta/errata e colorata, come da specifiche

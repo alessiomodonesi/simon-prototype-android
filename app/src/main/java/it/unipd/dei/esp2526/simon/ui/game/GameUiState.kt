@@ -1,4 +1,4 @@
-package it.unipd.dei.esp2526.simon.model
+package it.unipd.dei.esp2526.simon.ui.game
 
 /** struttura dati di supporto per gestire gli stati della partita */
 data class GameUiState(

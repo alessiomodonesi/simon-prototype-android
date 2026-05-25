@@ -11,7 +11,7 @@ import androidx.room.RoomDatabase
  * per i dati persistenti. implementa il pattern singleton tramite il companion object
  * per evitare l'allocazione multipla di istanze e prevenire memory leak.
  */
-@Database(entities = [GameRecord::class], version = 1)
+@Database(entities = [GameRecord::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun gameDao(): GameDao  // espone il DAO per permettere l'accesso ai dati
 
@@ -36,7 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
                     INSTANCE = instance
                 }
             }
-            return INSTANCE!! // double-bang operator: lancia l’eccezione if INSTANCE = null
+            return INSTANCE!! // not-null assertion operator: lancia NullPointerException se INSTANCE è null
         }
     }
 }

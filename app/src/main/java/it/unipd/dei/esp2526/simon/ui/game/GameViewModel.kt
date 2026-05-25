@@ -1,4 +1,4 @@
-package it.unipd.dei.esp2526.simon
+package it.unipd.dei.esp2526.simon.ui.game
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -18,9 +18,7 @@ import kotlinx.coroutines.launch
 import kotlin.collections.emptyList
 import it.unipd.dei.esp2526.simon.data.GameRecord
 import it.unipd.dei.esp2526.simon.data.GameRepository
-import it.unipd.dei.esp2526.simon.model.GameUiState
-import it.unipd.dei.esp2526.simon.utils.GameEngine
-import it.unipd.dei.esp2526.simon.utils.playColorFeedback
+import it.unipd.dei.esp2526.simon.domain.GameEngine
 
 /**
  * funge da ponte tra l'interfaccia utente (UI) e il Repository, separando la logica visiva dai dati.
@@ -96,7 +94,7 @@ class GameViewModel(
                         userSequence = emptyList(), // reset della sequenza utente prima del turno del computer
                         computerPlaybackIndex = 0, // reset dell'indice
                         computerSequence = GameEngine.generateNextSequence(it.computerSequence), // aggiunge un colore
-                        isComputerPlaying = true // ora è il turno al computer
+                        isComputerPlaying = true // ora è il turno del computer
                     )
                 }
                 playComputerSequence() // passa il turno al computer
