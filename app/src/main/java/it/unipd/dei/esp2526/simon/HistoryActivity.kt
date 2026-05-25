@@ -40,7 +40,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
@@ -233,25 +232,6 @@ private fun GameHistoryRow(
             modifier = Modifier
                 .weight(1f) // prende tutto lo spazio rimanente DOPO aver calcolato il testo a sx
                 .padding(start = 16.dp) // tiene una distanza di sicurezza dal contatore
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HistoryScreenPreview() {
-    SimonTheme {
-        // dati fittizi aggiornati al tipo GameRecord, servono solo alla preview
-        val dummyData = listOf(
-            GameRecord(id = 1, maxLength = 2, sequence = "R, G, B"),
-            GameRecord(id = 2, maxLength = 4, sequence = "Y, C, B, C, R"),
-            GameRecord(id = 3, maxLength = 0, sequence = "")
-        )
-
-        HistoryScreen(
-            onNewGameClick = {},
-            onRowClick = {},
-            historyList = dummyData
         )
     }
 }

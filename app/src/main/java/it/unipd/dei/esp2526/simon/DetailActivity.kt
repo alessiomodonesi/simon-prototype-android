@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
@@ -225,15 +224,5 @@ private fun StatItem(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DetailScreenPreview() {
-    SimonTheme {
-        // dati fittizi aggiornati al tipo GameRecord, servono solo alla preview
-        val dummyData = GameRecord(id = 1, maxLength = 5, sequence = "R, G, B, Y, C, M")
-        DetailScreen(record = dummyData)
     }
 }
