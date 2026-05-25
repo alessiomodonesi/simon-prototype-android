@@ -1,5 +1,6 @@
 package it.unipd.dei.esp2526.simon.model
 
+/** struttura dati di supporto per gestire gli stati della partita */
 data class GameUiState(
     val computerSequence: List<String> = emptyList(), // stato per tenere traccia della sequenza generata dal computer
     val userSequence: List<String> = emptyList(), // stato per tenere traccia della sequenza riprodotta dall'utente

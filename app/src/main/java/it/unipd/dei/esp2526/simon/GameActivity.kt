@@ -109,7 +109,8 @@ class GameActivity : ComponentActivity() {
                         onPauseClick = { vm.togglePause() },
                         onEndGameClick = {
                             vm.endGame {
-                                this@GameActivity.finish() // chiude l'activity al termine del salvataggio
+                                // utilizzo finish() per chiudere GameActivity (pop) e tornare indietro
+                                this@GameActivity.finish()
                             }
                         },
                         modifier = Modifier

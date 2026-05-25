@@ -118,7 +118,7 @@ class GameViewModel(
         playComputerSequence()
     }
 
-    /** gestione del click sul tasto "Pause/Resume" */
+    /** funzione per il click sul tasto "Pause/Resume" */
     fun togglePause() {
         // inverte lo stato di pausa ad ogni click
         _uiState.update { it.copy(isPaused = !it.isPaused) }
