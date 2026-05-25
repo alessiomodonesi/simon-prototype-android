@@ -42,8 +42,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -195,19 +193,6 @@ fun GameScreen(
         onEndGameClick()
     }
 
-    // brush sfumato con i colori dell'arcobaleno (gradiente lineare)
-    val rainbowBrush = Brush.linearGradient(
-        colors = listOf(
-            Color.Red,
-            Color(0xFFFF9800),
-            Color.Yellow,
-            Color.Green,
-            Color.Blue,
-            Color(0xFF3F51B5),
-            Color(0xFF9C27B0)
-        )
-    )
-
     /**
      * giustificazione layout: in questa schermata utilizzo ConstraintLayout per gestire
      * in modo efficiente ed elegante il cambio di orientamento (Portrait vs Landscape).
@@ -275,13 +260,13 @@ fun GameScreen(
                 }
                 .padding(bottom = if (orientation == Configuration.ORIENTATION_LANDSCAPE) 24.dp else 0.dp)
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(10.dp) // ritaglia la forma
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                    shape = RoundedCornerShape(12.dp) // ritaglia la forma
                 )
                 .border(
-                    width = 3.dp,
-                    brush = rainbowBrush, // colore sfumato
-                    shape = RoundedCornerShape(10.dp)
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
+                    shape = RoundedCornerShape(12.dp)
                 )
                 .height(120.dp)
                 .padding(16.dp),
