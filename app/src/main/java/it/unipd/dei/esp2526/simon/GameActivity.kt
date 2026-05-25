@@ -230,9 +230,12 @@ class GameActivity : ComponentActivity() {
                             // la sequenza da salvare è quella COMPLETA proposta dal computer in questo turno
                             val sequence = computerSequence.joinToString(", ")
 
-                            // if: l'utente ha sbagliato un colore, else: uscita volontaria
-                            val maxLength =
-                                if (isGameOver) userSequence.size - 1 else userSequence.size
+                            // il punteggio è la lunghezza dell'ultimo round completato correttamente.
+                            // se l'utente sbaglia, il round corrente (computerSequence.size) è fallito,
+                            // quindi il punteggio è la lunghezza della sequenza al turno precedente.
+                            val maxLength = if (isGameOver || isGameRunning) {
+                                (computerSequence.size - 1).coerceAtLeast(0)
+                            } else 0 // caso in cui la partita non sia mai iniziata o sia finita regolarmente (non previsto dallo stato attuale ma per sicurezza)
 
                             // salva nel database chiamando la fun insertGame() dal ViewModel
                             vm.insertGame(

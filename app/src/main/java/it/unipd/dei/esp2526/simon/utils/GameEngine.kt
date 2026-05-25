@@ -33,9 +33,6 @@ object GameEngine {
         onIndexUpdate: (Int) -> Unit // callback per aggiornare l'indice dal quale ripartire
     ) {
         for (i in startIndex until sequence.size) {
-            // aggiorno subito l'indice al tono successivo (i + 1)
-            onIndexUpdate(i + 1)
-
             // se il gioco è in pausa, il ciclo si sospende e controlla ogni 100ms finché non viene tolta la pausa.
             // polling asincrono: cede il thread al dispatcher (non bloccante) e controlla ciclicamente il flag ogni 100ms senza saturare la CPU.
             while (isPaused()) delay(100)
@@ -46,6 +43,9 @@ object GameEngine {
                 durationMs = 250,
                 onColorActive = onColorActive
             )
+
+            // aggiorno l'indice al tono successivo solo dopo che è stato riprodotto correttamente
+            onIndexUpdate(i + 1)
 
             // pausa tra un colore e l'altro
             delay(250)
