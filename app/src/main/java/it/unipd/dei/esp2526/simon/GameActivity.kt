@@ -2,7 +2,6 @@ package it.unipd.dei.esp2526.simon
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -32,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -49,20 +49,19 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.unipd.dei.esp2526.simon.model.simonColors
 import it.unipd.dei.esp2526.simon.utils.*
 import it.unipd.dei.esp2526.simon.data.*
 
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class GameActivity : ComponentActivity() {
     private val vm: GameViewModel by viewModels { // inizializzo il View Model
@@ -81,34 +80,8 @@ class GameActivity : ComponentActivity() {
 
         setContent {
             SimonTheme {
-                // stato per tenere traccia della sequenza generata dal computer:
-                // rememberSaveable serializza il dato in un Bundle di sistema, sopravvivendo alla distruzione dell'Activity (es. rotazione)
-                var computerSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
-
-                // stato per tenere traccia della sequenza riprodotta dall'utente
-                var userSequence by rememberSaveable { mutableStateOf(listOf<String>()) }
-
-                // stato per capire se il gioco è in corso o meno
-                var isGameRunning by rememberSaveable { mutableStateOf(false) }
-
-                // stato per capire se il computer ha il comando
-                var isComputerPlaying by rememberSaveable { mutableStateOf(false) }
-
-                // stato per gestire la pausa durante il turno del computer
-                var isPaused by rememberSaveable { mutableStateOf(false) }
-
-                // stato per gestire la sconfitta dell'utente
-                var isGameOver by rememberSaveable { mutableStateOf(false) }
-
-                // stato per il colore attualmente illuminato
-                var activeColor by rememberSaveable { mutableStateOf<String?>(null) }
-
-                // stato per l'indice della sequenza del computer
-                var computerPlaybackIndex by rememberSaveable { mutableIntStateOf(0) }
-
-                // scope per lanciare le coroutine legate al ciclo di vita della composizione
-                // https://developer.android.com/kotlin/coroutines
-                val coroutineScope = rememberCoroutineScope()
+                // iscrizione reattiva allo UI State del ViewModel
+                val state by vm.uiState.collectAsStateWithLifecycle()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // grandezza del cutout
@@ -121,133 +94,23 @@ class GameActivity : ComponentActivity() {
                         cutout.calculateRightPadding(layoutDirection)
                     )
 
-                    // scatta ogni volta che isComputerPlaying diventa true o l'activity viene ricreata
-                    LaunchedEffect(isComputerPlaying) {
-                        if (isComputerPlaying && computerSequence.isNotEmpty()) {
-                            // se parto da zero = non è un ripristino da rotazione, facciamo una pausa iniziale
-                            if (computerPlaybackIndex == 0) delay(1000)
-
-                            // faccio continuare la sequenza da dove si era fermata
-                            GameEngine.playComputerSequence(
-                                sequence = computerSequence,
-                                startIndex = computerPlaybackIndex,
-                                isPaused = { isPaused },
-                                onColorActive = { activeColor = it },
-                                onIndexUpdate = { computerPlaybackIndex = it }
-                            )
-
-                            // quando la sequenza finisce regolarmente, passo il turno all'utente
-                            if (computerPlaybackIndex >= computerSequence.size)
-                                isComputerPlaying = false
-                        }
-                    }
-
                     GameScreen(
-                        // passo le variabili di stato
-                        userSequence = userSequence,
-                        isGameRunning = isGameRunning,
-                        isComputerPlaying = isComputerPlaying,
-                        isPaused = isPaused,
-                        isGameOver = isGameOver,
-                        activeColor = activeColor,
+                        // semplice lettura dello stato centralizzato
+                        userSequence = state.userSequence,
+                        isGameRunning = state.isGameRunning,
+                        isComputerPlaying = state.isComputerPlaying,
+                        isPaused = state.isPaused,
+                        isGameOver = state.isGameOver,
+                        activeColor = state.activeColor,
 
-                        // funzione lambda per il click su un colore, riceve come parametro l'indice del colore premuto
-                        onColorClick = { colorLabel ->
-                            // ignora i click se: il gioco è finito || se NON è avviato || se tocca al computer
-                            if (isGameOver || !isGameRunning || isComputerPlaying) return@GameScreen
-
-                            userSequence += colorLabel // aggiunge la lettera alla sequenza utente
-                            Log.v(mTAG, "$colorLabel Btn clicked")
-
-                            // animazione del feedback visivo e uditivo dell'utente
-                            // chiama la funzione dentro GameUtils.kt
-                            coroutineScope.launch {
-                                playColorFeedback(
-                                    colorLabel = colorLabel,
-                                    durationMs = 250,
-                                    onColorActive = { activeColor = it }
-                                )
-                            }
-
-                            // indice per la validazione della mossa
-                            val i = userSequence.size - 1
-
-                            // verifica se l'indice esiste nella sequenza del computer e se il colore coincide
-                            if (i < computerSequence.size && colorLabel == computerSequence[i]) { // mossa corretta
-                                if (userSequence.size == computerSequence.size) { // l'utente ha completato l'intera sequenza correttamente
-                                    // reset della sequenza utente prima del turno del computer
-                                    userSequence = emptyList()
-
-                                    // reset dell'indice
-                                    computerPlaybackIndex = 0
-
-                                    // aggiunge un colore
-                                    computerSequence =
-                                        GameEngine.generateNextSequence(computerSequence)
-
-                                    // innesca il LaunchedEffect in automatico per il turno successivo
-                                    isComputerPlaying = true
-                                }
-                            } else { // mossa errata
-                                isGameOver = true
-                                isGameRunning = false // ferma il gioco e disabilita ulteriori input
-                            }
-                        },
-
-                        // funzione lambda per il click sul tasto "Start Game"
-                        onStartClick = {
-                            isGameRunning = true
-                            userSequence = emptyList()
-                            computerPlaybackIndex = 0 // resetta l'indice
-                            computerSequence =
-                                GameEngine.generateNextSequence(emptyList()) // genera la prima mossa
-                            isComputerPlaying =
-                                true // questo farà scattare il LaunchedEffect da solo
-                            Log.v(mTAG, "Start Game Btn clicked")
-                        },
-
-                        // funzione lambda per il click sul tasto "Pause"
-                        onPauseClick = {
-                            isPaused = !isPaused // inverte lo stato di pausa ad ogni click
-                            Log.v(mTAG, "Pause Btn clicked")
-                        },
-
-                        // funzione lambda per il click sul tasto "End Game", aggiorna la lista di sequenze giocate prima di cancellare la sequenza appena terminata,
-                        // poi lancia un intent verso HistoryActivity passando come dato la lista di sequenze giocate
+                        // inoltro delle interazioni dell'utente al ViewModel
+                        onColorClick = { label -> vm.colorClick(label) },
+                        onStartClick = { vm.startGame() },
+                        onPauseClick = { vm.togglePause() },
                         onEndGameClick = {
-                            Log.v(mTAG, "End Game Btn clicked")
-
-                            // se non c'è stato un vero game over && (il gioco non è partito || siamo al 1o turno),
-                            // l'app si comporta come se non fosse mai iniziata e non salva nulla[cite: 9].
-                            if (!isGameOver && (!isGameRunning || computerSequence.size <= 1)) {
-                                isGameRunning = false
-                                isPaused = false // resetto la pausa a fine partita
-                                userSequence = emptyList()
-                                this@GameActivity.finish()
-                                return@GameScreen // esce immediatamente dalla lambda senza eseguire il resto
+                            vm.endGame {
+                                this@GameActivity.finish() // chiude l'activity al termine del salvataggio
                             }
-
-                            // la sequenza da salvare è quella COMPLETA proposta dal computer in questo turno
-                            val sequence = computerSequence.joinToString(", ")
-
-                            // il punteggio è la lunghezza dell'ultimo round completato correttamente.
-                            // se l'utente sbaglia, il round corrente (computerSequence.size) è fallito,
-                            // quindi il punteggio è la lunghezza della sequenza al turno precedente.
-                            val maxLength = if (isGameOver || isGameRunning) {
-                                (computerSequence.size - 1).coerceAtLeast(0)
-                            } else 0 // caso in cui la partita non sia mai iniziata o sia finita regolarmente (non previsto dallo stato attuale ma per sicurezza)
-
-                            // salva nel database chiamando la fun insertGame() dal ViewModel
-                            vm.insertGame(
-                                maxLength = maxLength,
-                                sequence = sequence
-                            )
-
-                            // svuoto la sequenza per la prossima partita
-                            userSequence = emptyList()
-
-                            // utilizzo finish() per chiudere GameActivity (pop) e tornare indietro
-                            this@GameActivity.finish()
                         },
                         modifier = Modifier
                             .padding(innerPadding)
@@ -264,39 +127,28 @@ class GameActivity : ComponentActivity() {
     }
 }
 
-/**
- * schermata principale di gioco che gestisce la griglia dei colori, l'output visivo e i controlli.
- *
- * @param userSequence lista dei colori attualmente premuti dall'utente.
- * @param onColorClick callback invocata quando l'utente preme un colore valido sulla griglia.
- * @param onStartClick callback invocata per inizializzare e avviare una nuova partita.
- * @param onPauseClick callback invocata per mettere in pausa l'esecuzione automatica del computer.
- * @param onEndGameClick callback invocata per terminare volontariamente la partita o chiudere il dialog di Game Over.
- * @param isGameRunning stato che indica se la partita è attualmente in corso.
- * @param isComputerPlaying stato che indica se è il turno del computer (disabilita l'input utente).
- * @param isPaused stato che indica se la sequenza del computer è temporaneamente in pausa.
- * @param isGameOver stato che innesca l'AlertDialog di sconfitta.
- * @param activeColor l'etichetta del colore attualmente illuminato (es. "R", "G"), null se nessuno.
- * @param modifier modificatore per gestire layout e insets esterni.
- */
+/** schermata principale di gioco che gestisce la griglia dei colori, l'output visivo e i controlli */
 @Composable
 fun GameScreen(
-    userSequence: List<String>,
-    onColorClick: (String) -> Unit,
-    onStartClick: () -> Unit,
-    onPauseClick: () -> Unit,
-    onEndGameClick: () -> Unit,
-    isGameRunning: Boolean,
-    isComputerPlaying: Boolean,
-    isPaused: Boolean,
-    isGameOver: Boolean,
-    activeColor: String?,
-    modifier: Modifier = Modifier
+    // variabili di stato
+    userSequence: List<String>, // lista dei colori attualmente premuti dall'utente
+    isGameRunning: Boolean, // stato che indica se la partita è attualmente in corso
+    isComputerPlaying: Boolean, // stato che indica se è il turno del computer (disabilita l'input utente)
+    isPaused: Boolean, // stato che indica se la sequenza del computer è temporaneamente in pausa
+    isGameOver: Boolean, // stato che innesca l'AlertDialog di sconfitta
+    activeColor: String?, // l'etichetta del colore attualmente illuminato (es. "R", "G"), null se nessuno
+
+    // callback
+    onColorClick: (String) -> Unit, // callback invocata quando l'utente preme un colore valido sulla griglia
+    onStartClick: () -> Unit, // callback invocata per inizializzare e avviare una nuova partita
+    onPauseClick: () -> Unit, // callback invocata per mettere in pausa l'esecuzione automatica del computer
+    onEndGameClick: () -> Unit, // callback invocata per terminare volontariamente la partita o chiudere il dialog di Game Over
+    modifier: Modifier = Modifier // modificatore per gestire layout e insets esterni
 ) {
     // segnalazione di errore che blocca il gioco
     // https://developer.android.com/develop/ui/views/components/dialogs
     if (isGameOver) {
-        androidx.compose.material3.AlertDialog(
+        AlertDialog(
             confirmButton = {},
             onDismissRequest = {
                 onEndGameClick() // questo scatta quando l'utente preme il tasto "Back" di sistema mentre il Dialog è aperto
@@ -376,7 +228,7 @@ fun GameScreen(
                 btnStart,
                 btnPause,
                 // il layout a catena 'Packed' compatta i nodi al centro, raggruppando i bottoni senza spazi intermedi
-                chainStyle = androidx.constraintlayout.compose.ChainStyle.Packed
+                chainStyle = ChainStyle.Packed
             )
 
         // matrice 3 x 2 (chiamo la funzione @Composable)
@@ -554,7 +406,7 @@ private fun ColorGrid(
 ) {
     /**
      * trasformazione in catena: randomizza l'array e lo partiziona in List annidate di dimensione 2 per formare le righe.
-     * faccio uno shuffle sui colori e salvo la disposizione.
+     * faccio uno shuffle sui colori e salvo la disposizione (rememberSaveable).
      * per evitare il crash dovuto alla serializzazione di SimonColor (e del relativo Color di Compose)
      * all'interno del Bundle di rememberSaveable, memorizza solo le label di tipo String.
      * in questo modo i colori sono random, non cambiano posizione ad ogni click e la griglia è sicura contro i crash da rotazione.
@@ -603,23 +455,3 @@ private fun ColorGrid(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun GameScreenPreview() {
-    GameScreen(
-        userSequence = listOf("R, G, B"), // dati fittizi, servono solo alla preview di android studio
-        onColorClick = {},
-        onStartClick = {},
-        onPauseClick = {},
-        onEndGameClick = {},
-        isGameRunning = false,
-        isComputerPlaying = false,
-        isPaused = false,
-        isGameOver = false,
-        activeColor = null
-    )
-}
-
-// tag per il logger di debug di GameActivity
-const val mTAG = "GameActivity"
