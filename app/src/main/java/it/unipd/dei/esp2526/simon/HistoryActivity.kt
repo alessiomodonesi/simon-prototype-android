@@ -30,7 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,7 +68,7 @@ class HistoryActivity : ComponentActivity() {
                  * "ricompone" (ridisegna) automaticamente l'interfaccia utente in tempo reale.
                  * l'uso del delegato "by" estrae comodamente il valore in una List<GameRecord>
                  */
-                val historyList by vm.history.collectAsState()
+                val historyList by vm.history.collectAsStateWithLifecycle()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // grandezza del cutout
