@@ -50,7 +50,13 @@ class GameViewModel(
     private var playbackJob: Job? =
         null // lavoro coroutine per tracciare la riproduzione del computer
 
-    // stato reattivo che contiene la cronologia per la HistoryActivity (aggancio lo StateFlow al Flow del Repository)
+    /**
+     * stato reattivo che contiene la cronologia per la HistoryActivity.
+     * le operazioni lunghe (come il recupero di dati dal database) non devono essere eseguite
+     * sul thread della UI, altrimenti bloccherebbero l'intera applicazione.
+     * grazie a Room e Kotlin Flow, il database emette aggiornamenti in modo asincrono.
+     * aggancio lo StateFlow al Flow del Repository, che a sua volta è collegato al database Room.
+     */
     val history: StateFlow<List<GameRecord>> = repository.allGames
         .stateIn(
             scope = viewModelScope, // dice al flusso di vivere esattamente finché vive il ViewModel
@@ -187,7 +193,13 @@ class GameViewModel(
         }
     }
 
-    /** inserisce una nuova partita: "fire-and-forget" -> la UI non aspetta il risultato */
+    /**
+     * inserisce una nuova partita nel database in modalità "fire-and-forget".
+     * regola fondamentale di Android: non bloccare mai il thread della UI.
+     * per evitare blocchi, questa funzione "spawna" un thread aggiuntivo (worker thread)
+     * passando l'esecuzione al Dispatchers.IO tramite le coroutine.
+     * la coroutine è subordinata al ciclo di vita del ViewModel (`viewModelScope`) per prevenire memory leak.
+     */
     private fun insertGame(maxLength: Int, sequence: String) {
         // inizializza una coroutine sul Dispatchers.IO,
         // subordinata al ciclo di vita del ViewModel per prevenire memory leak
@@ -198,9 +210,11 @@ class GameViewModel(
     }
 
     /**
-     * recupera una partita:
-     * "suspend" -> la UI deve chiamarla da una coroutine (es. LaunchedEffect) e aspettare il valore.
-     * inoltre Room è Main-safe di default: sposterà autonomamente l'esecuzione di questa suspend function su un thread di I/O
+     * recupera una partita specifica dal database tramite il Repository.
+     * essendo una funzione "suspend", sfrutta il supporto di Kotlin per le coroutine.
+     * Room garantisce che le query "suspend" siano "Thread Safe" (sicure per i thread):
+     * ovvero il codice può essere invocato in sicurezza da thread multipli simultaneamente
+     * e si occupa in automatico di eseguire l'operazione su un worker thread per non bloccare la UI.
      */
     suspend fun getGameById(id: Int): GameRecord? {
         return repository.getGameById(id)
