@@ -2,9 +2,12 @@ package it.unipd.dei.esp2526.simon.ui.game
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -13,12 +16,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.collections.emptyList
 import it.unipd.dei.esp2526.simon.data.GameRecord
 import it.unipd.dei.esp2526.simon.data.GameRepository
 import it.unipd.dei.esp2526.simon.domain.GameEngine
+import kotlinx.coroutines.flow.update
 
 /**
  * funge da ponte tra l'interfaccia utente (UI) e il Repository, separando la logica visiva dai dati.
@@ -43,12 +46,22 @@ import it.unipd.dei.esp2526.simon.domain.GameEngine
  */
 class GameViewModel(
     application: Application,
-    private val repository: GameRepository
+    private val repository: GameRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
-    private val _uiState = MutableStateFlow(GameUiState()) // stato reattivo per la partita in corso
+    companion object {
+        private const val KEY_UI_STATE = "game_ui_state"
+    }
+
+    // stato reattivo per la partita in corso
+    private val _uiState = MutableStateFlow(
+        savedStateHandle.get<GameUiState>(KEY_UI_STATE) ?: GameUiState()
+    )
+
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
-    private var playbackJob: Job? =
-        null // lavoro coroutine per tracciare la riproduzione del computer
+
+    // lavoro coroutine per tracciare la riproduzione del computer
+    private var playbackJob: Job? = null
 
     /*
      * stato reattivo che contiene la cronologia per la HistoryActivity.
@@ -64,6 +77,18 @@ class GameViewModel(
             initialValue = emptyList() // StateFlow ha sempre un valore!
         )
 
+    /*
+     * blocco di inizializzazione eseguito alla creazione del ViewModel.
+     * gestisce il ripristino automatico in caso di Process Death: se il sistema operativo
+     * aveva terminato l'app mentre il computer stava riproducendo una sequenza (e non era in pausa),
+     * la coroutine viene riavviata dal punto esatto salvato nel SavedStateHandle.
+     */
+    init {
+        val restoredState = _uiState.value
+        if (restoredState.isGameRunning && restoredState.isComputerPlaying && !restoredState.isPaused && !restoredState.isGameOver)
+            playComputerSequence()
+    }
+
     /** funzione per il click su un colore, riceve come parametro l'etichetta (label) del colore premuto */
     fun colorClick(colorLabel: String) {
         val currentState = _uiState.value
@@ -74,7 +99,7 @@ class GameViewModel(
 
         // aggiunge la lettera alla sequenza utente
         val newUserSequence = currentState.userSequence + colorLabel
-        _uiState.update { it.copy(userSequence = newUserSequence) }
+        updateState { it.copy(userSequence = newUserSequence) }
 
         // animazione del feedback visivo e uditivo dell'utente
         // chiama la funzione dentro GameUtils.kt
@@ -84,7 +109,7 @@ class GameViewModel(
                 durationMs = 250,
                 onColorActive = { active ->
                     // aggiorna lo StateFlow con il colore attivo
-                    _uiState.update { it.copy(activeColor = active) }
+                    updateState { it.copy(activeColor = active) }
                 }
             )
         }
@@ -95,7 +120,7 @@ class GameViewModel(
         // verifica se l'indice esiste nella sequenza del computer e se il colore coincide
         if (i < currentState.computerSequence.size && colorLabel == currentState.computerSequence[i]) {  // mossa corretta
             if (newUserSequence.size == currentState.computerSequence.size) { // l'utente ha completato l'intera sequenza correttamente
-                _uiState.update {
+                updateState {
                     it.copy(
                         userSequence = emptyList(), // reset della sequenza utente prima del turno del computer
                         computerPlaybackIndex = 0, // reset dell'indice
@@ -107,25 +132,30 @@ class GameViewModel(
             }
         } else { // mossa errata
             // ferma il gioco e disabilita ulteriori input
-            _uiState.update { it.copy(isGameOver = true, isGameRunning = false) }
+            updateState { it.copy(isGameOver = true, isGameRunning = false) }
         }
     }
 
     /** funzione per il click sul tasto "Start Game": avvia una nuova partita */
     fun startGame() {
         playbackJob?.cancel() // ferma eventuali riproduzioni precedenti
-        _uiState.value = GameUiState(
-            isGameRunning = true,
-            computerSequence = GameEngine.generateNextSequence(emptyList()), // genera la prima mossa
-            isComputerPlaying = true
-        )
+        updateState {
+            GameUiState(
+                isGameRunning = true,
+                computerSequence = GameEngine.generateNextSequence(emptyList()), // genera la prima mossa
+                isComputerPlaying = true
+            )
+        }
         playComputerSequence()
     }
 
     /** funzione per il click sul tasto "Pause/Resume" */
     fun togglePause() {
         // inverte lo stato di pausa ad ogni click
-        _uiState.update { it.copy(isPaused = !it.isPaused) }
+        updateState { it.copy(isPaused = !it.isPaused) }
+
+        if (!_uiState.value.isPaused && _uiState.value.isComputerPlaying)
+            playComputerSequence()
     }
 
     /** funzione per il click sul tasto "End Game" */
@@ -133,10 +163,11 @@ class GameViewModel(
         playbackJob?.cancel()
         val state = _uiState.value
 
-        // se non c'è stato un vero game over && (il gioco non è partito || siamo al 1o turno),
-        // l'app si comporta come se non fosse mai iniziata e non salva nulla
-        if (!state.isGameOver && (!state.isGameRunning || state.computerSequence.size <= 1)) {
-            _uiState.value = GameUiState() // reset
+        // se l'utente esce senza aver commesso un vero game over, valutiamo lo stato iniziale:
+        // se il gioco non è partito, oppure se è in corso l'animazione della primissima sequenza
+        // del computer (lunghezza <= 1), l'app si comporta come se la partita non fosse mai iniziata.
+        if (!state.isGameOver && (!state.isGameRunning || (state.computerSequence.size <= 1 && state.isComputerPlaying))) {
+            updateState { GameUiState() } // reset
             onFinished() // chiamo la callback
             return  // esce immediatamente senza eseguire il resto
         }
@@ -153,7 +184,7 @@ class GameViewModel(
             sequence = state.computerSequence.joinToString(", ")
         )
 
-        _uiState.value = GameUiState() // reset dello stato
+        updateState { GameUiState() } // reset dello stato
         onFinished() // chiamo la callback
     }
 
@@ -176,19 +207,19 @@ class GameViewModel(
 
                 // accende/spegne il colore aggiornando lo StateFlow
                 onColorActive = { active ->
-                    _uiState.update { it.copy(activeColor = active) }
+                    updateState { it.copy(activeColor = active) }
                 },
 
                 // aggiorna l'indice di avanzamento nello StateFlow man mano che riproduce i toni
                 onIndexUpdate = { index ->
-                    _uiState.update { it.copy(computerPlaybackIndex = index) }
+                    updateState { it.copy(computerPlaybackIndex = index) }
                 }
             )
 
 
             // quando la sequenza finisce regolarmente, restituisce il comando all'utente
             if (_uiState.value.computerPlaybackIndex >= _uiState.value.computerSequence.size) {
-                _uiState.update { it.copy(isComputerPlaying = false) }
+                updateState { it.copy(isComputerPlaying = false) }
             }
         }
     }
@@ -219,14 +250,28 @@ class GameViewModel(
     suspend fun getGameById(id: Int): GameRecord? {
         return repository.getGameById(id)
     }
+
+    /**
+     * funzione di utilità per l'aggiornamento atomico dello stato.
+     * centralizza la logica di mutazione garantendo che ogni singolo cambiamento
+     * venga sincronizzato contemporaneamente nel flusso reattivo (_uiState)
+     * e nella memoria di sistema (SavedStateHandle), prevenendo desincronizzazioni.
+     */
+    private fun updateState(update: (GameUiState) -> GameUiState) {
+        _uiState.update { current ->
+            val next = update(current)
+            savedStateHandle[KEY_UI_STATE] = next
+            next
+        }
+    }
 }
 
 /**
- * factory personalizzata per implementare la dependency injection manuale del ViewModel.
+ * factory personalizzata per implementare la dependency injection del ViewModel.
  *
- * poiché il delegato nativo "viewModels()" non sa come passare parametri custom al costruttore
- * (come "Application" e "GameRepository"), questa factory si occupa di istanziare
- * correttamente il "GameViewModel" fornendogli le dipendenze necessarie.
+ * il delegato nativo "viewModels()" non sa come istanziare un ViewModel con parametri custom
+ * (come "Application" e "GameRepository"). questa factory risolve il problema estraendo
+ * nativamente il SavedStateHandle dalle CreationExtras di sistema e iniettando le dipendenze richieste.
  *
  * @param application il context globale dell'applicazione necessario per Room.
  * @param repository l'astrazione per l'accesso ai dati del database.
@@ -235,10 +280,11 @@ class GameViewModelFactory(
     private val application: Application,
     private val repository: GameRepository
 ) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return GameViewModel(application, repository) as T
+            val savedStateHandle = extras.createSavedStateHandle()
+            return GameViewModel(application, repository, savedStateHandle) as T
         }
         throw IllegalArgumentException("Classe ViewModel sconosciuta")
     }

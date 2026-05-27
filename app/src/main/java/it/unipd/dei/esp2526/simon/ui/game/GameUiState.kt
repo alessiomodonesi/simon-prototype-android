@@ -1,5 +1,7 @@
 package it.unipd.dei.esp2526.simon.ui.game
 
+import java.io.Serializable
+
 /** struttura dati di supporto per gestire gli stati della partita */
 data class GameUiState(
     val computerSequence: List<String> = emptyList(), // stato per tenere traccia della sequenza generata dal computer
@@ -10,4 +12,4 @@ data class GameUiState(
     val isGameOver: Boolean = false, // stato per gestire la sconfitta dell'utente
     val activeColor: String? = null, // stato per il colore attualmente illuminato
     val computerPlaybackIndex: Int = 0 // stato per l'indice della sequenza del computer
-)
+) : Serializable
