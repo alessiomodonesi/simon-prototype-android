@@ -55,7 +55,7 @@ class DetailActivity : ComponentActivity() {
     }
 
     companion object {
-        /** chiave costante usata per passare l'ID della partita tramite intent in modo sicuro */
+        // chiave costante usata per passare l'ID della partita tramite intent in modo sicuro
         const val EXTRA_MATCH_ID = "MATCH_ID"
     }
 
@@ -69,7 +69,7 @@ class DetailActivity : ComponentActivity() {
                 // stato per contenere il record caricato dal DB
                 var record by remember { mutableStateOf<GameRecord?>(null) }
 
-                /**
+                /*
                  * LaunchedEffect avvia una coroutine non appena la composizione inizia.
                  * la chiave "matchId" assicura che, qualora l'ID dovesse cambiare,
                  * la coroutine in esecuzione venga cancellata e riavviata col nuovo ID,

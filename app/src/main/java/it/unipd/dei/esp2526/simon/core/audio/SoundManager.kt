@@ -73,7 +73,8 @@ object SoundManager {
             generatedSnd[i * 2 + 1] = (valShort.toInt() and 0xff00 ushr 8).toByte()
         }
 
-        /* * INIZIALIZZAZIONE AUDIOTRACK
+        /*
+         * INIZIALIZZAZIONE AUDIOTRACK
          * la classe AudioTrack fa parte della famiglia di package android.media
          * consente esclusivamente la riproduzione (playback only) di audio in formato PCM,
          * leggendo direttamente da un memory buffer.

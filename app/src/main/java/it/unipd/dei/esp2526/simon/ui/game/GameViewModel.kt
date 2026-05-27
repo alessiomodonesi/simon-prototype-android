@@ -50,7 +50,7 @@ class GameViewModel(
     private var playbackJob: Job? =
         null // lavoro coroutine per tracciare la riproduzione del computer
 
-    /**
+    /*
      * stato reattivo che contiene la cronologia per la HistoryActivity.
      * le operazioni lunghe (come il recupero di dati dal database) non devono essere eseguite
      * sul thread della UI, altrimenti bloccherebbero l'intera applicazione.

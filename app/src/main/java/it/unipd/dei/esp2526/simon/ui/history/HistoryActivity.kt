@@ -65,7 +65,7 @@ class HistoryActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SimonTheme {
-                /**
+                /*
                  * si iscrive allo StateFlow del ViewModel convertendolo in uno stato di Compose.
                  * quando il database Room si aggiorna, il flusso emette i nuovi dati e Compose
                  * "ricompone" (ridisegna) automaticamente l'interfaccia utente in tempo reale.
@@ -134,7 +134,7 @@ fun HistoryScreen(
     historyList: List<GameRecord>, // ora riceve GameRecord dal DB
     modifier: Modifier = Modifier
 ) {
-    /**
+    /*
      * giustificazione layout: in questa schermata prediligo l'uso di Column e Row,
      * poiché l'interfaccia presenta una struttura lineare molto semplice (un titolo
      * sopra una lista verticale, e testi allineati orizzontalmente all'interno delle righe).

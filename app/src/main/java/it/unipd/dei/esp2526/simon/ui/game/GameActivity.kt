@@ -193,7 +193,7 @@ fun GameScreen(
         onEndGameClick()
     }
 
-    /**
+    /*
      * giustificazione layout: in questa schermata utilizzo ConstraintLayout per gestire
      * in modo efficiente ed elegante il cambio di orientamento (Portrait vs Landscape).
      * invece di duplicare il codice UI o annidare complesse gerarchie di Column e Row,
@@ -391,7 +391,7 @@ private fun ColorGrid(
     activeColor: String?,
     modifier: Modifier = Modifier
 ) {
-    /**
+    /*
      * trasformazione in catena: randomizza l'array e lo partiziona in List annidate di dimensione 2 per formare le righe.
      * faccio uno shuffle sui colori e salvo la disposizione (rememberSaveable).
      * per evitare il crash dovuto alla serializzazione di SimonColor (e del relativo Color di Compose)
