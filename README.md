@@ -43,28 +43,27 @@ L'interfaccia utente è ora strutturata su tre schermate principali:
   * Il pulsante **"Fine partita"** è attivo mentre si gioca. Se premuto, salva un errore nel punto corrente della sequenza (tranne per la sequenza iniziale di lunghezza 1, in quel caso l'app ignora la partita) e riporta alla Lista delle Partite.
 * **Feedback:** Sia durante la proposta del computer che per le interazioni del giocatore, l'app fornisce un duplice feedback al rettangolo attivo: uno visivo (cambiamento di colore o forma) e uno uditivo (riproduzione di un tono per ogni rettangolo). In caso di errore del giocatore, viene mostrata una segnalazione, la partita termina e si resta in attesa della pressione del tasto "Back".
 
-### 4. View Model: [GameViewModel.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/ui/game/GameViewModel.kt)
+### 4. Architettura MVVM (I 3 View Model Dedicati)
 
-Il `GameViewModel` funge da ponte tra l'interfaccia utente (UI) e il database (DAO), separando la logica di presentazione dalla gestione dei dati e coordinando il flusso della partita.
+L'applicazione aderisce alle linee guida ufficiali di Google sull'architettura e rispetta il **Principio di Singola Responsabilità (SRP)**, separando i comportamenti su tre ViewModel indipendenti e autogestiti:
 
-#### Gestione dello Stato Reattiva (StateFlow)
+*   **[GameViewModel.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/ui/game/GameViewModel.kt)** (associato a `GameActivity`): Coordina l'intero gameplay del Simon. Gestisce l'avvio della partita, la pausa/riprendi, i click dell'utente e la riproduzione asincrona tramite Coroutines (senza mai bloccare il Main Thread). Mantiene lo stato di gioco e si occupa di scrivere i record nel database al termine.
+*   **[HistoryViewModel.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/ui/history/HistoryViewModel.kt)** (associato a `HistoryActivity`): Espone in modo reattivo il flusso di dati della tabella SQL. Utilizza l'operatore `.stateIn()` con `SharingStarted.WhileSubscribed(5000L)` per massimizzare il risparmio energetico disconnettendo Room quando l'app va in background, tollerando al contempo i cambi di configurazione.
+*   **[DetailViewModel.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/ui/detail/DetailViewModel.kt)** (associato a `DetailActivity`): Si occupa unicamente di caricare asincronamente i dettagli di un singolo record dal DB. Integra il recupero dell'ID direttamente tramite `SavedStateHandle` per una resilienza assoluta contro la terminazione del processo (Process Death).
 
-* **Stato della Partita:** Espone tramite `StateFlow` le fasi del gioco (Attesa, Turno Computer, Turno Giocatore, Pausa, Game Over). Questo permette alla UI di abilitare o disabilitare i pulsanti ("Avvia", "Pausa", "Fine") in modo dinamico.
-* **Sincronizzazione Sequenze:** Gestisce la lista dei colori generati e quella degli inserimenti dell'utente. Durante il turno del giocatore, aggiorna la stringa destinata all'**Area di Testo**, garantendo che venga svuotata durante la fase di proposta del computer.
-* **Feedback e Animazioni:** Gestisce l'indice del rettangolo attualmente attivo nella matrice 3x2, notificando alla View quale elemento deve attivare il feedback visivo e sonoro.
-
-#### Logica di Business e Coroutines
-
-* **Controllo Proposta:** Utilizza le Coroutines per gestire i tempi di accensione dei rettangoli durante la sequenza del computer. Implementa la logica di **Pausa/Riprendi** sospendendo l'esecuzione del flusso senza perdere il progresso corrente.
-* **Validazione Input:** Confronta in tempo reale ogni pressione sulla matrice 3x2 con la sequenza attesa. In caso di errore, interrompe la partita e prepara i dati per il salvataggio.
-* **Integrazione Room:** Al termine della partita (o pressione di "Fine partita"), se la lunghezza è maggiore di 1, interagisce con il DAO per persistere il risultato nel database in modo asincrono.
-
-#### Ottimizzazione e Resilienza
-
-* **Resilienza ai Cambi di Configurazione:** Ereditando da `AndroidViewModel`, protegge lo stato della partita (punteggio, sequenza, stato dei timer) da rotazioni dello schermo o ridimensionamenti della finestra.
-* **Efficienza Energetica (`WhileSubscribed`):** La connessione ai dati reattivi del database rimane attiva solo quando la UI è visibile. Il buffer di 5 secondi previene interruzioni superflue durante i rapidi cambi di orientamento del dispositivo (es. passaggio a landscape per la matrice 3x2).
+Ogni ViewModel è dotato della propria classe **Factory** (`GameViewModelFactory`, `HistoryVMFactory`, `DetailVMFactory`) posizionata in fondo al rispettivo file come classe top-level, favorendo un design modulare ed auto-contenuto.
 
 ---
+
+### 5. Resilienza, Persistenza e Ottimizzazioni Avanzate
+
+*   **Evidenziazione Fedele dell'Errore (Asterisk Formatting)**: Per rispettare in modo matematicamente fedele la specifica di visualizzazione della sequenza dall'errore alla fine in un colore diverso senza appesantire lo schema SQLite, l'app implementa un meccanismo personalizzato. Quando la partita termina, l'esatto colore in cui il giocatore ha sbagliato viene contrassegnato con un asterisco (es. `"R, G, *B, M, Y, C"`). Il formatter grafico rileva l'asterisco, colora di bianco tutto ciò che c'è prima e di rosso l'errore e tutti i successivi colori non raggiunti. La lista e la schermata di dettaglio sono perciò visivamente coerenti al 100%!
+*   **Gestione del Process Death**: Grazie a `SavedStateHandle` e alla conversione dello stato `GameUiState` all'efficiente interfaccia nativa **`Parcelable`** (tramite il plugin `@Parcelize` di Kotlin), l'intera partita in corso (stato del timer, note riprodotte, pausa, input parziali dell'utente) viene salvata automaticamente nei Bundle di sistema e ripristinata dal punto esatto anche se il sistema operativo uccide l'activity per recuperare risorse.
+*   **Pre-popolamento automatico per il Testing**: Per facilitare la correzione e consentire di testare immediatamente l'applicazione (LazyColumn, scroll orizzontale, troncamento testi, Detail Screen) senza dover giocare per un'ora, l'app implementa un callback all'avvio. La primissima volta che il database viene creato, esso si popola automaticamente con 5 partite di test variegate.
+*   **Script di Importazione SQL**: Nella cartella principale del progetto è presente il file [import_test_data.sql](/import_test_data.sql) che contiene lo script SQL per cancellare o importare manualmente un set esteso di partite di prova.
+
+---
+
 
 ## Risorse Utili
 
