@@ -23,7 +23,7 @@ import it.unipd.dei.esp2526.simon.data.GameRepository
  */
 class DetailViewModel(
     private val repository: GameRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle // https://developer.android.com/topic/libraries/architecture/viewmodel/viewmodel-savedstate
 ) : ViewModel() {
     // recupera l'ID passato come parametro extra nell'Intent.
     // in caso di Process Death, SavedStateHandle lo conserva automaticamente
@@ -44,7 +44,6 @@ class DetailViewModel(
     init {
         loadGameRecord()
     }
-
 
     /**
      * esegue il recupero asincrono della partita dal database Room tramite il Repository.

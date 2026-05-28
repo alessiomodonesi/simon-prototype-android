@@ -19,7 +19,7 @@ import it.unipd.dei.esp2526.simon.data.GameRepository
  * mantiene attiva la connessione al DB solo se la UI è in ascolto, tollerando brevi interruzioni dovute alla rotazione.
  */
 class HistoryViewModel(
-    private val repository: GameRepository,
+    repository: GameRepository,
 ) : ViewModel() {
 
     /*

@@ -45,7 +45,7 @@ import kotlinx.coroutines.flow.update
 class GameViewModel(
     application: Application,
     private val repository: GameRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle // https://developer.android.com/topic/libraries/architecture/viewmodel/viewmodel-savedstate
 ) : AndroidViewModel(application) {
     companion object {
         private const val KEY_UI_STATE = "game_ui_state"
