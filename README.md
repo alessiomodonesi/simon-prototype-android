@@ -20,7 +20,7 @@ Per quanto riguarda il ciclo di vita, l'app gestisce sia lo stato dell'istanza c
 
 L'interfaccia utente è ora strutturata su tre schermate principali:
 
-### 1. Lista delle Partite: [HistoryActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/HistoryActivity.kt)
+### 1. Lista delle Partite: [HistoryActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/ui/history/HistoryActivity.kt)
 
 * Questa è la prima schermata mostrata all'avvio dell'applicazione e mostra una lista dinamica contenente i dati sulle partite concluse dall'installazione dell'app.
 * Sulla sinistra di ciascun elemento è indicata la lunghezza massima di una sequenza riprodotta correttamente dal giocatore.
@@ -28,12 +28,12 @@ L'interfaccia utente è ora strutturata su tre schermate principali:
 * Cliccando su un elemento della lista, viene visualizzata la partita completa nella schermata "Dettaglio Partita".
 * È presente un pulsante (convenzionale o floating action button) che porta alla "Schermata di Gioco".
 
-### 2. Dettaglio Partita: [DetailActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/DetailActivity.kt)
+### 2. Dettaglio Partita: [DetailActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/ui/detail/DetailActivity.kt)
 
 * Si tratta di una schermata molto semplice che visualizza la partita con lo stesso aspetto della Lista delle Partite ma con maggiore spazio a disposizione.
 * Da questa schermata si esce utilizzando il tasto "Back" di sistema (fisico, virtuale o touch gesture).
 
-### 3. Schermata di Gioco: [GameActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/Gamectivity.kt)
+### 3. Schermata di Gioco: [GameActivity.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/ui/game/GameActivity.kt)
 
 * **Matrice dei Colori:** Una matrice composta da 3 righe per 2 colonne di rettangoli.
 * **Area di Testo:** Un'area multiriga non editabile in cui viene mostrata la sequenza dei rettangoli premuti. Durante le proposte del computer, quest'area rimane vuota.
@@ -43,7 +43,7 @@ L'interfaccia utente è ora strutturata su tre schermate principali:
   * Il pulsante **"Fine partita"** è attivo mentre si gioca. Se premuto, salva un errore nel punto corrente della sequenza (tranne per la sequenza iniziale di lunghezza 1, in quel caso l'app ignora la partita) e riporta alla Lista delle Partite.
 * **Feedback:** Sia durante la proposta del computer che per le interazioni del giocatore, l'app fornisce un duplice feedback al rettangolo attivo: uno visivo (cambiamento di colore o forma) e uno uditivo (riproduzione di un tono per ogni rettangolo). In caso di errore del giocatore, viene mostrata una segnalazione, la partita termina e si resta in attesa della pressione del tasto "Back".
 
-### 4. View Model: [GameViewModel.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/GameViewModel.kt)
+### 4. View Model: [GameViewModel.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/ui/game/GameViewModel.kt)
 
 Il `GameViewModel` funge da ponte tra l'interfaccia utente (UI) e il database (DAO), separando la logica di presentazione dalla gestione dei dati e coordinando il flusso della partita.
 
