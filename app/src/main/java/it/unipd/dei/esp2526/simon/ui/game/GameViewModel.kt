@@ -156,16 +156,28 @@ class GameViewModel(
             return  // esce immediatamente senza eseguire il resto
         }
 
-        // il punteggio è la lunghezza dell'ultimo round completato correttamente.
-        // se l'utente sbaglia, il round corrente (computerSequence.size) è fallito,
-        // quindi il punteggio è la lunghezza della sequenza al turno precedente.
+        // calcolo del record della partita (maxLength):
+        // il punteggio è il numero di round completati correttamente.
+        // se il gioco si interrompe durante il round K (computerSequence.size = K),
+        // significa che il giocatore ha completato con successo K - 1 round in precedenza.
         val maxLength = (state.computerSequence.size - 1).coerceAtLeast(0)
+
+        // calcolo dell'indice del colore errato nella sequenza finale:
+        // se c'è un vero GameOver, il giocatore ha premuto un colore errato in coda a userSequence,
+        // quindi le mosse corrette in questo round sono userSequence.size - 1.
+        // se invcece esce premendo "Fine partita" o "Back" volontariamente, le mosse corrette sono esattamente userSequence.size.
+        val errorIndex = if (state.isGameOver)
+            (state.userSequence.size - 1).coerceAtLeast(0) else state.userSequence.size
+
+        // costruzione della sequenza marchiando il colore errato con l'asterisco "*" prima del salvataggio nel DB
+        val formattedSequence = state.computerSequence.mapIndexed { index, color ->
+            if (index == errorIndex) "*$color" else color
+        }.joinToString(", ")
 
         // inserimento asincrono nel DB chiamando la fun insertGame() qui sotto
         insertGame(
             maxLength = maxLength,
-            // la sequenza da salvare è quella COMPLETA proposta dal computer in questo turno
-            sequence = state.computerSequence.joinToString(", ")
+            sequence = formattedSequence
         )
 
         updateState { GameUiState() } // reset dello stato

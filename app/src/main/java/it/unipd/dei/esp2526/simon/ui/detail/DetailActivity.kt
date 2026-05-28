@@ -105,9 +105,10 @@ fun DetailScreen(
     // deserializza la stringa flat del DB allocando dinamicamente una List in base al delimitatore testuale
     val sequenceItems = if (record.sequence.isBlank()) emptyList() else record.sequence.split(", ")
     val totalLength = sequenceItems.size
-
-    // gli errori sono i colori che il computer ha proposto ma che l'utente non ha indovinato
-    val errorCount = if (totalLength > 0) totalLength - record.maxLength else 0
+    
+    // gli errori sono i colori dal punto dell'errore (identificato dall'asterisco "*") fino alla fine della sequenza
+    val errorIndex = sequenceItems.indexOfFirst { it.startsWith("*") }.coerceAtLeast(0)
+    val errorCount = if (totalLength > 0) totalLength - errorIndex else 0
 
     Column(
         modifier = modifier

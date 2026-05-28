@@ -23,13 +23,13 @@ fun getColoredSequence(record: GameRecord): AnnotatedString {
             // divido la sequenza in una lista di stringhe
             val items = record.sequence.split(", ")
 
-            // i primi 'maxLength' elementi sono corretti.
-            // .take() estrae in modo safe i primi N elementi; se maxLength supera la dimensione totale,
-            // restituisce tutta la lista senza lanciare IndexOutOfBoundsException.
-            val correctItems = items.take(record.maxLength).joinToString(", ")
+            // cerco l'indice del primo elemento che inizia con "*"
+            // utilizzo coerceAtLeast(0) come salvaguardia minimale di sicurezza per evitare crash
+            val errorIndex = items.indexOfFirst { it.startsWith("*") }.coerceAtLeast(0)
 
-            // i restanti elementi sono sbagliati
-            val wrongItems = items.drop(record.maxLength).joinToString(", ")
+            // separo i colori a partire dal punto dell'errore
+            val correctItems = items.take(errorIndex).joinToString(", ")
+            val wrongItems = items.drop(errorIndex).joinToString(", ") { it.removePrefix("*") }
 
             // aggiungo la parte corretta con il colore di default
             append(correctItems)
@@ -38,13 +38,9 @@ fun getColoredSequence(record: GameRecord): AnnotatedString {
             if (correctItems.isNotEmpty() && wrongItems.isNotEmpty())
                 append(", ")
 
-            // aggiungo la parte sbagliata con un colore diverso
-            if (wrongItems.isNotEmpty()) {
-                // utilizza il builder DSL (Domain Specific Language) per iniettare uno span testuale,
-                // isolando il cambio di colore solo a questa specifica append()
-                withStyle(style = SpanStyle(color = Color.Red)) {
-                    append(wrongItems)
-                }
+            // aggiungo la parte errata/non raggiunta in colore rosso
+            withStyle(style = SpanStyle(color = Color.Red)) {
+                append(wrongItems)
             }
         }
     }
