@@ -13,8 +13,8 @@ Per quanto riguarda il ciclo di vita, l'app gestisce sia lo stato dell'istanza c
 
 **Documentazione:**
 
-* I dettagli della consegna intermedia sono disponibili nel documento: [specifications - intermediate.pdf](./specifications%20-%20intermediate.pdf)
-* I dettagli completi della consegna finale sono disponibili nel documento: [specifications - final.pdf](./specifications%20-%20final.pdf)
+* I dettagli della consegna intermedia sono disponibili nel documento: [specifications - intermediate.pdf](/doc/specifications%20-%20intermediate.pdf)
+* I dettagli completi della consegna finale sono disponibili nel documento: [specifications - final.pdf](/doc/specifications%20-%20final.pdf)
 
 ## Architettura dell'Interfaccia
 
