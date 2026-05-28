@@ -32,9 +32,10 @@ object SoundManager {
     }
 
     /**
-     * riproduce un tono di durata e frequenza specificate utilizzando AudioTrack.
+     * genera un tono sinusoidale di durata e frequenza specificate e lo carica in un AudioTrack.
      * come indicato nelle slide, AudioTrack è utilizzato per il playback di PCM audio verso memory buffers.
-     * il metodo viene eseguito in un thread separato per non bloccare il thread principale (UI).
+     * nota: questo metodo viene eseguito in sincrono sul thread chiamante (in questo caso il Main Thread durante onCreate),
+     * ma dato il buffer ridotto (250ms), l'impatto prestazionale è impercettibile.
      */
     private fun generateToneTrack(frequency: Double, durationMs: Int): AudioTrack {
         // calcolo del buffer: converte il tempo in millisecondi nella frazione esatta
@@ -67,10 +68,12 @@ object SoundManager {
             // 32767 è il valore massimo per un intero con segno a 16 bit (2^15 - 1), necessario per la codifica ENCODING_PCM_16BIT
             val valShort = (dVal * 32767).toInt().toShort()
 
-            // estrae il byte più significativo (High Byte) mascherando i bit inferiori e
-            // attuando uno shift logico unsigned a destra (formato Little Endian)
-            generatedSnd[i * 2] = (valShort.toInt() and 0x00ff).toByte()
-            generatedSnd[i * 2 + 1] = (valShort.toInt() and 0xff00 ushr 8).toByte()
+            // nel formato Little Endian, il byte meno significativo (Low Byte) viene scritto all'indirizzo inferiore,
+            // mentre il byte più significativo (High Byte) viene mascherato e traslato all'indirizzo superiore
+            generatedSnd[i * 2] =
+                (valShort.toInt() and 0x00ff).toByte() // Low Byte (meno significativo)
+            generatedSnd[i * 2 + 1] =
+                (valShort.toInt() and 0xff00 ushr 8).toByte() // High Byte (più significativo)
         }
 
         /*
@@ -116,7 +119,7 @@ object SoundManager {
 
         // se il suono è già in riproduzione, lo ferma
         if (track.playState == AudioTrack.PLAYSTATE_PLAYING) {
-            // il metodo stop attende che il contenuto del buffer di memoria venga consumato completamente per poi fermarsi
+            // in MODE_STATIC, stop() interrompe immediatamente il playback del memory buffer e azzera la testina
             track.stop()
         }
 
