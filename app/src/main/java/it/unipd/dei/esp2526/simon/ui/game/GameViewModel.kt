@@ -12,10 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.collections.emptyList
 import it.unipd.dei.esp2526.simon.data.GameRecord
@@ -62,20 +60,6 @@ class GameViewModel(
 
     // lavoro coroutine per tracciare la riproduzione del computer
     private var playbackJob: Job? = null
-
-    /*
-     * stato reattivo che contiene la cronologia per la HistoryActivity.
-     * le operazioni lunghe (come il recupero di dati dal database) non devono essere eseguite
-     * sul thread della UI, altrimenti bloccherebbero l'intera applicazione.
-     * grazie a Room e Kotlin Flow, il database emette aggiornamenti in modo asincrono.
-     * aggancio lo StateFlow al Flow del Repository, che a sua volta è collegato al database Room.
-     */
-    val history: StateFlow<List<GameRecord>> = repository.allGames
-        .stateIn(
-            scope = viewModelScope, // dice al flusso di vivere esattamente finché vive il ViewModel
-            started = SharingStarted.WhileSubscribed(5000L), // ottimizzazione per la batteria
-            initialValue = emptyList() // StateFlow ha sempre un valore!
-        )
 
     /*
      * blocco di inizializzazione eseguito alla creazione del ViewModel.
@@ -241,17 +225,6 @@ class GameViewModel(
     }
 
     /**
-     * recupera una partita specifica dal database tramite il Repository.
-     * essendo una funzione "suspend", sfrutta il supporto di Kotlin per le coroutine.
-     * Room garantisce che le query "suspend" siano "Thread Safe" (sicure per i thread):
-     * ovvero il codice può essere invocato in sicurezza da thread multipli simultaneamente
-     * e si occupa in automatico di eseguire l'operazione su un worker thread per non bloccare la UI.
-     */
-    suspend fun getGameById(id: Int): GameRecord? {
-        return repository.getGameById(id)
-    }
-
-    /**
      * funzione di utilità per l'aggiornamento atomico dello stato.
      * centralizza la logica di mutazione garantendo che ogni singolo cambiamento
      * venga sincronizzato contemporaneamente nel flusso reattivo (_uiState)
@@ -276,7 +249,7 @@ class GameViewModel(
  * @param application il context globale dell'applicazione necessario per Room.
  * @param repository l'astrazione per l'accesso ai dati del database.
  */
-class GameViewModelFactory(
+class GameVMFactory(
     private val application: Application,
     private val repository: GameRepository
 ) : ViewModelProvider.Factory {

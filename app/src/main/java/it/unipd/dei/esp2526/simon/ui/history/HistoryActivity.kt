@@ -47,18 +47,16 @@ import it.unipd.dei.esp2526.simon.R
 import it.unipd.dei.esp2526.simon.data.*
 import it.unipd.dei.esp2526.simon.ui.detail.DetailActivity
 import it.unipd.dei.esp2526.simon.ui.game.GameActivity
-import it.unipd.dei.esp2526.simon.ui.game.GameViewModel
-import it.unipd.dei.esp2526.simon.ui.game.GameViewModelFactory
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 import kotlin.getValue
 
 class HistoryActivity : ComponentActivity() {
-    private val vm: GameViewModel by viewModels { // inizializzo il View Model
+    private val vm: HistoryViewModel by viewModels { // inizializzo il View Model
         val database =
             AppDatabase.getDatabase(this.applicationContext) // utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder
         val repository =
             GameRepository(database.gameDao()) // inizializzo il Repository con il DAO
-        GameViewModelFactory(this.application, repository) // chiamo il costruttore
+        HistoryVMFactory(repository) // chiamo il costruttore
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

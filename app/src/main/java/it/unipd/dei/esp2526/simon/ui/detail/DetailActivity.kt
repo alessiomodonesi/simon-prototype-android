@@ -22,11 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,8 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
-import it.unipd.dei.esp2526.simon.ui.game.GameViewModel
-import it.unipd.dei.esp2526.simon.ui.game.GameViewModelFactory
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.unipd.dei.esp2526.simon.R
 import it.unipd.dei.esp2526.simon.data.*
 import it.unipd.dei.esp2526.simon.ui.history.getColoredSequence
@@ -46,12 +41,12 @@ import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 import kotlin.getValue
 
 class DetailActivity : ComponentActivity() {
-    private val vm: GameViewModel by viewModels { // inizializzo il View Model
+    private val vm: DetailViewModel by viewModels { // inizializzo il View Model
         val database =
             AppDatabase.getDatabase(this.applicationContext) // utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder
         val repository =
             GameRepository(database.gameDao()) // inizializzo il Repository con il DAO
-        GameViewModelFactory(this.application, repository) // chiamo il costruttore
+        DetailVMFactory(repository) // chiamo il costruttore
     }
 
     companion object {
@@ -61,26 +56,11 @@ class DetailActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // recupero l'ID usando la costante (di default metto -1 se non lo trova)
-        val matchId = intent.getIntExtra(EXTRA_MATCH_ID, -1)
-
         setContent {
+            // stato per contenere il record caricato dal DB
+            val record by vm.uiState.collectAsStateWithLifecycle()
+
             SimonTheme {
-                // stato per contenere il record caricato dal DB
-                var record by remember { mutableStateOf<GameRecord?>(null) }
-
-                /*
-                 * LaunchedEffect avvia una coroutine non appena la composizione inizia.
-                 * la chiave "matchId" assicura che, qualora l'ID dovesse cambiare,
-                 * la coroutine in esecuzione venga cancellata e riavviata col nuovo ID,
-                 * garantendo la consistenza dei dati recuperati dal database.
-                 */
-                LaunchedEffect(matchId) {
-                    if (matchId != -1)
-                        record =
-                            vm.getGameById(matchId) // chiamo la funzione dal ViewModel
-                }
-
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // se il record è stato caricato, mostro la schermata
                     // record?.let { ... }, azione eseguita se record non è null
