@@ -68,7 +68,7 @@ class GameActivity : ComponentActivity() {
             AppDatabase.getDatabase(this.applicationContext) // utilizzo il singleton getDatabase() invece di chiamare Room.databaseBuilder
         val repository =
             GameRepository(database.gameDao()) // inizializzo il Repository con il DAO
-        GameVMFactory(this.application, repository) // chiamo il costruttore
+        GameVMFactory(repository) // chiamo il costruttore
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

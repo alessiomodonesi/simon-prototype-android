@@ -1,7 +1,5 @@
 package it.unipd.dei.esp2526.simon.ui.game
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -23,8 +21,7 @@ import kotlinx.coroutines.flow.update
 
 /**
  * funge da ponte tra l'interfaccia utente (UI) e il Repository, separando la logica visiva dai dati.
- * ereditando da "AndroidViewModel", ottiene il context globale ("Application") necessario per inizializzare Room.
- * inoltre, sopravvive nativamente ai cambi di configurazione (es. rotazione dello schermo),
+ * ereditando da "ViewModel", sopravvive nativamente ai cambi di configurazione (es. rotazione dello schermo),
  * proteggendo i dati complessi in modo più robusto rispetto a `rememberSaveable`.
  *
  * gestione reattiva (Room + Flow -> StateFlow):
@@ -43,10 +40,9 @@ import kotlinx.coroutines.flow.update
  * @see "https://developer.android.com/kotlin/flow/stateflow-and-sharedflow"
  */
 class GameViewModel(
-    application: Application,
     private val repository: GameRepository,
     private val savedStateHandle: SavedStateHandle // https://developer.android.com/topic/libraries/architecture/viewmodel/viewmodel-savedstate
-) : AndroidViewModel(application) {
+) : ViewModel() {
     companion object {
         private const val KEY_UI_STATE = "game_ui_state"
     }
@@ -255,21 +251,19 @@ class GameViewModel(
  * factory personalizzata per implementare la dependency injection del ViewModel.
  *
  * il delegato nativo "viewModels()" non sa come istanziare un ViewModel con parametri custom
- * (come "Application" e "GameRepository"). questa factory risolve il problema estraendo
+ * (come "GameRepository" e "SavedStateHandle"). questa factory risolve il problema estraendo
  * nativamente il SavedStateHandle dalle CreationExtras di sistema e iniettando le dipendenze richieste.
  *
- * @param application il context globale dell'applicazione necessario per Room.
  * @param repository l'astrazione per l'accesso ai dati del database.
  */
 class GameVMFactory(
-    private val application: Application,
     private val repository: GameRepository
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
             val savedStateHandle = extras.createSavedStateHandle()
-            return GameViewModel(application, repository, savedStateHandle) as T
+            return GameViewModel(repository, savedStateHandle) as T
         }
         throw IllegalArgumentException("Classe ViewModel sconosciuta")
     }
