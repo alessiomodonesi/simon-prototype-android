@@ -21,19 +21,24 @@ abstract class AppDatabase : RoomDatabase() {
             null // singleton per evitare di creare più istanze del database
 
         fun getDatabase(context: Context): AppDatabase {
-            // se INSTANCE non è null, la ritorna, altrimenti crea il database
+            // se INSTANCE non è null, la ritorna, altrimenti crea il database (primo controllo veloce)
             if (INSTANCE == null) {
                 // il blocco synchronized previene race condition,
                 // assicurando che un solo thread alla volta possa eseguire l'inizializzazione
                 synchronized(this) {
-                    val instance = Room.databaseBuilder(
-                        // l'uso del context globale dell'applicazione previene i memory leak
-                        // che si verificherebbero passando il context di un'Activity
-                        context.applicationContext,
-                        AppDatabase::class.java,
-                        "simon_db"
-                    ).build()
-                    INSTANCE = instance
+                    // secondo controllo di sicurezza all'interno del blocco synchronized.
+                    // previene la creazione duplicata del database se due thread concorrenti
+                    // superano contemporaneamente il primo controllo
+                    if (INSTANCE == null) {
+                        val instance = Room.databaseBuilder(
+                            // l'uso del context globale dell'applicazione previene i memory leak
+                            // che si verificherebbero passando il context di un'Activity
+                            context.applicationContext,
+                            AppDatabase::class.java,
+                            "simon_db"
+                        ).build()
+                        INSTANCE = instance
+                    }
                 }
             }
             return INSTANCE!! // not-null assertion operator: lancia NullPointerException se INSTANCE è null
