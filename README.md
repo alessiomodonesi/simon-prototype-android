@@ -51,7 +51,7 @@ L'applicazione aderisce alle linee guida ufficiali di Google sull'architettura e
 *   **[HistoryViewModel.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/ui/history/HistoryViewModel.kt)** (associato a `HistoryActivity`): Espone in modo reattivo il flusso di dati della tabella SQL. Utilizza l'operatore `.stateIn()` con `SharingStarted.WhileSubscribed(5000L)` per massimizzare il risparmio energetico disconnettendo Room quando l'app va in background, tollerando al contempo i cambi di configurazione.
 *   **[DetailViewModel.kt](/app/src/main/java/it/unipd/dei/esp2526/simon/ui/detail/DetailViewModel.kt)** (associato a `DetailActivity`): Si occupa unicamente di caricare asincronamente i dettagli di un singolo record dal DB. Integra il recupero dell'ID direttamente tramite `SavedStateHandle` per una resilienza assoluta contro la terminazione del processo (Process Death).
 
-Ogni ViewModel è dotato della propria classe **Factory** (`GameViewModelFactory`, `HistoryVMFactory`, `DetailVMFactory`) posizionata in fondo al rispettivo file come classe top-level, favorendo un design modulare ed auto-contenuto.
+Ogni ViewModel è dotato della propria classe **Factory** (`GameVMFactory`, `HistoryVMFactory`, `DetailVMFactory`) posizionata in fondo al rispettivo file come classe top-level, favorendo un design modulare ed auto-contenuto.
 
 ---
 
