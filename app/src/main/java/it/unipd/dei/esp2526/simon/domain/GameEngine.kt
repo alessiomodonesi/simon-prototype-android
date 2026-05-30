@@ -29,15 +29,10 @@ object GameEngine {
     suspend fun playComputerSequence(
         sequence: List<String>,
         startIndex: Int = 0, // da dove partire, utile se si vuole riprodurre solo una parte della sequenza
-        isPaused: () -> Boolean,
         onColorActive: (String?) -> Unit,
         onIndexUpdate: (Int) -> Unit // callback per aggiornare l'indice dal quale ripartire
     ) {
         for (i in startIndex until sequence.size) {
-            // se il gioco è in pausa, il ciclo si sospende e controlla ogni 100ms finché non viene tolta la pausa.
-            // polling asincrono: cede il thread al dispatcher (non bloccante) e controlla ciclicamente il flag ogni 100ms senza saturare la CPU.
-            while (isPaused()) delay(100)
-
             // chiama la fun playColorFeedback in GameAudioHelper.kt
             playColorFeedback(
                 colorLabel = sequence[i],

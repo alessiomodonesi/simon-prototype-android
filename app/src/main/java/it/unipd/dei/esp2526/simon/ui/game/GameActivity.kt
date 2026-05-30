@@ -121,6 +121,13 @@ class GameActivity : ComponentActivity() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        // mette in pause il gioco se l'activity perde il foreground, ma NON se sta ruotando lo schermo
+        if (!isChangingConfigurations)
+            vm.pausePlayback()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         SoundManager.release()

@@ -131,11 +131,36 @@ class GameViewModel(
 
     /** funzione per il click sul tasto "Pause/Resume" */
     fun togglePause() {
-        // inverte lo stato di pausa ad ogni click
-        updateState { it.copy(isPaused = !it.isPaused) }
+        val currentState = _uiState.value
 
-        if (!_uiState.value.isPaused && _uiState.value.isComputerPlaying)
-            playComputerSequence()
+        // invertiamo lo stato di isPaused
+        val willBePaused = !currentState.isPaused
+        updateState { it.copy(isPaused = willBePaused) }
+
+        if (willBePaused) {
+            // pause: cancella il job attivo e spegne il colore attivo
+            playbackJob?.cancel()
+            updateState { it.copy(activeColor = null) }
+        } else {
+            // resume: avvia una nuova coroutine a partire dal playback index salvato
+            if (currentState.isComputerPlaying)
+                playComputerSequence()
+        }
+    }
+
+    /**
+     * mette in pausa il gioco in modo sicuro quando l'app va in background.
+     * funzione chiamata nell'onStop() di GameActivity
+     */
+    fun pausePlayback() {
+        val currentState = _uiState.value
+
+        // se il gioco è in corso && il computer è in esecuzione && il computer non è in pausa
+        if (currentState.isGameRunning && currentState.isComputerPlaying && !currentState.isPaused) {
+            updateState { it.copy(isPaused = true) } // metto in pausa
+            playbackJob?.cancel()
+            updateState { it.copy(activeColor = null) }
+        }
     }
 
     /** funzione per il click sul tasto "End Game" */
@@ -182,6 +207,9 @@ class GameViewModel(
 
     /** riproduzione sequenza computer tramite coroutine agganciata al ViewModel */
     private fun playComputerSequence() {
+        // cancella eventuali job attivi rimasti per sicurezza concorrenziale
+        playbackJob?.cancel()
+
         playbackJob = viewModelScope.launch {
             val state = _uiState.value
 
@@ -192,10 +220,6 @@ class GameViewModel(
             GameEngine.playComputerSequence(
                 sequence = state.computerSequence,
                 startIndex = state.computerPlaybackIndex,
-                // verifica lo stato di pausa leggendo dallo StateFlow in tempo reale
-                isPaused = {
-                    _uiState.value.isPaused
-                },
 
                 // accende/spegne il colore aggiornando lo StateFlow
                 onColorActive = { active ->
@@ -207,7 +231,6 @@ class GameViewModel(
                     updateState { it.copy(computerPlaybackIndex = index) }
                 }
             )
-
 
             // quando la sequenza finisce regolarmente, restituisce il comando all'utente
             if (_uiState.value.computerPlaybackIndex >= _uiState.value.computerSequence.size) {
