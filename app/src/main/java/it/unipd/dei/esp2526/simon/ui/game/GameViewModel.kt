@@ -65,7 +65,7 @@ class GameViewModel(
      */
     init {
         val restoredState = _uiState.value
-        if (restoredState.isGameRunning && restoredState.isComputerPlaying && !restoredState.isPaused && !restoredState.isGameOver)
+        if (restoredState.gameState == GameState.COMPUTER_TURN)
             playComputerSequence()
     }
 
@@ -73,8 +73,8 @@ class GameViewModel(
     fun colorClick(colorLabel: String) {
         val currentState = _uiState.value
 
-        // ignora i click se: il gioco è finito || se NON è avviato || se tocca al computer
-        if (currentState.isGameOver || !currentState.isGameRunning || currentState.isComputerPlaying)
+        // ignora i click se non è il turno del giocatore
+        if (currentState.gameState != GameState.PLAYER_TURN)
             return
 
         // aggiunge la lettera alla sequenza utente
@@ -102,17 +102,17 @@ class GameViewModel(
             if (newUserSequence.size == currentState.computerSequence.size) { // l'utente ha completato l'intera sequenza correttamente
                 updateState {
                     it.copy(
+                        gameState = GameState.COMPUTER_TURN, // ora è il turno del computer
                         userSequence = emptyList(), // reset della sequenza utente prima del turno del computer
                         computerPlaybackIndex = 0, // reset dell'indice
-                        computerSequence = GameEngine.generateNextSequence(it.computerSequence), // aggiunge un colore
-                        isComputerPlaying = true // ora è il turno del computer
+                        computerSequence = GameEngine.generateNextSequence(it.computerSequence) // aggiunge un colore
                     )
                 }
                 playComputerSequence() // passa il turno al computer
             }
         } else { // mossa errata
             // ferma il gioco e disabilita ulteriori input
-            updateState { it.copy(isGameOver = true, isGameRunning = false) }
+            updateState { it.copy(gameState = GameState.GAME_OVER) }
         }
     }
 
@@ -121,9 +121,8 @@ class GameViewModel(
         playbackJob?.cancel() // ferma eventuali riproduzioni precedenti
         updateState {
             GameUiState(
-                isGameRunning = true,
-                computerSequence = GameEngine.generateNextSequence(emptyList()), // genera la prima mossa
-                isComputerPlaying = true
+                gameState = GameState.COMPUTER_TURN,
+                computerSequence = GameEngine.generateNextSequence(emptyList()) // genera la prima mossa
             )
         }
         playComputerSequence()
@@ -133,14 +132,19 @@ class GameViewModel(
     fun togglePause() {
         val currentState = _uiState.value
 
-        // invertiamo lo stato di isPaused
-        val willBePaused = !currentState.isPaused
-        updateState { it.copy(isPaused = willBePaused) }
+        when (currentState.gameState) {
+            GameState.COMPUTER_TURN -> {
+                updateState { it.copy(gameState = GameState.PAUSED) }
+            }
 
-        if (!willBePaused && currentState.isComputerPlaying) {
-            // avvia la coroutine SOLO se non è già attiva (es. dopo ripristino da process death)
-            if (playbackJob == null || playbackJob?.isActive == false)
-                playComputerSequence()
+            GameState.PAUSED -> {
+                updateState { it.copy(gameState = GameState.COMPUTER_TURN) }
+                // avvia la coroutine SOLO se non è già attiva (es. dopo ripristino da process death)
+                if (playbackJob == null || playbackJob?.isActive == false)
+                    playComputerSequence()
+            }
+
+            else -> {} // ignora la pausa in altri stati
         }
     }
 
@@ -151,11 +155,10 @@ class GameViewModel(
     fun pausePlayback() {
         val currentState = _uiState.value
 
-        // se il gioco è in corso && il computer è in esecuzione && il computer non è in pausa
-        if (currentState.isGameRunning && currentState.isComputerPlaying && !currentState.isPaused) {
-            updateState { it.copy(isPaused = true) } // metto in pausa
+        // se il computer sta riproducendo la sequenza e non è già in pausa
+        if (currentState.gameState == GameState.COMPUTER_TURN) {
+            updateState { it.copy(gameState = GameState.PAUSED, activeColor = null) }
             playbackJob?.cancel()
-            updateState { it.copy(activeColor = null) }
         }
     }
 
@@ -164,11 +167,12 @@ class GameViewModel(
         playbackJob?.cancel()
         val state = _uiState.value
 
-        // se l'utente esce senza aver commesso un vero game over, valutiamo lo stato iniziale:
-        // se il gioco non è partito, oppure se è in corso l'animazione della primissima sequenza
-        // del computer (lunghezza <= 1), l'app si comporta come se la partita non fosse mai iniziata.
-        if (!state.isGameOver && (!state.isGameRunning || (state.computerSequence.size <= 1 && state.isComputerPlaying))) {
-            updateState { GameUiState() } // reset
+        // valuto se sono nello stato iniziale o se l'utente esce all'inizio della prima sequenza
+        val isInitialState = state.gameState == GameState.IDLE ||
+                (state.computerSequence.size <= 1 && state.gameState == GameState.COMPUTER_TURN)
+
+        if (state.gameState != GameState.GAME_OVER && isInitialState) {
+            updateState { GameUiState() } // reset dello stato a IDLE
             onFinished() // chiamo la callback
             return  // esce immediatamente senza eseguire il resto
         }
@@ -183,7 +187,7 @@ class GameViewModel(
         // se c'è un vero GameOver, il giocatore ha premuto un colore errato in coda a userSequence,
         // quindi le mosse corrette in questo round sono userSequence.size - 1.
         // se invcece esce premendo "Fine partita" o "Back" volontariamente, le mosse corrette sono esattamente userSequence.size.
-        val errorIndex = if (state.isGameOver)
+        val errorIndex = if (state.gameState == GameState.GAME_OVER)
             (state.userSequence.size - 1).coerceAtLeast(0) else state.userSequence.size
 
         // costruzione della sequenza marchiando il colore errato con l'asterisco "*" prima del salvataggio nel DB
@@ -218,9 +222,9 @@ class GameViewModel(
                 startIndex = state.computerPlaybackIndex,
                 // verifica lo stato di pausa leggendo dallo StateFlow in tempo reale
                 isPaused = {
-                    _uiState.value.isPaused
+                    _uiState.value.gameState == GameState.PAUSED
                 },
-                
+
                 // accende/spegne il colore aggiornando lo StateFlow
                 onColorActive = { active ->
                     updateState { it.copy(activeColor = active) }
@@ -233,9 +237,8 @@ class GameViewModel(
             )
 
             // quando la sequenza finisce regolarmente, restituisce il comando all'utente
-            if (_uiState.value.computerPlaybackIndex >= _uiState.value.computerSequence.size) {
-                updateState { it.copy(isComputerPlaying = false) }
-            }
+            if (_uiState.value.computerPlaybackIndex >= _uiState.value.computerSequence.size)
+                updateState { it.copy(gameState = GameState.PLAYER_TURN) }
         }
     }
 

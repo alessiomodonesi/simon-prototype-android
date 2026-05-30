@@ -96,10 +96,10 @@ class GameActivity : ComponentActivity() {
                     GameScreen(
                         // semplice lettura dello stato centralizzato
                         userSequence = state.userSequence,
-                        isGameRunning = state.isGameRunning,
-                        isComputerPlaying = state.isComputerPlaying,
-                        isPaused = state.isPaused,
-                        isGameOver = state.isGameOver,
+                        isGameRunning = (state.gameState != GameState.IDLE) && (state.gameState != GameState.GAME_OVER),
+                        isComputerPlaying = (state.gameState == GameState.COMPUTER_TURN) || (state.gameState == GameState.PAUSED),
+                        isPaused = (state.gameState == GameState.PAUSED),
+                        isGameOver = (state.gameState == GameState.GAME_OVER),
                         activeColor = state.activeColor,
 
                         // inoltro delle interazioni dell'utente al ViewModel
