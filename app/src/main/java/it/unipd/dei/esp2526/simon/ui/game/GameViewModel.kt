@@ -137,13 +137,9 @@ class GameViewModel(
         val willBePaused = !currentState.isPaused
         updateState { it.copy(isPaused = willBePaused) }
 
-        if (willBePaused) {
-            // pause: cancella il job attivo e spegne il colore attivo
-            playbackJob?.cancel()
-            updateState { it.copy(activeColor = null) }
-        } else {
-            // resume: avvia una nuova coroutine a partire dal playback index salvato
-            if (currentState.isComputerPlaying)
+        if (!willBePaused && currentState.isComputerPlaying) {
+            // avvia la coroutine SOLO se non è già attiva (es. dopo ripristino da process death)
+            if (playbackJob == null || playbackJob?.isActive == false)
                 playComputerSequence()
         }
     }
@@ -220,7 +216,11 @@ class GameViewModel(
             GameEngine.playComputerSequence(
                 sequence = state.computerSequence,
                 startIndex = state.computerPlaybackIndex,
-
+                // verifica lo stato di pausa leggendo dallo StateFlow in tempo reale
+                isPaused = {
+                    _uiState.value.isPaused
+                },
+                
                 // accende/spegne il colore aggiornando lo StateFlow
                 onColorActive = { active ->
                     updateState { it.copy(activeColor = active) }
