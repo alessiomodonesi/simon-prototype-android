@@ -4,22 +4,22 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 /**
- * Stato logico: isGameRunning, isComputerPlaying, isPaused, isGameOver = GameState
+ * GameState = (isGameRunning, isComputerPlaying, isPaused, isGameOver)
  *
- * Gioco fermo/iniziale: false, false, false, false = GameState.IDLE
+ * IDLE = (false, false, false, false)
  *
- * Il computer mostra i colori: true, true, false, false = GameState.COMPUTER_TURN
+ * COMPUTER_TURN = (true, true, false, false)
  *
- * Il giocatore inserisce i colori: true, false, false, false = GameState.PLAYER_TURN
+ * PLAYER_TURN = (true, false, false, false)
  *
- * In pausa durante il turno pc: true, true, true, false = GameState.PAUSED
+ * PAUSED = (true, true, true, false)
  *
- * Hai perso!: false, false, false, true = GameState.GAME_OVER
+ * GAME_OVER = (false, false, false, true)
  */
 enum class GameState {
     IDLE, // stato di default, prima della partita
     COMPUTER_TURN, // stato per capire se il computer ha il comando
-    PLAYER_TURN, // stato per capire se il gioco è in corso o meno
+    PLAYER_TURN, // stato per capire se il giocatore ha il comando
     PAUSED, // stato per gestire la pausa durante il turno del computer
     GAME_OVER // stato per gestire la sconfitta dell'utente
 }
