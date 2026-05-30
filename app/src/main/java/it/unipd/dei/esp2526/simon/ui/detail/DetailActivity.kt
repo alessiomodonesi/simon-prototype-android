@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.unipd.dei.esp2526.simon.R
 import it.unipd.dei.esp2526.simon.data.*
-import it.unipd.dei.esp2526.simon.ui.history.getColoredSequence
+import it.unipd.dei.esp2526.simon.ui.common.getColoredSequence
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 import kotlin.getValue
 
@@ -176,7 +176,7 @@ fun DetailScreen(
 
                 // sequenza di rettangoli premuti
                 Text(
-                    text = getColoredSequence(record), // chiamo la funzione implementata in GameUtils.kt
+                    text = getColoredSequence(record), // chiamo la funzione implementata in SequenceFormatter.kt
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,

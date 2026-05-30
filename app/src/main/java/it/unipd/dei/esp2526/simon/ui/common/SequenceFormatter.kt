@@ -1,4 +1,4 @@
-package it.unipd.dei.esp2526.simon.ui.history
+package it.unipd.dei.esp2526.simon.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color

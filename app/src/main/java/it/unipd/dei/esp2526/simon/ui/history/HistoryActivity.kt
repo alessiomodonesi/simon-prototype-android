@@ -2,7 +2,6 @@ package it.unipd.dei.esp2526.simon.ui.history
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -45,6 +44,7 @@ import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import it.unipd.dei.esp2526.simon.R
 import it.unipd.dei.esp2526.simon.data.*
+import it.unipd.dei.esp2526.simon.ui.common.getColoredSequence
 import it.unipd.dei.esp2526.simon.ui.detail.DetailActivity
 import it.unipd.dei.esp2526.simon.ui.game.GameActivity
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
@@ -69,7 +69,7 @@ class HistoryActivity : ComponentActivity() {
                  * "ricompone" (ridisegna) automaticamente l'interfaccia utente in tempo reale.
                  * l'uso del delegato "by" estrae comodamente il valore in una List<GameRecord>
                  */
-                val historyList by vm.history.collectAsStateWithLifecycle()
+                val historyList by vm.uiState.collectAsStateWithLifecycle()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // grandezza del cutout
@@ -92,8 +92,6 @@ class HistoryActivity : ComponentActivity() {
                                 Intent(this, DetailActivity::class.java).apply {
                                     // passo la sequenza come parametro extra
                                     putExtra(DetailActivity.EXTRA_MATCH_ID, record.id)
-                                    // stampo i dati a scopo di test (v = verbose)
-                                    Log.v("HistoryActivity", "Aperto dettaglio id: ${record.id}")
                                 }
 
                             // lancio l'activity passandogli l'intent, this è il Context
@@ -223,7 +221,7 @@ private fun GameHistoryRow(
 
         // sequenza di rettangoli premuti
         Text(
-            text = getColoredSequence(record),
+            text = getColoredSequence(record), // chiamo la funzione implementata in SequenceFormatter.kt
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             letterSpacing = 2.sp,

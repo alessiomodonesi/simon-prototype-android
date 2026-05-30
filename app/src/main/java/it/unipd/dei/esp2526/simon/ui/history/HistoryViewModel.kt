@@ -27,7 +27,7 @@ class HistoryViewModel(
     * Room monitora in modo continuo le modifiche alla tabella "games_history" ed emette
     * nuovi dati in modo asincrono sul thread di I/O, evitando di rallentare o bloccare la UI.
     */
-    val history: StateFlow<List<GameRecord>> = repository.allGames
+    val uiState: StateFlow<List<GameRecord>> = repository.allGames
         .stateIn(
             scope = viewModelScope,  // vincola la vita del flusso al ciclo di vita del ViewModel
             started = SharingStarted.WhileSubscribed(5000L), // ottimizzazione della batteria in background
