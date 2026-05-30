@@ -82,7 +82,7 @@ class GameViewModel(
         updateState { it.copy(userSequence = newUserSequence) }
 
         // animazione del feedback visivo e uditivo dell'utente
-        // chiama la funzione dentro GameUtils.kt
+        // chiama la funzione dentro GameAudioHelper.kt
         viewModelScope.launch {
             playColorFeedback(
                 colorLabel = colorLabel,
@@ -224,9 +224,7 @@ class GameViewModel(
      * la coroutine è subordinata al ciclo di vita del ViewModel (`viewModelScope`) per prevenire memory leak.
      */
     private fun insertGame(maxLength: Int, sequence: String) {
-        // inizializza una coroutine sul Dispatchers.IO,
-        // subordinata al ciclo di vita del ViewModel per prevenire memory leak
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val newRecord = GameRecord(maxLength = maxLength, sequence = sequence)
             repository.insertGame(newRecord) // chiamo la fun insertGame() nel Repository
         }

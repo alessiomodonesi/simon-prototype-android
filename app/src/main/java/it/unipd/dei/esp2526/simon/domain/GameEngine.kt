@@ -38,7 +38,7 @@ object GameEngine {
             // polling asincrono: cede il thread al dispatcher (non bloccante) e controlla ciclicamente il flag ogni 100ms senza saturare la CPU.
             while (isPaused()) delay(100)
 
-            // chiama la fun playColorFeedback in GameUtils.kt
+            // chiama la fun playColorFeedback in GameAudioHelper.kt
             playColorFeedback(
                 colorLabel = sequence[i],
                 durationMs = 250,
