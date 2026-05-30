@@ -44,7 +44,8 @@ object SoundManager {
         val numSamples = (durationMs * sampleRate / 1000.0).toInt()
 
         val generatedSnd = ByteArray(2 * numSamples)
-        val fadeSamples = (10 * sampleRate / 1000.0).toInt()
+        // sfumatura di 40ms (fade-in e fade-out) per prevenire click acustici ed eliminare il senso di troncamento
+        val fadeSamples = (50 * sampleRate / 1000.0).toInt()
 
         // generazione dell'onda (PCM audio)
         for (i in 0 until numSamples) {
