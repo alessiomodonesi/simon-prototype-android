@@ -96,9 +96,14 @@ class GameActivity : ComponentActivity() {
                     GameScreen(
                         // semplice lettura dello stato centralizzato
                         userSequence = state.userSequence,
+
+                        // il gioco è in corso se NON è in IDLE e se NON è GAME_OVER
                         isGameRunning = (state.gameState != GameState.IDLE) && (state.gameState != GameState.GAME_OVER),
-                        isComputerPlaying = (state.gameState == GameState.COMPUTER_TURN) || (state.gameState == GameState.PAUSED),
-                        isPaused = (state.gameState == GameState.PAUSED),
+
+                        // il computer sta giocando sia quando è il suo turno, sia quando il suo turno è in pausa
+                        isComputerPlaying = (state.gameState == GameState.COMPUTER_TURN) || (state.gameState == GameState.COMPUTER_PAUSED),
+
+                        isPaused = (state.gameState == GameState.COMPUTER_PAUSED),
                         isGameOver = (state.gameState == GameState.GAME_OVER),
                         activeColor = state.activeColor,
 
@@ -121,8 +126,13 @@ class GameActivity : ComponentActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    /**
+     * l'uso di onPause invece di onStop garantisce l'interruzione immediata dell'audio
+     * non appena l'app perde il focus (es. swipe verso la Home, split-screen o apertura tendina notifiche),
+     * evitando suoni residui durante le animazioni di sistema.
+     */
+    override fun onPause() {
+        super.onPause()
         // mette in pause il gioco se l'activity perde il foreground, ma NON se sta ruotando lo schermo
         if (!isChangingConfigurations)
             vm.pausePlayback()
@@ -130,7 +140,7 @@ class GameActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        SoundManager.release()
+        SoundManager.release() // rilascio i suoni in memoria
     }
 }
 
