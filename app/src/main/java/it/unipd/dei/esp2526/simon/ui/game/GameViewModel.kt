@@ -69,6 +69,16 @@ class GameViewModel(
         val restoredState = _uiState.value
         if (restoredState.gameState == GameState.COMPUTER_TURN)
             playComputerSequence()
+        else if (restoredState.gameState == GameState.WAITING_NEXT_ROUND) {
+            // se ero in attesa del prossimo round
+            updateState {
+                it.copy(
+                    gameState = GameState.COMPUTER_TURN, // ed inizio a riprodurre
+                    userSequence = emptyList()
+                )
+            }
+            playComputerSequence() // passo al turno del computer
+        }
     }
 
     /** funzione per il click su un colore, riceve come parametro l'etichetta (label) del colore premuto */
@@ -103,16 +113,32 @@ class GameViewModel(
 
             // l'utente ha completato l'intera sequenza correttamente
             MoveResult.ROUND_COMPLETED -> {
+                // aggiunge un colore alla sequenza del computer per il prossimo round
+                val nextComputerSequence =
+                    GameEngine.generateNextSequence(currentState.computerSequence)
+
                 updateState {
                     it.copy(
-                        gameState = GameState.COMPUTER_TURN, // ora è il turno del computer
-                        userSequence = emptyList(), // reset della sequenza utente prima del turno del computer
+                        gameState = GameState.WAITING_NEXT_ROUND, // attiva lo stato di attesa temporaneo
                         computerPlaybackIndex = 0, // reset dell'indice
-                        // dato che l'enum non porta dati, chiedo qui la nuova sequenza
-                        computerSequence = GameEngine.generateNextSequence(it.computerSequence) // aggiunge un colore
+                        // lascio userSequence per visualizzarla nell'area di testo per 750ms
+                        computerSequence = nextComputerSequence
                     )
                 }
-                playComputerSequence() // passa il turno al computer
+
+                viewModelScope.launch {
+                    delay(750)
+                    // prima di procedere, verifica che il gioco sia ancora in attesa del turno del computer
+                    if (_uiState.value.gameState == GameState.WAITING_NEXT_ROUND) {
+                        updateState {
+                            it.copy(
+                                gameState = GameState.COMPUTER_TURN, // ora è il turno del computer
+                                userSequence = emptyList() // reset della sequenza utente
+                            )
+                        }
+                        playComputerSequence() // passa il turno al computer
+                    }
+                }
             }
 
             // mossa errata
@@ -165,6 +191,17 @@ class GameViewModel(
         // se il computer sta riproducendo la sequenza e non è già in pausa
         if (currentState.gameState == GameState.COMPUTER_TURN) {
             updateState { it.copy(gameState = GameState.COMPUTER_PAUSED, activeColor = null) }
+            playbackJob?.cancel()
+        } else if (currentState.gameState == GameState.WAITING_NEXT_ROUND) {
+            // se l'app va in background durante l'attesa del turno del computer,
+            // mette in pausa direttamente in COMPUTER_PAUSED
+            updateState {
+                it.copy(
+                    gameState = GameState.COMPUTER_PAUSED,
+                    userSequence = emptyList(), // pulisco la sequenza utente per quando riprenderà
+                    activeColor = null
+                )
+            }
             playbackJob?.cancel()
         }
     }
