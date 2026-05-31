@@ -15,14 +15,16 @@ import kotlinx.parcelize.Parcelize
  * COMPUTER_PAUSED = (true, true, true, false)
  *
  * GAME_OVER = (false, false, false, true)
+ *
+ * WAITING_NEXT_ROUND = (true, false, false, false)
  */
 enum class GameState {
     IDLE, // stato di default, prima della partita
     COMPUTER_TURN, // stato per capire se il computer ha il comando
     PLAYER_TURN, // stato per capire se il giocatore ha il comando
-    
     COMPUTER_PAUSED, // stato per gestire la pausa durante il turno del computer
-    GAME_OVER // stato per gestire la sconfitta dell'utente
+    GAME_OVER, // stato per gestire la sconfitta dell'utente
+    WAITING_NEXT_ROUND // stato di attesa prima del nuovo round (mostra sequenza completata per 750ms)
 }
 
 /**
