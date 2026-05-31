@@ -5,6 +5,17 @@ import it.unipd.dei.esp2526.simon.ui.game.playColorFeedback
 import kotlinx.coroutines.delay
 
 /**
+ * enum che modella l'esito di una singola mossa.
+ * Permette di isolare le regole del Simon Game dal ViewModel,
+ * che riceverà solo il verdetto finale senza dover manipolare gli indici degli array.
+ */
+enum class MoveResult {
+    CORRECT_INCOMPLETE, // colore giusto, ma mancano altri colori per finire il round
+    ROUND_COMPLETED,    // colore giusto e l'utente ha completato tutta la sequenza
+    WRONG               // l'utente ha premuto il colore sbagliato
+}
+
+/**
  * motore logico del gioco.
  * un oggetto Singleton stateless che centralizza le funzioni core del Simon Game,
  * separando la logica di avanzamento (generazione ed esecuzione della sequenza del computer)
@@ -37,7 +48,7 @@ object GameEngine {
             // se il gioco è in pausa, il ciclo si sospende e controlla ogni 100ms finché non viene tolta la pausa.
             // polling asincrono: cede il thread al dispatcher (non bloccante) e controlla ciclicamente il flag ogni 100ms senza saturare la CPU.
             while (isPaused()) delay(100)
-            
+
             // chiama la fun playColorFeedback in GameAudioHelper.kt
             playColorFeedback(
                 colorLabel = sequence[i],
@@ -51,5 +62,27 @@ object GameEngine {
             // pausa tra un colore e l'altro
             delay(250)
         }
+    }
+
+    /** valuta se la mossa dell'utente è corretta */
+    fun validateMove(
+        newUserSequence: List<String>,
+        computerSequence: List<String>
+    ): MoveResult {
+        // indice per la validazione della mossa
+        val i = newUserSequence.size - 1
+        val colorLabel = newUserSequence.last()
+
+        // verifica se l'indice esiste nella sequenza del computer e se il colore coincide
+        if (i < computerSequence.size && colorLabel == computerSequence[i]) { // mossa corretta
+            // coincide, ha anche finito l'intera sequenza?
+            return if (newUserSequence.size == computerSequence.size)
+                MoveResult.ROUND_COMPLETED // l'utente ha completato l'intera sequenza correttamente
+            else
+                MoveResult.CORRECT_INCOMPLETE // l'utente ha ancora colori da completare
+        }
+
+        // mossa errata
+        return MoveResult.WRONG
     }
 }

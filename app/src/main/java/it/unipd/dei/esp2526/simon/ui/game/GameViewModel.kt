@@ -17,6 +17,7 @@ import kotlin.collections.emptyList
 import it.unipd.dei.esp2526.simon.data.GameRecord
 import it.unipd.dei.esp2526.simon.data.GameRepository
 import it.unipd.dei.esp2526.simon.domain.GameEngine
+import it.unipd.dei.esp2526.simon.domain.MoveResult
 import kotlinx.coroutines.flow.update
 
 /**
@@ -58,11 +59,12 @@ class GameViewModel(
     private var playbackJob: Job? = null
 
     /*
-     * blocco di inizializzazione eseguito alla creazione del ViewModel.
-     * gestisce il ripristino automatico in caso di Process Death: se il sistema operativo
-     * aveva terminato l'app mentre il computer stava riproducendo una sequenza (e non era in pausa),
-     * la coroutine viene riavviata dal punto esatto salvato nel SavedStateHandle.
-     */
+    * blocco di inizializzazione eseguito alla creazione del ViewModel.
+    * intercetta e gestisce il ripristino automatico in caso di Process Death:
+    * se il sistema operativo aveva terminato l'app mentre era il turno del computer,
+    * il ViewModel ricarica lo stato dal SavedStateHandle e fa ripartire la sequenza
+    * automaticamente dal punto esatto in cui si era interrotta.
+    */
     init {
         val restoredState = _uiState.value
         if (restoredState.gameState == GameState.COMPUTER_TURN)
@@ -94,25 +96,30 @@ class GameViewModel(
             )
         }
 
-        // indice per la validazione della mossa
-        val i = newUserSequence.size - 1
+        // passo la mossa al GameEngine e valuto l'enum restituita
+        when (GameEngine.validateMove(newUserSequence, currentState.computerSequence)) {
+            // mossa corretta, aspettiamo il prossimo click
+            MoveResult.CORRECT_INCOMPLETE -> {}
 
-        // verifica se l'indice esiste nella sequenza del computer e se il colore coincide
-        if (i < currentState.computerSequence.size && colorLabel == currentState.computerSequence[i]) {  // mossa corretta
-            if (newUserSequence.size == currentState.computerSequence.size) { // l'utente ha completato l'intera sequenza correttamente
+            // l'utente ha completato l'intera sequenza correttamente
+            MoveResult.ROUND_COMPLETED -> {
                 updateState {
                     it.copy(
                         gameState = GameState.COMPUTER_TURN, // ora è il turno del computer
                         userSequence = emptyList(), // reset della sequenza utente prima del turno del computer
                         computerPlaybackIndex = 0, // reset dell'indice
+                        // dato che l'enum non porta dati, chiedo qui la nuova sequenza
                         computerSequence = GameEngine.generateNextSequence(it.computerSequence) // aggiunge un colore
                     )
                 }
                 playComputerSequence() // passa il turno al computer
             }
-        } else { // mossa errata
-            // ferma il gioco e disabilita ulteriori input
-            updateState { it.copy(gameState = GameState.GAME_OVER) }
+
+            // mossa errata
+            MoveResult.WRONG -> {
+                // ferma il gioco e disabilita ulteriori input
+                updateState { it.copy(gameState = GameState.GAME_OVER) }
+            }
         }
     }
 
@@ -134,10 +141,10 @@ class GameViewModel(
 
         when (currentState.gameState) {
             GameState.COMPUTER_TURN -> {
-                updateState { it.copy(gameState = GameState.PAUSED) }
+                updateState { it.copy(gameState = GameState.COMPUTER_PAUSED) }
             }
 
-            GameState.PAUSED -> {
+            GameState.COMPUTER_PAUSED -> {
                 updateState { it.copy(gameState = GameState.COMPUTER_TURN) }
                 // avvia la coroutine SOLO se non è già attiva (es. dopo ripristino da process death)
                 if (playbackJob == null || playbackJob?.isActive == false)
@@ -157,7 +164,7 @@ class GameViewModel(
 
         // se il computer sta riproducendo la sequenza e non è già in pausa
         if (currentState.gameState == GameState.COMPUTER_TURN) {
-            updateState { it.copy(gameState = GameState.PAUSED, activeColor = null) }
+            updateState { it.copy(gameState = GameState.COMPUTER_PAUSED, activeColor = null) }
             playbackJob?.cancel()
         }
     }
@@ -213,7 +220,10 @@ class GameViewModel(
         playbackJob = viewModelScope.launch {
             val state = _uiState.value
 
-            // se parto da zero = non è un ripristino da rotazione, facciamo una pausa iniziale
+            /*
+             * inserisce un buffer di 1 secondo per dare all'utente il tempo di prepararsi all'inizio di un nuovo round.
+             * viene bypassato se computerPlaybackIndex > 0 per garantire una ripresa istantanea dopo un ripristino da Process Death o una pausa.
+             */
             if (state.computerPlaybackIndex == 0) delay(1000)
 
             // chiamata diretta all'oggetto Singleton GameEngine
@@ -222,7 +232,7 @@ class GameViewModel(
                 startIndex = state.computerPlaybackIndex,
                 // verifica lo stato di pausa leggendo dallo StateFlow in tempo reale
                 isPaused = {
-                    _uiState.value.gameState == GameState.PAUSED
+                    _uiState.value.gameState == GameState.COMPUTER_PAUSED
                 },
 
                 // accende/spegne il colore aggiornando lo StateFlow
@@ -250,7 +260,9 @@ class GameViewModel(
      * la coroutine è subordinata al ciclo di vita del ViewModel (`viewModelScope`) per prevenire memory leak.
      */
     private fun insertGame(maxLength: Int, sequence: String) {
-        viewModelScope.launch {
+        // inizializza una coroutine sul Dispatchers.IO,
+        // subordinata al ciclo di vita del ViewModel per prevenire memory leak
+        viewModelScope.launch(Dispatchers.IO) {
             val newRecord = GameRecord(maxLength = maxLength, sequence = sequence)
             repository.insertGame(newRecord) // chiamo la fun insertGame() nel Repository
         }
