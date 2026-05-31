@@ -10,7 +10,7 @@
 
     <!-- Titoli -->
     <string name="history_title">Storico Partite</string>
-    <string name="details_title">Dettagli Partita</string>
+    <string name="details_title">Dettaglio Partita</string>
     <string name="game_over_title">Hai Perso!</string>
 
     <!-- Statistiche in DetailActivity -->
