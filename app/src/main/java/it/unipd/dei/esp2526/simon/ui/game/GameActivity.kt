@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
@@ -59,6 +60,7 @@ import it.unipd.dei.esp2526.simon.R
 import it.unipd.dei.esp2526.simon.core.audio.SoundManager
 import it.unipd.dei.esp2526.simon.domain.model.simonColors
 import it.unipd.dei.esp2526.simon.data.*
+import it.unipd.dei.esp2526.simon.ui.common.getColoredSequence
 
 import it.unipd.dei.esp2526.simon.ui.theme.SimonTheme
 
@@ -94,6 +96,10 @@ class GameActivity : ComponentActivity() {
                     )
 
                     GameScreen(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .padding(horizontal = symmetricCutout),
+
                         // semplice lettura dello stato centralizzato
                         userSequence = state.userSequence,
 
@@ -106,6 +112,7 @@ class GameActivity : ComponentActivity() {
                         isPaused = (state.gameState == GameState.COMPUTER_PAUSED),
                         isGameOver = (state.gameState == GameState.GAME_OVER),
                         activeColor = state.activeColor,
+                        isWaitingNextRound = (state.gameState == GameState.WAITING_NEXT_ROUND),
 
                         // inoltro delle interazioni dell'utente al ViewModel
                         onColorClick = { label -> vm.colorClick(label) },
@@ -116,10 +123,7 @@ class GameActivity : ComponentActivity() {
                                 // utilizzo finish() per chiudere GameActivity (pop) e tornare indietro
                                 this@GameActivity.finish()
                             }
-                        },
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .padding(horizontal = symmetricCutout)
+                        }
                     )
                 }
             }
@@ -147,6 +151,8 @@ class GameActivity : ComponentActivity() {
 /** schermata principale di gioco che gestisce la griglia dei colori, l'output visivo e i controlli */
 @Composable
 fun GameScreen(
+    modifier: Modifier = Modifier, // modificatore per gestire layout e insets esterni
+
     // variabili di stato
     userSequence: List<String>, // lista dei colori attualmente premuti dall'utente
     isGameRunning: Boolean, // stato che indica se la partita è attualmente in corso
@@ -154,13 +160,13 @@ fun GameScreen(
     isPaused: Boolean, // stato che indica se la sequenza del computer è temporaneamente in pausa
     isGameOver: Boolean, // stato che innesca l'AlertDialog di sconfitta
     activeColor: String?, // l'etichetta del colore attualmente illuminato (es. "R", "G"), null se nessuno
+    isWaitingNextRound: Boolean = false, // indica l'attesa tra due round
 
     // callback
     onColorClick: (String) -> Unit, // callback invocata quando l'utente preme un colore valido sulla griglia
     onStartClick: () -> Unit, // callback invocata per inizializzare e avviare una nuova partita
     onPauseClick: () -> Unit, // callback invocata per mettere in pausa l'esecuzione automatica del computer
-    onEndGameClick: () -> Unit, // callback invocata per terminare volontariamente la partita o chiudere il dialog di Game Over
-    modifier: Modifier = Modifier // modificatore per gestire layout e insets esterni
+    onEndGameClick: () -> Unit // callback invocata per terminare volontariamente la partita o chiudere il dialog di Game Over
 ) {
     // segnalazione di errore che blocca il gioco
     // https://developer.android.com/develop/ui/views/components/dialogs
@@ -237,10 +243,6 @@ fun GameScreen(
 
         // matrice 3 x 2 (chiamo la funzione @Composable)
         ColorGrid(
-            onColorClick = onColorClick, // uso direttamente il parametro
-            isGameRunning = isGameRunning,
-            isComputerPlaying = isComputerPlaying,
-            activeColor = activeColor,
             modifier = Modifier
                 .constrainAs(matrix) {
                     top.linkTo(parent.top, margin = 16.dp)
@@ -256,7 +258,11 @@ fun GameScreen(
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
-                }
+                },
+            onColorClick = onColorClick, // uso direttamente il parametro
+            isGameRunning = isGameRunning,
+            isComputerPlaying = isComputerPlaying || isWaitingNextRound,
+            activeColor = activeColor
         )
 
         // area di testo multiriga non editabile
@@ -292,9 +298,12 @@ fun GameScreen(
             Text(
                 text = displayText,
                 modifier = Modifier.verticalScroll(scrollState), // scroll verticale
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 2.sp,
+                lineHeight = 24.sp
             )
         }
 
@@ -402,11 +411,11 @@ fun GameScreen(
 
 @Composable
 private fun ColorGrid(
+    modifier: Modifier = Modifier,
     onColorClick: (String) -> Unit,
     isGameRunning: Boolean,
     isComputerPlaying: Boolean,
-    activeColor: String?,
-    modifier: Modifier = Modifier
+    activeColor: String?
 ) {
     /*
      * trasformazione in catena: randomizza l'array e lo partiziona in List annidate di dimensione 2 per formare le righe.

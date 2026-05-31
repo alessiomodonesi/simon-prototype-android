@@ -83,6 +83,10 @@ class HistoryActivity : ComponentActivity() {
                     )
 
                     HistoryScreen(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .padding(horizontal = symmetricCutout),
+
                         // funzione lambda per il click sulla Row della LazyColumn
                         onRowClick = { record ->
                             // creo l'intent esplicito per avviare detailActivity:
@@ -104,10 +108,9 @@ class HistoryActivity : ComponentActivity() {
                             val mainIntent = Intent(this, GameActivity::class.java)
                             this.startActivity(mainIntent)
                         },
-                        historyList = historyList, // passo i dati ricevuti alla schermata
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .padding(horizontal = symmetricCutout)
+
+                        // passo i dati ricevuti alla schermata
+                        historyList = historyList
                     )
                 }
             }
@@ -118,17 +121,17 @@ class HistoryActivity : ComponentActivity() {
 /**
  * schermata principale per la visualizzazione dello storico delle partite.
  *
+ * @param modifier modificatore per gestire layout e insets esterni.
  * @param onNewGameClick callback invocata quando l'utente preme il FAB per iniziare una nuova partita.
  * @param onRowClick callback invocata al click su una riga per visualizzarne i dettagli.
  * @param historyList flusso di dati reattivo contenente lo storico delle partite.
- * @param modifier modificatore per gestire layout e insets esterni.
  */
 @Composable
 fun HistoryScreen(
+    modifier: Modifier = Modifier,
     onNewGameClick: () -> Unit,
     onRowClick: (GameRecord) -> Unit,
-    historyList: List<GameRecord>, // ora riceve GameRecord dal DB
-    modifier: Modifier = Modifier
+    historyList: List<GameRecord> // ora riceve GameRecord dal DB
 ) {
     /*
      * giustificazione layout: in questa schermata prediligo l'uso di Column e Row,
@@ -162,8 +165,8 @@ fun HistoryScreen(
 
             // FAB "New Game"
             SmallFloatingActionButton(
-                onClick = onNewGameClick,
                 modifier = Modifier.align(Alignment.CenterEnd),
+                onClick = onNewGameClick,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
@@ -210,17 +213,20 @@ private fun GameHistoryRow(
     ) {
         // numero di rettangoli premuti
         Text(
+            // vincolo intrinseco che stabilizza l'allineamento orizzontale dei nodi adiacenti, indipendentemente dal numero di cifre
+            modifier = Modifier.widthIn(min = 30.dp), // larghezza minima per allineare 1 e 2 cifre
             text = "${record.maxLength}", // campo dal db
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center, // centra la singola cifra nello spazio
-            // vincolo intrinseco che stabilizza l'allineamento orizzontale dei nodi adiacenti, indipendentemente dal numero di cifre
-            modifier = Modifier.widthIn(min = 30.dp) // larghezza minima per allineare 1 e 2 cifre
+            textAlign = TextAlign.Center // centra la singola cifra nello spazio
         )
 
         // sequenza di rettangoli premuti
         Text(
+            modifier = Modifier
+                .weight(1f) // prende tutto lo spazio rimanente DOPO aver calcolato il testo a sx
+                .padding(start = 16.dp), // tiene una distanza di sicurezza dal contatore
             text = getColoredSequence(record), // chiamo la funzione implementata in SequenceFormatter.kt
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
@@ -228,10 +234,7 @@ private fun GameHistoryRow(
             lineHeight = 24.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis, // se la sequenza è troppo lunga, viene troncata
-            textAlign = TextAlign.End, // allineo la stringa a destra
-            modifier = Modifier
-                .weight(1f) // prende tutto lo spazio rimanente DOPO aver calcolato il testo a sx
-                .padding(start = 16.dp) // tiene una distanza di sicurezza dal contatore
+            textAlign = TextAlign.End // allineo la stringa a destra
         )
     }
 }

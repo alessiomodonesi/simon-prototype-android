@@ -78,10 +78,10 @@ class DetailActivity : ComponentActivity() {
                         )
 
                         DetailScreen(
-                            record = loadedRecord, // passo l'intero record
                             modifier = Modifier
                                 .padding(innerPadding)
-                                .padding(horizontal = symmetricCutout)
+                                .padding(horizontal = symmetricCutout),
+                            record = loadedRecord // passo l'intero record
                         )
                     }
                 }
@@ -93,19 +93,19 @@ class DetailActivity : ComponentActivity() {
 /**
  * schermata di dettaglio che mostra le statistiche e la sequenza visiva di una partita specifica.
  *
- * @param record l'oggetto GameRecord contenente i dati della partita da visualizzare.
  * @param modifier modificatore per gestire layout, padding e insets del notch.
+ * @param record l'oggetto GameRecord contenente i dati della partita da visualizzare.
  */
 @Composable
 fun DetailScreen(
-    record: GameRecord,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    record: GameRecord
 ) {
     // calcola i dati extra partendo dalla stringa del DB:
     // deserializza la stringa flat del DB allocando dinamicamente una List in base al delimitatore testuale
     val sequenceItems = if (record.sequence.isBlank()) emptyList() else record.sequence.split(", ")
     val totalLength = sequenceItems.size
-    
+
     // gli errori sono i colori dal punto dell'errore (identificato dall'asterisco "*") fino alla fine della sequenza
     val errorIndex = sequenceItems.indexOfFirst { it.startsWith("*") }.coerceAtLeast(0)
     val errorCount = if (totalLength > 0) totalLength - errorIndex else 0
@@ -118,13 +118,13 @@ fun DetailScreen(
     ) {
         // titolo
         Text(
+            modifier = Modifier.padding(bottom = 32.dp, top = 8.dp),
             text = stringResource(R.string.details_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.ExtraBold,
             color = MaterialTheme.colorScheme.primary,
             letterSpacing = 1.15.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 32.dp, top = 8.dp)
+            textAlign = TextAlign.Center
         )
 
         // contenitore principale per i dettagli (gestisce sfondo e spazio)
@@ -168,20 +168,20 @@ fun DetailScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
+                    modifier = Modifier.padding(bottom = 12.dp),
                     text = stringResource(R.string.computer_sequence_str),
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    modifier = Modifier.padding(bottom = 12.dp)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
 
                 // sequenza di rettangoli premuti
                 Text(
+                    modifier = Modifier.fillMaxWidth(),
                     text = getColoredSequence(record), // chiamo la funzione implementata in SequenceFormatter.kt
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    lineHeight = 36.sp,
-                    modifier = Modifier.fillMaxWidth()
+                    lineHeight = 36.sp
                 )
             }
         }
