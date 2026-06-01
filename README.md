@@ -2,8 +2,7 @@
 
 Progetto di Programmazione di Sistemi Embedded 2025/2026
 
-[![Release Finale](https://img.shields.io/github/v/tag/alessiomodonesi/simon-prototype-android/v1.0?label=Release%20Finale)](https://github.com/alessiomodonesi/simon-prototype-android/releases/tag/v1.0)
-[![Release Intermedia](https://img.shields.io/github/v/tag/alessiomodonesi/simon-prototype-android/v0.9?label=Release%20Intermedia)](https://github.com/alessiomodonesi/simon-prototype-android/releases/tag/v0.9)
+[![Latest Release](https://img.shields.io/github/v/release/alessiomodonesi/simon-prototype-android)](https://github.com/alessiomodonesi/simon-prototype-android/releases/latest)
 [![License](https://img.shields.io/github/license/alessiomodonesi/simon-prototype-android)](https://github.com/alessiomodonesi/simon-prototype-android/blob/main/LICENSE)
 
 ## Descrizione del Progetto
